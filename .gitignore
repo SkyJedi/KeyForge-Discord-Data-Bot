@@ -67,4 +67,5 @@ data/*
 .idea
 card_images/*
 fetchImages.js
+scrapper.js
 OLD
