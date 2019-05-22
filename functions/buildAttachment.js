@@ -11,7 +11,7 @@ const buildAttachment = async (data, name, lang) => {
 		if (!card.is_maverick) return await loadImage(`${path}card_images/${lang}/${card.expansion}/${card.card_number}.png`);
 		else {
 			return new Promise(resolve => {
-				const cardMav = loadImage(`${path}card_images/${lang}/${card.card_number}.png`),
+				const cardMav = loadImage(`${path}card_images/${lang}/${card.expansion}/${card.card_number}.png`),
 					maverick = loadImage(`${path}card_images/Maverick.png`),
 					house = loadImage(`${path}card_images/${card.house}.png`);
 				Promise.all([cardMav, maverick, house]).then(([cardMav, maverick, house]) => {

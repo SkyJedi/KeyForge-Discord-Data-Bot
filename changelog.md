@@ -1,3 +1,6 @@
+# 1.2.0
+    -updated data struture for new set
+    -added -pl -pt, -zh lang
 # 1.1.7
     !sealed
 # 1.1.6

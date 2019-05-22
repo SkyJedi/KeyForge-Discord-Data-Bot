@@ -50,7 +50,7 @@ const fetchCard = (name, lang) => {
 	if (final) return final;
 	final = cards[lang].find(card => card.card_title.toLowerCase().endsWith(name));
 	if (final) return final;
-	final = cards[lang].find(card => card.card_number === +name);
+	final = cards[lang].find(card => card.card_number === name);
 	return final;
 };
 
