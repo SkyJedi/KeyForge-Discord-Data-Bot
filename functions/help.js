@@ -33,7 +33,7 @@ const help = (msg, params) => {
 				.addField('More Info', '[Decks of KeyForge](https://decksofkeyforge.com/about?powered_by=archonMatrixDiscord)');
 			break;
 		default:
-			embed.addField(`${prefix}card cardName/card# (-en/-es/-it/-de/-fr)`, 'Searches and displays Card. Add -lang tag to specify language.')
+			embed.addField(`${prefix}card cardName/card# (-en/-es/-it/-de/-fr/-pl/-pt/-zh)`, 'Searches and displays Card. Add -lang tag to specify language.')
 				.addField(`${prefix}deck deckName`, 'Searches and displays Deck.')
 				.addField(`${prefix}randomhand deckName`, 'Draws 6 Random cards from selected deck.')
 				.addField(`${prefix}rule ruleName`, 'Searches and displays Rule.')

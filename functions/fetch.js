@@ -8,6 +8,7 @@ const path = require('../config').path;
 const deckSearchAPI = require('../config').deckSearchAPI;
 const kfcAPI = require('../config').kfcAPI;
 const dokAPI = require('../config').dokAPI;
+const dokKey = require('../config').dokKey;
 const KFCAuth = require('../config').KFCAuth;
 
 const fetchDeck = (name) => {
@@ -90,11 +91,11 @@ const fetchRandomDecks = (amount) => {
 const fetchDoK = (deckID) => {
 	return new Promise(resolve => {
 		const aveAERC = {a_rating: 7, e_rating: 20, r_rating: 1, c_rating: 13};
-		axios.get(`${dokAPI}${deckID}`)
+		axios.get(`${dokAPI}${deckID}`, dokKey)
 			.then(response => {
 				if (response.data) {
-					const {amberControl: A, expectedAmber: E, artifactControl: R, creatureControl: C, sasRating} = response.data.deck,
-						sas = `${sasRating} SAS`,
+					const {amberControl: A, expectedAmber: E, artifactControl: R, creatureControl: C, sasRating, cardsRating, synergyRating, antisynergyRating} = response.data.deck,
+						sas = `${sasRating} SAS = ${cardsRating} + ${synergyRating} - ${antisynergyRating}`,
 						deckAERC = `A: ${A} (${A - aveAERC.a_rating}) • E: ${E} (${E - aveAERC.e_rating}) • R: ${R} (${R - aveAERC.r_rating}) • C: ${C} (${C - aveAERC.c_rating})`;
 					resolve({sas, deckAERC});
 				} else resolve(['Unable to Retrieve SAS', 'Unable to Retrieve AERC']);

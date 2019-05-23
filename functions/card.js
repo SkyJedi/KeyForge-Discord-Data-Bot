@@ -2,6 +2,8 @@ const main = require('../index');
 const Discord = require('discord.js');
 const fetchCard = require('./fetch').fetchCard;
 const buildAttachment = require('./buildAttachment').buildAttachment;
+const sets = {341: 'CotA', 435: 'AoA'};
+
 
 const card = async (msg, params, client, lang, set) => {
 	const data = fetchCard(params.join(' '), lang, set);
@@ -10,7 +12,7 @@ const card = async (msg, params, client, lang, set) => {
 		const title = `${data.card_number}.png`;
 		const attachment = await buildAttachment([data], title, lang);
 		embed.setColor('031763')
-			.setDescription(`**[${data.card_title} #${data.card_number}](https://keyforge-compendium.com/cards/${data.card_number}?powered_by=archonMatrixDiscord)**`)
+			.setDescription(`**[${data.card_title} #${data.card_number} ${sets[data.expansion]}](https://keyforge-compendium.com/cards/${data.card_number}?powered_by=archonMatrixDiscord)** `)
 			.attachFile(attachment)
 			.setImage(`attachment://${title}`)
 			.setFooter(`Link provided by KeyForge Compendium`);

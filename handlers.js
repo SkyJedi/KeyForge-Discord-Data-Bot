@@ -1,8 +1,8 @@
 const knownCommands = require('./functions/index');
 const commandPrefix = require('./config').prefix;
 const version = require('./package').version;
-const langs = ['en', 'de', 'es', 'fr', 'it', 'pl', 'pt', 'zh'];
-const sets = {cota: 341, aoa: 435};
+const langs = require('./data').langs;
+const sets = require('./data').sets;
 
 
 // Called every time a message comes in:
