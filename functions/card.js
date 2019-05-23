@@ -3,8 +3,8 @@ const Discord = require('discord.js');
 const fetchCard = require('./fetch').fetchCard;
 const buildAttachment = require('./buildAttachment').buildAttachment;
 
-const card = async (msg, params, client, lang) => {
-	const data = fetchCard(params.join(' '), lang);
+const card = async (msg, params, client, lang, set) => {
+	const data = fetchCard(params.join(' '), lang, set);
 	const embed = new Discord.RichEmbed();
 	if (data) {
 		const title = `${data.card_number}.png`;

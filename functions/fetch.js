@@ -42,15 +42,15 @@ const buildCardList = (cardList, id) => {
 	});
 };
 
-const fetchCard = (name, lang) => {
+const fetchCard = (name, lang, set) => {
 	let final;
-	final = cards[lang].find(card => card.card_title.toLowerCase() === name);
+	final = cards[lang].find(card => card.card_title.toLowerCase() === name && (set ? card.expansion === set : true));
 	if (final) return final;
-	final = cards[lang].find(card => card.card_title.toLowerCase().startsWith(name));
+	final = cards[lang].find(card => card.card_title.toLowerCase().startsWith(name) && (set ? card.expansion === set : true));
 	if (final) return final;
-	final = cards[lang].find(card => card.card_title.toLowerCase().endsWith(name));
+	final = cards[lang].find(card => card.card_title.toLowerCase().endsWith(name)&& (set ? card.expansion === set : true));
 	if (final) return final;
-	final = cards[lang].find(card => card.card_number === name);
+	final = cards[lang].find(card => card.card_number === name && (set ? card.expansion === set : true));
 	return final;
 };
 

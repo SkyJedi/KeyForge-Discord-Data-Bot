@@ -20,4 +20,6 @@ Discord bot to make keyforge awesome
 - Scott McNeil
 - triplel
 - Xavi Santamaria
-
+- Matthew Weber
+- Scott Ferwerda
+- Haris

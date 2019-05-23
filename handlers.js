@@ -1,6 +1,9 @@
 const knownCommands = require('./functions/index');
 const commandPrefix = require('./config').prefix;
 const version = require('./package').version;
+const langs = ['en', 'de', 'es', 'fr', 'it', 'pl', 'pt', 'zh'];
+const sets = {cota: 341, aoa: 435};
+
 
 // Called every time a message comes in:
 const onMessage = (msg, client) => {
@@ -8,10 +11,15 @@ const onMessage = (msg, client) => {
 
 	// This isn't a command since it has no prefix:
 	if (!msg.content.includes(commandPrefix) && !msg.content.match(/[\[\]{}]/g)) return;
-	let params = [], commandName, lang = 'en', message = msg.content.toLowerCase();
+	let params = [], commandName, lang = 'en', set, message = msg.content.toLowerCase();
 
 	if (message.split(' ').some(a => a.startsWith('-'))) {
-		lang = message.split(' ').filter(a => a.startsWith('-'))[0].replace('-', '');
+		const flags = message.split(' ').filter(a => a.startsWith('-'));
+		flags.forEach(flag => {
+			flag = flag.slice(1);
+			if (langs.includes(flag)) lang = flag;
+			if (Object.keys(sets).includes(flag)) set = sets[flag];
+		});
 		message = message.split(' ').filter(a => !a.startsWith('-')).join(' ');
 	}
 
@@ -59,7 +67,7 @@ const onMessage = (msg, client) => {
 	// If the command is known, let's execute it:
 	if (commandName in knownCommands) {
 		console.log(`${msg.author.username}, ${commandName}, ${params}, ${new Date()}`);
-		knownCommands[commandName](msg, params, client, lang);
+		knownCommands[commandName](msg, params, client, lang, set);
 	}
 
 };

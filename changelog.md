@@ -1,3 +1,5 @@
+# 1.2.1
+    added -cota and -aoa flag for cards
 # 1.2.0
     -updated data struture for new set
     -added -pl -pt, -zh lang
