@@ -4,6 +4,7 @@ const fetchDeck = require('./fetch').fetchDeck;
 const fetchDeckADHD = require('./fetch').fetchDeckADHD;
 const fetchDoK = require('./fetch').fetchDoK;
 const emoji = require('./emoji').emoji;
+const sets = {341: 'CotA', 435: 'AoA'};
 
 const deck = async (msg, params) => {
 	const [deck, cards] = await fetchDeck(params.join('+'));
@@ -20,7 +21,7 @@ const deck = async (msg, params) => {
 				links = `[Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) **•** [KeyForge Compendium](https://keyforge-compendium.com/decks/${deck.id}?powered_by=archonMatrixDiscord) **•** [Burger Tokens](https://burgertokens.com/pages/keyforge-deck-analyzer?deck=${deck.id}&powered_by=archonMatrixDiscord) **•** [Decks of KeyForge](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord)`;
 
 			embed.setColor('178110')
-				.setTitle(deck.name)
+				.setTitle(`${deck.name} • ${sets[deck.expansion]}`)
 				.addField(houses + power, rarity + ', ' + mavericks)
 				.addField(cardTypes, deckADHD)
 				.addField(dokStats.sas, dokStats.deckAERC)

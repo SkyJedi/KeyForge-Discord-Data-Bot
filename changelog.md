@@ -1,3 +1,6 @@
+# 1.2.2 
+    -AoA updates
+    -added !errata
 # 1.2.1
     added -cota and -aoa flag for cards
 # 1.2.0

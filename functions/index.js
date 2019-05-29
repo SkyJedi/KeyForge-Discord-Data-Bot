@@ -3,6 +3,7 @@ exports.build = require('./build').build;
 exports.card = require('./card').card;
 exports.faq = require('./faq').faq;
 exports.deck = require('./deck').deck;
+exports.errata = require('./errata').errata;
 exports.help = require('./help').help;
 exports.invite = require('./invite').invite;
 exports.randomHand = require('./randomHand').randomHand;

@@ -35,6 +35,7 @@ const help = (msg, params) => {
 		default:
 			embed.addField(`${prefix}card cardName/card# (-en/-es/-it/-de/-fr/-pl/-pt/-zh)`, 'Searches and displays Card. Add -lang tag to specify language.')
 				.addField(`${prefix}deck deckName`, 'Searches and displays Deck.')
+				.addField(`${prefix}errata`, 'Shows all the cards that have been errata\'ed')
 				.addField(`${prefix}randomhand deckName`, 'Draws 6 Random cards from selected deck.')
 				.addField(`${prefix}rule ruleName`, 'Searches and displays Rule.')
 				.addField(`${prefix}invite`, 'Get the invite link.')

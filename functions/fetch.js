@@ -1,5 +1,4 @@
 const cards = require('../data/');
-const new_cards = require('../data/new_cards');
 const all_cards = require('../data/all_cards');
 const axios = require('axios');
 const fs = require('fs');
@@ -59,6 +58,7 @@ const fetchUnknownCard = async (cardId, deckId) => {
 	console.log(`${cardId} not found, fetching from the man from deck ${deckId}`);
 	const fetchedCards = await axios.get(`${deckSearchAPI}${deckId}/?links=cards`);
 	const card = fetchedCards.data._linked.cards.find(o => o.id === cardId);
+	const new_cards = require('../data/new_cards');
 	if (!new_cards.find(o => o.id === cardId)) {
 		fs.writeFile(`${path}/data/new_cards.json`, JSON.stringify(new_cards.concat(card)), (err) => {
 			if (err) throw err;
