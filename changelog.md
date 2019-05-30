@@ -1,6 +1,7 @@
 # 1.2.3
     -added all AoA Lang files
     -legacy in deck card
+    -fixed unknown cardfetch
 # 1.2.2 
     -AoA updates
     -added !errata
