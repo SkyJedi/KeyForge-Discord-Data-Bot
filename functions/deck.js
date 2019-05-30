@@ -14,15 +14,16 @@ const deck = async (msg, params) => {
 		Promise.all([deckADHD, dokStats]).then(([deckADHD, dokStats]) => {
 			const houses = deck._links.houses.map(house => emoji(house.toLowerCase())).join(' **•** '),
 				power = ` **•** ${deck.power_level} ${emoji('power')} **•** ${deck.chains} ${emoji('chains')} **•** ${deck.wins}W/${deck.losses}L`,
-				cardStats = getCardStats(cards),
+				cardStats = getCardStats(cards, deck.expansion),
 				cardTypes = Object.keys(cardStats.card_type).map(type => `${type}: ${cardStats.card_type[type]}`).join(' **•** '),
 				mavericks = `${emoji('maverick')}: ${cardStats.is_maverick}`,
+				legacy = `${emoji('legacy')}: ${cardStats.legacy}`,
 				rarity = Object.keys(cardStats.rarity).map(type => `${emoji(type.toLowerCase())}: ${cardStats.rarity[type]}`).join(', '),
 				links = `[Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) **•** [KeyForge Compendium](https://keyforge-compendium.com/decks/${deck.id}?powered_by=archonMatrixDiscord) **•** [Burger Tokens](https://burgertokens.com/pages/keyforge-deck-analyzer?deck=${deck.id}&powered_by=archonMatrixDiscord) **•** [Decks of KeyForge](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord)`;
 
 			embed.setColor('178110')
 				.setTitle(`${deck.name} • ${sets[deck.expansion]}`)
-				.addField(houses + power, rarity + ', ' + mavericks)
+				.addField(houses + power, rarity + ', ' + mavericks + legacy)
 				.addField(cardTypes, deckADHD)
 				.addField(dokStats.sas, dokStats.deckAERC)
 				.addField("Links", links)
@@ -33,7 +34,7 @@ const deck = async (msg, params) => {
 	} else main.sendMessage(msg, embed.setColor('FF0000').setDescription(`Deck - ${params.join(' ')}: not found!`));
 };
 
-const getCardStats = (cards) => {
+const getCardStats = (cards, expansion) => {
 	return {
 		card_type: cards.reduce((acc, card) => ({...acc, [card.card_type]: acc[card.card_type] + 1}),
 			{Action: 0, Artifact: 0, Creature: 0, Upgrade: 0}
@@ -42,6 +43,7 @@ const getCardStats = (cards) => {
 			{Common: 0, Uncommon: 0, Rare: 0, Special: 0}
 		),
 		is_maverick: cards.filter(card => card.is_maverick).length,
+		legacy: cards.filter(card=> !(card.expansion === expansion)).length
 	};
 };
 

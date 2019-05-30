@@ -1,5 +1,6 @@
 const cards = require('../data/');
 const all_cards = require('../data/all_cards');
+const new_cards = require('../data/new_cards');
 const axios = require('axios');
 const fs = require('fs');
 const _ = require('lodash');
@@ -33,8 +34,8 @@ const fetchDeckBasic = (id) => {
 };
 
 const buildCardList = (cardList, id) => {
-	return new Promise(resolve => {
-		const cards = cardList.map(async card => {
+	return new Promise(async resolve => {
+		const cards = await cardList.map(async card => {
 			const data = all_cards.find(o => o.id === card);
 			return data ? data : await fetchUnknownCard(card, id).catch(console.error);
 		});
@@ -48,24 +49,25 @@ const fetchCard = (name, lang, set) => {
 	if (final) return final;
 	final = cards[lang].find(card => card.card_title.toLowerCase().startsWith(name) && (set ? card.expansion === set : true));
 	if (final) return final;
-	final = cards[lang].find(card => card.card_title.toLowerCase().endsWith(name)&& (set ? card.expansion === set : true));
+	final = cards[lang].find(card => card.card_title.toLowerCase().endsWith(name) && (set ? card.expansion === set : true));
 	if (final) return final;
 	final = cards[lang].find(card => card.card_number === name && (set ? card.expansion === set : true));
 	return final;
 };
 
-const fetchUnknownCard = async (cardId, deckId) => {
-	console.log(`${cardId} not found, fetching from the man from deck ${deckId}`);
-	const fetchedCards = await axios.get(`${deckSearchAPI}${deckId}/?links=cards`);
-	const card = fetchedCards.data._linked.cards.find(o => o.id === cardId);
-	const new_cards = require('../data/new_cards');
-	if (!new_cards.find(o => o.id === cardId)) {
-		fs.writeFile(`${path}/data/new_cards.json`, JSON.stringify(new_cards.concat(card)), (err) => {
-			if (err) throw err;
-			console.log(`${cardId} has been added to new_cards.json`);
-		});
-	}
-	return card;
+const fetchUnknownCard =  (cardId, deckId) => {
+	return new Promise(async resolve => {
+		console.log(`${cardId} not found, fetching from the man`);
+		const fetchedCards = await axios.get(`http://www.keyforgegame.com/api/decks/${deckId}/?links=cards`);
+		const card = fetchedCards.data._linked.cards.find(o => o.id === cardId);
+		if (!new_cards.find(o => o.id === cardId)) {
+			fs.writeFile(`${path}/data/new_cards.json`, JSON.stringify(new_cards.concat(card)), (err) => {
+				if (err) throw err;
+				console.log(`${cardId} has been added to new_cards.json`);
+				resolve(card)
+			});
+		} else resolve(card);
+	});
 };
 
 const fetchDeckADHD = (deckID) => {
@@ -74,7 +76,7 @@ const fetchDeckADHD = (deckID) => {
 		axios.get(`${kfcAPI}decks/${deckID}.json`, KFCAuth)
 			.then(response => {
 				if (response.data) {
-					resolve(`${Object.keys(aveADHD).sort().map(type => `${_.toUpper(type.slice(0, 1))}: ${response.data[type].toFixed(1)} (${(response.data[type] - aveADHD[type]).toFixed(1)})`).join(' • ')}`);
+					resolve(`${Object.keys(aveADHD).sort().map(type => `**${_.toUpper(type.slice(0, 1))}: ${response.data[type].toFixed(1)}** (${(response.data[type] - aveADHD[type]).toFixed(1)})`).join(' • ')}`);
 				} else resolve(`ADHD unavailable, register https://keyforge-compendium.com/decks/${deckID}?powered_by=archonMatrixDiscord`);
 			}).catch(() => resolve(`ADHD not Found! KFC is non-responsive`));
 	});
@@ -90,13 +92,19 @@ const fetchRandomDecks = (amount) => {
 
 const fetchDoK = (deckID) => {
 	return new Promise(resolve => {
-		const aveAERC = {a_rating: 7, e_rating: 20, r_rating: 1, c_rating: 13};
+		const aveAERC = {a_rating: 8, e_rating: 19, r_rating: 1, c_rating: 13, d_rating: 6, p_rating: 7.1};
 		axios.get(`${dokAPI}${deckID}`, dokKey)
 			.then(response => {
 				if (response.data) {
-					const {amberControl: A, expectedAmber: E, artifactControl: R, creatureControl: C, sasRating, cardsRating, synergyRating, antisynergyRating} = response.data.deck,
+					const {
+							amberControl: A, expectedAmber: E,
+							artifactControl: R, creatureControl: C,
+							deckManipulation: D, effectivePower: P,
+							sasRating, cardsRating, synergyRating,
+							antisynergyRating, aercScore
+						} = response.data.deck,
 						sas = `${sasRating} SAS = ${cardsRating} + ${synergyRating} - ${antisynergyRating}`,
-						deckAERC = `A: ${A} (${A - aveAERC.a_rating}) • E: ${E} (${E - aveAERC.e_rating}) • R: ${R} (${R - aveAERC.r_rating}) • C: ${C} (${C - aveAERC.c_rating})`;
+						deckAERC = `AERC ${aercScore} = **A: ${A}** (${A - aveAERC.a_rating}) • **E: ${E}** (${E - aveAERC.e_rating}) • **R: ${R}** (${R - aveAERC.r_rating}) • **C: ${C}** (${C - aveAERC.c_rating}) • **D: ${D}** (${D - aveAERC.d_rating}) • **P: ${P}** (${P - aveAERC.p_rating})`;
 					resolve({sas, deckAERC});
 				} else resolve(['Unable to Retrieve SAS', 'Unable to Retrieve AERC']);
 			}).catch(() => resolve(['Unable to Retrieve SAS, DoK non-responsive', 'Unable to Retrieve AERC, DoK non-responsive']));
