@@ -1,3 +1,6 @@
+# 1.2.4
+    -switched sealed engine
+    -can pulled upto 5 sealed decks
 # 1.2.3
     -added all AoA Lang files
     -legacy in deck card

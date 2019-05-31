@@ -37,6 +37,7 @@ const help = (msg, params) => {
 				.addField(`${prefix}deck deckName`, 'Searches and displays Deck.')
 				.addField(`${prefix}errata`, 'Shows all the cards that have been errata\'ed')
 				.addField(`${prefix}randomhand deckName`, 'Draws 6 Random cards from selected deck.')
+				.addField(`${prefix}sealed X`, 'Pull X random decks.  (max 5)')
 				.addField(`${prefix}rule ruleName`, 'Searches and displays Rule.')
 				.addField(`${prefix}invite`, 'Get the invite link.')
 				.addField(`${prefix}version`, 'Get the version number of current bot.')

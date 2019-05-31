@@ -8,6 +8,7 @@ const path = require('../config').path;
 const deckSearchAPI = require('../config').deckSearchAPI;
 const kfcAPI = require('../config').kfcAPI;
 const dokAPI = require('../config').dokAPI;
+const randomAPI = require('../config').randomAPI;
 const dokKey = require('../config').dokKey;
 const KFCAuth = require('../config').KFCAuth;
 
@@ -16,8 +17,8 @@ const fetchDeck = (name) => {
 		axios.get(encodeURI(deckSearchAPI + '?search=' + name))
 			.then(async response => {
 				const deck = _.get(response, 'data.data[0]', false);
-				const cards = await buildCardList(_.get(deck, 'cards', []), _.get(deck, 'id', ''));
-				resolve([deck, cards]);
+				deck.cards = await buildCardList(_.get(deck, 'cards', []), _.get(deck, 'id', ''));
+				resolve(deck);
 			}).catch(console.error);
 	});
 };
@@ -55,7 +56,7 @@ const fetchCard = (name, lang, set) => {
 	return final;
 };
 
-const fetchUnknownCard =  (cardId, deckId) => {
+const fetchUnknownCard = (cardId, deckId) => {
 	return new Promise(async resolve => {
 		console.log(`${cardId} not found, fetching from the man`);
 		const fetchedCards = await axios.get(`http://www.keyforgegame.com/api/decks/${deckId}/?links=cards`);
@@ -72,19 +73,20 @@ const fetchUnknownCard =  (cardId, deckId) => {
 
 const fetchDeckADHD = (deckID) => {
 	return new Promise(resolve => {
-		const aveADHD = {a_rating: 17.57, b_rating: 18.28, e_rating: 7.58, c_rating: 5.51};
 		axios.get(`${kfcAPI}decks/${deckID}.json`, KFCAuth)
 			.then(response => {
 				if (response.data) {
-					resolve(`${Object.keys(aveADHD).sort().map(type => `**${_.toUpper(type.slice(0, 1))}: ${response.data[type].toFixed(1)}** (${(response.data[type] - aveADHD[type]).toFixed(1)})`).join(' • ')}`);
+					const {a_rating: A, b_rating: B, e_rating: E, c_rating: C, consistency_rating} = response.data,
+						final = `A: ${+A.toFixed(2)} • B: ${+B.toFixed(2)} • E: ${+E.toFixed(2)} • C: ${+C.toFixed(2)} • ${(+consistency_rating).toFixed(3)}`;
+					resolve(final);
 				} else resolve(`ADHD unavailable, register https://keyforge-compendium.com/decks/${deckID}?powered_by=archonMatrixDiscord`);
 			}).catch(() => resolve(`ADHD not Found! KFC is non-responsive`));
 	});
 };
 
-const fetchRandomDecks = (amount) => {
-	return new Promise(resolve => {
-		axios.get(`${kfcAPI}decks/random/${amount}`, KFCAuth)
+const fetchRandomDecks = () => {
+	return new Promise( resolve => {
+		axios.get(encodeURI(randomAPI))
 			.then(response => resolve(response.data))
 			.catch(() => resolve(false));
 	});
@@ -92,7 +94,6 @@ const fetchRandomDecks = (amount) => {
 
 const fetchDoK = (deckID) => {
 	return new Promise(resolve => {
-		const aveAERC = {a_rating: 8, e_rating: 19, r_rating: 1, c_rating: 13, d_rating: 6, p_rating: 7.1};
 		axios.get(`${dokAPI}${deckID}`, dokKey)
 			.then(response => {
 				if (response.data) {
@@ -101,10 +102,10 @@ const fetchDoK = (deckID) => {
 							artifactControl: R, creatureControl: C,
 							deckManipulation: D, effectivePower: P,
 							sasRating, cardsRating, synergyRating,
-							antisynergyRating, aercScore
+							antisynergyRating
 						} = response.data.deck,
 						sas = `${sasRating} SAS = ${cardsRating} + ${synergyRating} - ${antisynergyRating}`,
-						deckAERC = `AERC ${aercScore} = **A: ${A}** (${A - aveAERC.a_rating}) • **E: ${E}** (${E - aveAERC.e_rating}) • **R: ${R}** (${R - aveAERC.r_rating}) • **C: ${C}** (${C - aveAERC.c_rating}) • **D: ${D}** (${D - aveAERC.d_rating}) • **P: ${P}** (${P - aveAERC.p_rating})`;
+						deckAERC = `A: ${A} • E: ${E} • R: ${R} • C: ${C} • D: ${D} • P: ${P}`;
 					resolve({sas, deckAERC});
 				} else resolve(['Unable to Retrieve SAS', 'Unable to Retrieve AERC']);
 			}).catch(() => resolve(['Unable to Retrieve SAS, DoK non-responsive', 'Unable to Retrieve AERC, DoK non-responsive']));

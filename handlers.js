@@ -3,12 +3,21 @@ const commandPrefix = require('./config').prefix;
 const version = require('./package').version;
 const langs = require('./data').langs;
 const sets = require('./data').sets;
+const sites = ['https://www.keyforgegame.com/deck-details/',
+	'https://decksofkeyforge.com/decks/',
+	'https://keyforge-compendium.com/decks/',
+	'https://burgertokens.com/pages/keyforge-deck-analyzer?deck='
+];
 
 
 // Called every time a message comes in:
 const onMessage = (msg, client) => {
 	if (msg.author.bot) return; // Ignore messages from the bot
 
+	if (sites.some(a=>msg.content.startsWith(a))) {
+		const [site] = sites.filter(a => msg.content.startsWith(a));
+		msg.content = `${commandPrefix}d ${msg.content.replace(site, '').slice(0,36)}`
+	}
 	// This isn't a command since it has no prefix:
 	if (!msg.content.includes(commandPrefix) && !msg.content.match(/[\[\]{}]/g)) return;
 	let params = [], commandName, lang = 'en', set, message = msg.content.toLowerCase();
