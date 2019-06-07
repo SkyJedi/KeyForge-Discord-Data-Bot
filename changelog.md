@@ -1,3 +1,8 @@
+# 1.2.6
+    -adding in legacy card images for RH
+    
+# 1.2.5
+    -fixed !rh
 # 1.2.4
     -switched sealed engine
     -can pulled upto 5 sealed decks

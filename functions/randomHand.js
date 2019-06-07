@@ -5,15 +5,15 @@ const buildAttachment = require('./buildAttachment').buildAttachment;
 const _ = require('lodash');
 
 const randomHand = async (msg, params, client, lang) => {
-	let [deck, cards] = await fetchDeck(params.join('+'));
+	const deck = await fetchDeck(params.join('+'));
 	const embed = new Discord.RichEmbed();
 	if (deck) {
 		//grab 6 random cards
-		const randomCards = [...Array(6)].map(() => _.pullAt(cards.sort(() => Math.random() - 0.5), _.random(cards.length - 1))[0]).sort((a, b) => a.card_number - b.card_number);
+		const randomCards = _.sortBy([...Array(6)].map(() => _.pullAt(deck.cards.sort(() => Math.random() - 0.5), _.random(deck.cards.length - 1))[0]), ['house', 'card_number']);
 
 		//build Title
 		const name = randomCards.map(card => `${card.card_number}`).join('_') + '.png';
-		const attachment = await buildAttachment(randomCards, name, lang);
+		const attachment = await buildAttachment(randomCards, name, lang, deck);
 
 		embed.setColor('007f00')
 			.setTitle('Random hand from ' + deck.name)

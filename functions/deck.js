@@ -47,12 +47,13 @@ const getCardStats = (cards, expansion) => {
 		card_type: cards.reduce((acc, card) => ({...acc, [card.card_type]: acc[card.card_type] + 1}),
 			{Action: 0, Artifact: 0, Creature: 0, Upgrade: 0}
 		),
-		rarity: cards.reduce((acc, card) => ({...acc, [card.rarity]: acc[card.rarity] + 1}),
-			{Common: 0, Uncommon: 0, Rare: 0, Special: 0}
-		),
+		rarity: cards.reduce((acc, card) =>
+			({...acc, [rarityFix(card.rarity)]: acc[rarityFix(card.rarity)] ? acc[rarityFix(card.rarity)] + 1: 1}), {}),
 		is_maverick: cards.filter(card => card.is_maverick).length,
 		legacy: cards.filter(card => !(card.expansion === expansion)).length
 	};
 };
+
+const rarityFix = rarity => rarity === 'FIXED' || rarity === 'Variant' ? 'Special': rarity;
 
 exports.deck = deck;
