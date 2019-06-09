@@ -2,7 +2,7 @@ const main = require('../index');
 const Discord = require('discord.js');
 const _ = require('lodash');
 
-const stats = async (msg, params, client) => {
+const stats = async (msg, params, flags, client) => {
 	let stats = `Currently there are ${client.shard.count} shards.\n`;
 	await client.shard.broadcastEval('this.guilds.size')
 		.then(results => stats += `Currently on ${results.reduce((prev, val) => prev + val, 0)} servers.\n`).catch(console.error);

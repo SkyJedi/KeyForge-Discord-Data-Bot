@@ -11,6 +11,8 @@ const dokAPI = require('../config').dokAPI;
 const randomAPI = require('../config').randomAPI;
 const dokKey = require('../config').dokKey;
 const KFCAuth = require('../config').KFCAuth;
+const langs = require('../data').langs;
+const sets = require('../data').sets;
 
 const fetchDeck = (name) => {
 	return new Promise(resolve => {
@@ -44,15 +46,19 @@ const buildCardList = (cardList, id) => {
 	});
 };
 
-const fetchCard = (name, lang, set) => {
+const fetchCard = (search, flags) => {
+	const set = getFlagSet(flags),
+		lang = getFlagLang(flags);
 	let final;
-	final = cards[lang].find(card => card.card_title.toLowerCase() === name && (set ? card.expansion === set : true));
+	final = cards[lang].find(card => card.card_title.toLowerCase() === search && (set ? card.expansion === set : true));
 	if (final) return final;
-	final = cards[lang].find(card => card.card_title.toLowerCase().startsWith(name) && (set ? card.expansion === set : true));
+	final = cards[lang].find(card => card.card_title.toLowerCase().startsWith(search) && (set ? card.expansion === set : true));
 	if (final) return final;
-	final = cards[lang].find(card => card.card_title.toLowerCase().endsWith(name) && (set ? card.expansion === set : true));
+	final = cards[lang].find(card => card.card_title.toLowerCase().endsWith(search) && (set ? card.expansion === set : true));
 	if (final) return final;
-	final = cards[lang].find(card => card.card_number === name && (set ? card.expansion === set : true));
+	final = cards[lang].find(card => card.card_number === search && (set ? card.expansion === set : true));
+	if (final) return final;
+	final = cards[lang].find(card => card.card_title.toLowerCase().replace(/['"’`“”\d]/g, '').includes(search.replace(/['"’`“”\d]/g, '')) && (set ? card.expansion === set : true));
 	return final;
 };
 
@@ -85,7 +91,7 @@ const fetchDeckADHD = (deckID) => {
 };
 
 const fetchRandomDecks = () => {
-	return new Promise( resolve => {
+	return new Promise(resolve => {
 		axios.get(encodeURI(randomAPI))
 			.then(response => resolve(response.data))
 			.catch(() => resolve(false));
@@ -126,6 +132,16 @@ const fetchFAQ = (card_number, search) => {
 	});
 };
 
+const getFlagSet = (flags) => {
+	const final = _.filter(sets, set => flags.includes(set.flag.toLowerCase()));
+	return _.get(final, '[0].set_number');
+};
+
+const getFlagLang = (flags) => {
+	const final = _.filter(flags, flag => langs.includes(flag));
+	return _.get(final, '[0]', 'en');
+};
+
 exports.fetchDeck = fetchDeck;
 exports.fetchDeckBasic = fetchDeckBasic;
 exports.fetchCard = fetchCard;
@@ -134,3 +150,5 @@ exports.fetchDoK = fetchDoK;
 exports.fetchFAQ = fetchFAQ;
 exports.fetchUnknownCard = fetchUnknownCard;
 exports.fetchRandomDecks = fetchRandomDecks;
+exports.getFlagLang = getFlagLang;
+exports.getFlagSet = getFlagSet;

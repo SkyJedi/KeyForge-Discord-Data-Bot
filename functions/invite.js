@@ -1,7 +1,7 @@
 const main = require('../index');
 const Discord = require('discord.js');
 
-const invite = (msg, params, client) => {
+const invite = (msg, params, flags, client) => {
 	const embed = new Discord.RichEmbed()
 		.setColor('777777')
 		.setTitle(`**Invite**`)

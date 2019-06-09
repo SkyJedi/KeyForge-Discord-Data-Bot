@@ -1,13 +1,14 @@
 const main = require('../index');
 const Discord = require('discord.js');
+const _ = require('lodash');
 const fetchDeckBasic = require('./fetch').fetchDeckBasic;
 const fetchRandomDecks = require('./fetch').fetchRandomDecks;
 
 const emoji = require('./emoji').emoji;
 
-const sealed = (msg, params) => {
-	let arr = [...Array(2)];
-	if (params[0]) arr = [...Array(Number.isInteger(+params[0]) ? (+params[0]>5 ? 5: +params[0]) : 2)];
+const sealed = (msg, params, flags) => {
+	const number = _.get(flags.filter(flag => Number.isInteger(+flag)), '[0]', 2),
+		arr = [...Array(+number)];
 	const embed = new Discord.RichEmbed().setColor('ffff00'),
 		deckIDs = arr.map(() => fetchRandomDecks());
 	Promise.all(deckIDs).then(ids => {

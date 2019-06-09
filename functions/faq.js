@@ -2,20 +2,20 @@ const main = require('../index');
 const Discord = require('discord.js');
 const fetchCard = require('./fetch').fetchCard;
 const fetchFAQ = require('./fetch').fetchFAQ;
-const path = require('../config').path;
+const buildAttachment = require('./buildAttachment').buildAttachment;
 const emoji = require('./emoji').emoji;
 
-const faq = async (msg, params, client, lang) => {
-	const data = fetchCard(params.length > 1 ? params.slice(0, -1).join(' ') : params.join(' '), lang);
+const faq = async (msg, params, flags) => {
+	const data = fetchCard(params.length > 1 ? params.slice(0, -1).join(' ') : params.join(' '), flags);
 	const embed = new Discord.RichEmbed();
 	if (data) {
 		const link = `https://keyforge-compendium.com/cards/${data.card_number}?powered_by=archonMatrixDiscord`,
 			searchTerm = params.length > 1 ? params.slice(-1).join() : '',
 			faqs = await fetchFAQ(data.card_number, searchTerm),
-			house = emoji(data.house.toLowerCase()),
-			rarity = emoji(data.rarity.toLowerCase()),
 			title = `${data.card_number}.png`,
-			attachment = new Discord.Attachment(`${path}card_images/${lang}/${data.expansion}/${data.card_number}.png`, title);
+			attachment = await buildAttachment([data], title, flags),
+			house = emoji(data.house.toLowerCase()),
+			rarity = emoji(data.rarity.toLowerCase());
 		embed.setColor('ffa500')
 			.setTitle(`${data.card_title} #${data.card_number}`)
 			.attachFile(attachment)

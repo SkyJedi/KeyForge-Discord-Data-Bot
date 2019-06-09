@@ -2,9 +2,11 @@ const Discord = require('discord.js');
 const {createCanvas, loadImage} = require('canvas');
 const path = require('../config').path;
 const _ = require('lodash');
+const getFlagLang = require('./fetch').getFlagLang;
 
-const buildAttachment = async (data, name, lang, deck) => {
+const buildAttachment = async (data, name, flags, deck) => {
 	if (0 >= data.length) return;
+	const lang = getFlagLang(flags);
 
 	//build new png
 	const canvas = createCanvas((300 * data.length) + (data.length > 1 && 5 * data.length), 420);
