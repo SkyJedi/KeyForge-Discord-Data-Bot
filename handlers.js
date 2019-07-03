@@ -11,29 +11,31 @@ const sites = ['https://www.keyforgegame.com/deck-details/',
 // Called every time a message comes in:
 const onMessage = (msg, client) => {
 	if (msg.author.bot) return; // Ignore messages from the bot
+	let params = [], commandName, flags = [];
+
 
 	if (sites.some(a => msg.content.startsWith(a))) {
 		const [site] = sites.filter(a => msg.content.startsWith(a));
-		msg.content = `${commandPrefix}d ${msg.content.replace(site, '').slice(0, 36)}`
+		msg.content = `${commandPrefix}d ${msg.content.replace(site, '').slice(0, 36)}`;
+		flags = ['delete', ...flags];
 	}
 	// This isn't a command since it has no prefix:
 	if (!msg.content.includes(commandPrefix) && !msg.content.match(/[\[\]{}]/g)) return;
-	let params = [], commandName, message = msg.content.toLowerCase(), flags;
 
-	flags = message.split(' ').filter(a => a.startsWith('-')).map(flag => flag.slice(1));
-	message = message.split(' ').filter(a => !a.startsWith('-')).join(' ');
+	flags = [...flags, ...msg.content.split(' ').filter(a => a.startsWith('-')).map(flag => flag.slice(1))];
+	msg.content = msg.content.split(' ').filter(a => !a.startsWith('-')).join(' ');
 
-	if (message.includes(commandPrefix)) {
-		if (message.startsWith(commandPrefix)) params = message.substr(1).split(' ');
-		else params = message.split(commandPrefix)[1].split(' ');
+	if (msg.content.includes(commandPrefix)) {
+		if (msg.content.startsWith(commandPrefix)) params = msg.content.substr(1).split(' ');
+		else params = msg.content.split(commandPrefix)[1].split(' ');
 		commandName = params[0].toLowerCase();
 		params = params.splice(1);
-	} else if (message.match(/]/g) && message.match(/\[/g)) {
-		let parse = message.split('[');
+	} else if (msg.content.match(/]/g) && msg.content.match(/\[/g)) {
+		let parse = msg.content.split('[');
 		parse.forEach(sub => sub.includes(']') && params.push(sub.split(']')[0]));
 		commandName = 'brackets';
-	} else if (message.match(/}/g) && message.match(/{/g)) {
-		let parse = message.split('{');
+	} else if (msg.content.match(/}/g) && msg.content.match(/{/g)) {
+		let parse = msg.content.split('{');
 		parse.forEach(sub => sub.includes('}') && params.push(sub.split('}')[0]));
 		commandName = 'deck';
 	}

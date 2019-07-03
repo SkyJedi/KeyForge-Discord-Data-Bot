@@ -7,13 +7,10 @@ const fetchDoK = require('./fetch').fetchDoK;
 const emoji = require('./emoji').emoji;
 const sets = {341: 'CotA', 435: 'AoA'};
 
-const deck = async (msg, params) => {
-	let deck, del;
+const deck = async (msg, params, flags) => {
+	let deck;
 
-	if (params.length === 1 && params[0].length === 36) {
-		deck = await fetchDeckBasic(params[0]);
-		del = true;
-	}
+	if (params.length === 1 && params[0].length === 36) deck = await fetchDeckBasic(params[0]);
 	else deck = await fetchDeck(params.join('+'));
 
 	const embed = new Discord.RichEmbed();
@@ -37,7 +34,7 @@ const deck = async (msg, params) => {
 				.addField("Links", links)
 				//.setImage(`https://keyforge-compendium.com/decks/${deck.id}/image.png`)
 				.setFooter(`Data fetch ${new Date()} • Posted by: @${msg.author.username}`);
-			main.sendMessage(msg, {embed}, null, del);
+			main.sendMessage(msg, {embed}, null, flags);
 		}).catch(console.error);
 	} else main.sendMessage(msg, embed.setColor('FF0000').setDescription(`Deck - ${params.join(' ')}: not found!`));
 };

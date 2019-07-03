@@ -1,9 +1,11 @@
+# 1.2.8
+    -HD cards
+    -removed "card not found" message
 # 1.2.7
     added flags const
     new loose card search
 # 1.2.6
     -adding in legacy card images for RH
-    
 # 1.2.5
     -fixed !rh
 # 1.2.4

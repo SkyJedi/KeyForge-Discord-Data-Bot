@@ -13,11 +13,11 @@ const card = async (msg, params, flags) => {
 		const attachment = await buildAttachment([data], title, flags);
 		const set = _.get(sets.filter(set => data.expansion === set.set_number), '[0].flag', 'ERROR');
 		embed.setColor('031763')
-			.setDescription(`**[${data.card_title} #${data.card_number} ${set}](https://keyforge-compendium.com/cards/${data.card_number}?powered_by=archonMatrixDiscord)** `)
+			.setDescription(`**[${data.card_title} #${data.card_number} ${set}](https://keyforge-compendium.com/sets/${data.expansion === 341 ? 1 : 2}/cards/${data.card_number}?powered_by=archonMatrixDiscord)** `)
 			.attachFile(attachment)
 			.setImage(`attachment://${title}`)
 			.setFooter(`Link provided by KeyForge Compendium`);
-	} else embed.setColor('FF0000').setDescription(`Card: ${params.join(' ')}: not found!`);
+	} else return; //embed.setColor('FF0000').setDescription(`Card: ${params.join(' ')}: not found!`);
 
 	main.sendMessage(msg, {embed});
 };

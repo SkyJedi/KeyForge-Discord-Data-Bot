@@ -9,9 +9,9 @@ client.login(config.token).catch(error => console.error(error));
 client.on('message', msg => handlers.onMessage(msg, client));
 client.on('ready', () => handlers.onReady(client));
 
-const sendMessage = (message, text, attachment, del) => {
+const sendMessage = (message, text, attachment, flags = []) => {
 	message.channel.send(text, attachment && attachment).catch(console.error);
-	if (del) message.delete()
+	if (flags.includes('delete')) message.delete();
 };
 
 exports.sendMessage = sendMessage;
