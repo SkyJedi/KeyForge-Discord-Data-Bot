@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const _ = require('lodash');
 const fetchCard = require('./fetch').fetchCard;
 const buildAttachment = require('./buildAttachment').buildAttachment;
-const sets = require('../data').sets;
+const sets = require('../card_data').sets;
 
 const card = async (msg, params, flags) => {
 	const data = fetchCard(params.join(' '), flags);
@@ -17,7 +17,7 @@ const card = async (msg, params, flags) => {
 			.attachFile(attachment)
 			.setImage(`attachment://${title}`)
 			.setFooter(`Link provided by KeyForge Compendium`);
-	} else return; //embed.setColor('FF0000').setDescription(`Card: ${params.join(' ')}: not found!`);
+	} else embed.setColor('FF0000').setDescription(`Card: ${params.join(' ')}: not found!`);
 
 	main.sendMessage(msg, {embed});
 };

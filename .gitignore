@@ -60,12 +60,13 @@ typings/
 # next.js build output
 .next
 
-config.js
+config.json
 node_modules/
 .DS_Store
 data/*
 .idea
 card_images/*
+card_data/*
 fetchImages.js
 scrapper.js
 OLD

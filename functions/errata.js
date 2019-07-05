@@ -1,5 +1,5 @@
 const main = require('../index');
-const errataText = require('../data/errata');
+const errataText = require('../card_data/errata');
 const Discord = require('discord.js');
 
 const errata = async (msg) => {

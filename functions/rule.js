@@ -1,6 +1,6 @@
 const main = require('../index');
 const Discord = require('discord.js');
-const rules = require('../data/rules');
+const rules = require('../card_data/rules');
 const _ = require('lodash');
 
 const rule = (msg, params) => {

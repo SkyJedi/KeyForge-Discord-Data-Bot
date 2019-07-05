@@ -1,3 +1,6 @@
+# 1.2.9
+    -optimized params maker
+    -optimizer buildAttachment
 # 1.2.8
     -HD cards
     -removed "card not found" message

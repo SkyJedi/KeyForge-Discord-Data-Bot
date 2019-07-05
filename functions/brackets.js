@@ -18,7 +18,7 @@ const brackets = async (msg, params, flags) => {
 			.attachFile(attachment)
 			.setImage(`attachment://${name}`)
 			.setFooter(`Links provided by KeyForge Compendium`);
-	} else embed.setColor('FF0000').setDescription(error);
+	} else return; // embed.setColor('FF0000').setDescription(error);
 
 	main.sendMessage(msg, {embed});
 };

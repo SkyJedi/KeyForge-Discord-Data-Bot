@@ -1,4 +1,4 @@
-const emojiDB = require('../data/emoji');
+const emojiDB = require('../card_data/emoji');
 
 const findEmoji = (str, client) => {
 	return new Promise(resolve => {

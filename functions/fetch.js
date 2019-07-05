@@ -1,18 +1,18 @@
-const cards = require('../data/');
-const all_cards = require('../data/all_cards');
-const new_cards = require('../data/new_cards');
+const cards = require('../card_data/');
+const all_cards = require('../card_data/all_cards');
+const new_cards = require('../card_data/new_cards');
 const axios = require('axios');
 const fs = require('fs');
 const _ = require('lodash');
-const path = require('../config').path;
+const path = require('path');
 const deckSearchAPI = require('../config').deckSearchAPI;
 const kfcAPI = require('../config').kfcAPI;
 const dokAPI = require('../config').dokAPI;
 const randomAPI = require('../config').randomAPI;
 const dokKey = require('../config').dokKey;
 const KFCAuth = require('../config').KFCAuth;
-const langs = require('../data').langs;
-const sets = require('../data').sets;
+const langs = require('../card_data').langs;
+const sets = require('../card_data').sets;
 
 const fetchDeck = (name) => {
 	return new Promise(resolve => {
@@ -56,7 +56,7 @@ const fetchCard = (search, flags) => {
 	if (final) return final;
 	final = cards[lang].find(card => card.card_title.toLowerCase().endsWith(search) && (set ? card.expansion === set : true));
 	if (final) return final;
-	final = cards[lang].find(card => card.card_number === search && (set ? card.expansion === set : true));
+	final = cards[lang].find(card => +card.card_number === +search && (set ? card.expansion === set : true));
 	if (final) return final;
 	final = cards[lang].find(card => card.card_title.toLowerCase().replace(/['"’`“”\d]/g, '').includes(search.replace(/['"’`“”\d]/g, '')) && (set ? card.expansion === set : true));
 	return final;
@@ -68,7 +68,7 @@ const fetchUnknownCard = (cardId, deckId) => {
 		const fetchedCards = await axios.get(`http://www.keyforgegame.com/api/decks/${deckId}/?links=cards`);
 		const card = fetchedCards.data._linked.cards.find(o => o.id === cardId);
 		if (!new_cards.find(o => o.id === cardId)) {
-			fs.writeFile(`${path}/data/new_cards.json`, JSON.stringify(new_cards.concat(card)), (err) => {
+			fs.writeFile(path.join(__dirname, '../card_data/new_cards.json'), JSON.stringify(new_cards.concat(card)), (err) => {
 				if (err) throw err;
 				console.log(`${cardId} has been added to new_cards.json`);
 				resolve(card)
