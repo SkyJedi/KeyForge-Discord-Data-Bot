@@ -20,10 +20,10 @@ const buildAttachment = async (data, name, flags, deck) => {
 		ctxCard.drawImage(cardImg, 0, 0, width, height);
 
 		if (card.is_maverick) {
-			const maverick = await loadImage(path.join(__dirname, `../card_images/Maverick.png`)),
+			const maverick = await loadImage(path.join(__dirname, `../card_images/card_Maverick.png`)),
 				house = await loadImage(path.join(__dirname, `../card_images/${card.house}.png`));
 			ctxCard.drawImage(house, 24, 22, 126, 126);
-			ctxCard.drawImage(maverick, 232, 22, 126, 126);
+			ctxCard.drawImage(maverick, -14, 10, 600, 840);
 		}
 
 		if (_.get(deck, 'set_era_cards.Legacy', []).includes(card.id)) {

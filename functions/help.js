@@ -7,22 +7,15 @@ const help = (msg, params) => {
 		.setTitle('Help')
 		.setColor('2D7C2F');
 	switch (params[0]) {
-		case 'adhd':
-		case 'abce':
-			embed
-				.addField('A: Æmber', 'An approximation of how much Æmber your deck will generate with minimal piloting. Many cards can create more Æmber than this projects, but few will do less. Decks with Higher Æmber rankings are decks with more Æmber on play cards, more reap abilities, more stealing, and in general better Æmber production.')
-				.addField('B: Board', 'Represents your decks ability to control the board. It is influenced by your creature count, ability to damage enemy creatures, ability to clear the board, and ability to destroy artifacts.')
-				.addField('C: Æmber Control', 'Ability to control your opponents Æmber supply, either through stealing, capturing, or destroying their Æmber.')
-				.addField('E: Efficiency', 'Looser metric that applies to card effects that will allow you to play or use more cards in a turn. Archiving your cards, drawing cards, and activating cards from other factions all play in. It also covers effects that limit your opponents ability to play cards.')
-				.addField('More Info', '[KeyForge Compendium](https://keyforge-compendium.com/?powered_by=archonMatrixDiscord)');
-
-			break;
 		case 'aerc':
 			embed
 				.addField('A: Æmber Control', 'Æmber control represents the amount of aember the deck can deny your opponent for forging keys. Lost and stolen aember is counted at a 1:1 ratio, while captured aember and increased key cost is counted at a 2:1 ratio, as those can be reclaimed or avoided.')
 				.addField('E: Expected Æmber', 'This rating is an approximation of how much aember you can expect a card to generate. It does not take the ability of creatures to reap into account, unless they are a special skill that will usually generate extra aember, like Dew Faerie\'s "Reap: Gain 1 Æmber Some cards that are difficult to play have their base aember reduced, and some cards that immediately allow the use of creatures have aember added on the assumption creatures will be used to reap.')
 				.addField('R: Artifact Control', 'Artifact control is increased by cards that destroy enemy artifacts, or deny your opponent the use of them. 1 point is approximately equal to destroying one artifact.')
 				.addField('C: Creature Control', 'Creature control is increased by cards that directly damage, destroy, disable or prevent the play of enemy creatures. It does not account for your creatures\' power, although it does account for special abilities that encourage using a creature to fight. 1 point is approximately equal to destroying one 3 power creature or stunning 2 creatures.')
+				.addField('D: Deck Manipulation', 'Deck Manipulation is increased by effects that allow you to play extra cards, or reduce the number your opponent can play. It is reduced by cards that prevent you from playing or drawing cards, like cards that give chains or Bad Penny. 1 point is approximately equal to drawing two cards, archiving a random card, or preventing your opponent from drawing 2.')
+				.addField('P: Effective Power', 'While raw total creature power in a deck is a useful statistic, it has many flaws that Effective Creature Power is made to address. For example, there are many powerful creatures with significant downsides, like Kelifi Dragon or Grommid. These creatures have had their effective power reduced.\nThere are other creatures and abilities that contribute extra power, like Blood of Titans or Zyzzix the Many. These have had their effective power increased.\nEffective power is also increased by Armor at a 1:1 ratio.\nWhen included in total AERC score, Effective Power is divided by 10 and rounded to the nearest 0.5.')
+				.addField('AERC Score (AERC)', 'To calculate the AERC score divide Effective Power by 10, round to the nearest 0.5, then add that with the other AERC scores. The AERC score represents how good a deck is at the core mechanics of the game: generating and controlling aember, controlling artifacts, controlling creatures, drawing cards, and building a board of creatures. It doesn\'t directly represent how good a deck is.')
 				.addField('More Info', '[Decks of KeyForge](https://decksofkeyforge.com/about?powered_by=archonMatrixDiscord)');
 			break;
 		case 'sas':

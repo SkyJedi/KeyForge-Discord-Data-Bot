@@ -42,7 +42,7 @@ const buildCardList = (cardList, id) => {
 			const data = all_cards.find(o => o.id === card);
 			return data ? data : await fetchUnknownCard(card, id).catch(console.error);
 		});
-		Promise.all(cards).then(cards => resolve(cards))
+		Promise.all(cards).then(cards => resolve(cards));
 	});
 };
 
@@ -71,24 +71,28 @@ const fetchUnknownCard = (cardId, deckId) => {
 			fs.writeFile(path.join(__dirname, '../card_data/new_cards.json'), JSON.stringify(new_cards.concat(card)), (err) => {
 				if (err) throw err;
 				console.log(`${cardId} has been added to new_cards.json`);
-				resolve(card)
+				resolve(card);
 			});
 		} else resolve(card);
 	});
 };
 
-const fetchDeckADHD = (deckID) => {
-	return new Promise(resolve => {
-		axios.get(`${kfcAPI}decks/${deckID}.json`, KFCAuth)
-			.then(response => {
-				if (response.data) {
-					const {a_rating: A, b_rating: B, e_rating: E, c_rating: C, consistency_rating} = response.data,
-						final = `A: ${+A.toFixed(2)} • B: ${+B.toFixed(2)} • E: ${+E.toFixed(2)} • C: ${+C.toFixed(2)} • ${(+consistency_rating).toFixed(3)}`;
-					resolve(final);
-				} else resolve(`ADHD unavailable, register https://keyforge-compendium.com/decks/${deckID}?powered_by=archonMatrixDiscord`);
-			}).catch(() => resolve(`ADHD not Found! KFC is non-responsive`));
-	});
-};
+// const fetchRandomDecks = (set) => {
+// 	return new Promise(resolve => {
+// 		let randomPage = _.random(0, set ? (set === 341 ? 94200 : 19999) : 114000);
+// 		console.log(set, randomPage)
+// 		const url = `${deckSearchAPI}?page=${randomPage}${set ? `&expansion=${set}`: ''}`
+// 		console.log(url)
+// 		axios.get(encodeURI(url))
+// 			.then(async response => {
+// 				const randomDeck = response.data.data.length-1;
+// 				console.log(randomDeck)
+// 				const deck = _.get(response, `data.data[${_.random(0, randomDeck)}`, false);
+// 				deck.cards = await buildCardList(_.get(deck, 'cards', []), _.get(deck, 'id', ''));
+// 				resolve(deck);
+// 			}).catch(console.error);
+// 	});
+// };
 
 const fetchRandomDecks = () => {
 	return new Promise(resolve => {
@@ -107,10 +111,9 @@ const fetchDoK = (deckID) => {
 							amberControl: A, expectedAmber: E,
 							artifactControl: R, creatureControl: C,
 							deckManipulation: D, effectivePower: P,
-							sasRating, cardsRating, synergyRating,
-							antisynergyRating
+							sasRating
 						} = response.data.deck,
-						sas = `${sasRating} SAS = ${cardsRating} + ${synergyRating} - ${antisynergyRating}`,
+						sas = `${sasRating} SAS • ${A + E + R + C + D + (P / 10)} AERC`,
 						deckAERC = `A: ${A} • E: ${E} • R: ${R} • C: ${C} • D: ${D} • P: ${P}`;
 					resolve({sas, deckAERC});
 				} else resolve(['Unable to Retrieve SAS', 'Unable to Retrieve AERC']);
@@ -128,7 +131,7 @@ const fetchFAQ = (card_number, search) => {
 						if (question === search || question.startsWith(search) || question.includes(search)) return faq;
 					}).filter(Boolean);
 				resolve(final);
-			}).catch(console.error)
+			}).catch(console.error);
 	});
 };
 
@@ -145,7 +148,6 @@ const getFlagLang = (flags) => {
 exports.fetchDeck = fetchDeck;
 exports.fetchDeckBasic = fetchDeckBasic;
 exports.fetchCard = fetchCard;
-exports.fetchDeckADHD = fetchDeckADHD;
 exports.fetchDoK = fetchDoK;
 exports.fetchFAQ = fetchFAQ;
 exports.fetchUnknownCard = fetchUnknownCard;

@@ -1,3 +1,6 @@
+# 1.3.0
+    -removed embed from card stuffs and rh
+    combined brackets and card into cards
 # 1.2.9
     -optimized params maker
     -optimizer buildAttachment
