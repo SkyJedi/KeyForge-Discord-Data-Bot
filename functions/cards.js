@@ -1,8 +1,8 @@
 const main = require('../index');
-const fetchCard = require('./fetch').fetchCard;
-const buildAttachment = require('./buildAttachment').buildAttachment;
-const sets = require('../card_data').sets;
-const _ = require('lodash');
+const {fetchCard} = require('./fetch');
+const {buildAttachment} = require('./buildAttachment');
+const {sets} = require('../card_data');
+const {get} = require('lodash');
 
 const cards = async (msg, params, flags) => {
 	params = params.slice(0, 5);
@@ -13,7 +13,7 @@ const cards = async (msg, params, flags) => {
 	if (0 < final.length) {
 		const name = final.map(card => `${card.card_number}`).join('_') + '.png';
 		attachment = await buildAttachment(final, name, flags);
-		text = final.map(card => `**${card.card_title} • #${card.card_number} • ${_.get(sets.filter(set => card.expansion === set.set_number), '[0].flag', 'ERROR')}**`).join('\n');
+		text = final.map(card => `**${card.card_title} • #${card.card_number} • ${get(sets.filter(set => card.expansion === set.set_number), '[0].flag', 'ERROR')}**`).join('\n');
 	} else return;
 
 	main.sendMessage(msg, text, attachment);

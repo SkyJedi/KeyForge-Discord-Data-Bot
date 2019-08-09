@@ -1,15 +1,13 @@
 const main = require('../index');
 const Discord = require('discord.js');
-const _ = require('lodash');
-const fetchDeckBasic = require('./fetch').fetchDeckBasic;
-const fetchRandomDecks = require('./fetch').fetchRandomDecks;
-const sets = require('../card_data').sets;
-
-const emoji = require('./emoji').emoji;
+const {get} = require('lodash');
+const {getFlagNumber, fetchDeckBasic, fetchRandomDecks} = require('./fetch');
+const {sets} = require('../card_data');
+const {emoji} = require('./emoji');
 
 const sealed = (msg, params, flags) => {
-	const number = _.get(flags.filter(flag => Number.isInteger(+flag)), '[0]', 2),
-		set = _.get(sets.filter(set => flags.includes(set.set_number)), '[0].flag', false),
+	const number = getFlagNumber(flags, 2),
+		set = get(sets.filter(set => flags.includes(set.set_number)), '[0].flag', false),
 		arr = [...Array(+number)];
 	const embed = new Discord.RichEmbed().setColor('ffff00'),
 		deckIDs = arr.map(() => fetchRandomDecks(set));

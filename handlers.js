@@ -1,8 +1,7 @@
 const knownCommands = require('./functions/index');
 const commandPrefix = require('./config').prefix;
 const version = require('./package').version;
-const _ = require('lodash');
-
+const {dropWhile, get} = require('lodash');
 
 // Called every time a message comes in:
 const onMessage = (msg, client) => {
@@ -11,13 +10,13 @@ const onMessage = (msg, client) => {
 		commandName = params.map(a => a.startsWith(commandPrefix) && a).filter(Boolean).join().slice(1),
 		flags = params.filter(a => a.startsWith('-')).map(flag => flag.slice(1)),
 		types = {
-			cards: /\[(.*?)\]/,
+			brackets: /\[(.*?)\]/,
 			d: /[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/,
 			deck: /\{(.*?)\}/,
 		};
 
 	if (commandName) {
-		params = _.dropWhile(params, a => !a.includes(commandPrefix))
+		params = dropWhile(params, a => !a.includes(commandPrefix))
 			.slice(1)
 			.filter(a => !a.startsWith('-'));
 	} else {
@@ -26,8 +25,8 @@ const onMessage = (msg, client) => {
 			do {
 				let param = message.match(types[a]);
 				if (param) {
-					arr.push(_.get(param, '1', param[0]));
-					message = message.replace(_.get(param, '0'), '');
+					arr.push(get(param, '1', param[0]));
+					message = message.replace(get(param, '0'), '');
 				}
 			} while (message.match(types[a]));
 			if (arr.length > 0) {
@@ -43,6 +42,10 @@ const onMessage = (msg, client) => {
 	switch (commandName) {
 		case 'c':
 		case 'card':
+			commandName = 'cards';
+			params = [params.join(' ')];
+			break;
+		case 'brackets':
 			commandName = 'cards';
 			break;
 		case 'd':

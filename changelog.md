@@ -1,3 +1,8 @@
+# 1.3.1
+    -fixed emoji build
+    -add number flag for random hand
+    -cleaned up requires
+    -updated packages
 # 1.3.0
     -removed embed from card stuffs and rh
     combined brackets and card into cards

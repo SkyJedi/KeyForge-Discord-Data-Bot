@@ -26,16 +26,16 @@ const help = (msg, params) => {
 				.addField('More Info', '[Decks of KeyForge](https://decksofkeyforge.com/about?powered_by=archonMatrixDiscord)');
 			break;
 		default:
-			embed.addField(`${prefix}card cardName/card# (-en/-es/-it/-de/-fr/-pl/-pt/-zh)`, 'Searches and displays Card. Add -lang tag to specify language.')
+			embed.addField(`${prefix}card cardName/card# (-en/-es/-it/-de/-fr/-pl/-pt/-th/-zh)`, 'Searches and displays Card. Add -lang tag to specify language.')
 				.addField(`${prefix}deck deckName`, 'Searches and displays Deck.')
 				.addField(`${prefix}errata`, 'Shows all the cards that have been errata\'ed')
-				.addField(`${prefix}randomhand deckName`, 'Draws 6 Random cards from selected deck.')
+				.addField(`${prefix}randomhand deckName (-5/-7)`, 'Draws 6 Random cards from selected deck.')
 				.addField(`${prefix}sealed -X`, 'Pull X random decks.  (max 5)')
 				.addField(`${prefix}rule ruleName`, 'Searches and displays Rule.')
 				.addField(`${prefix}invite`, 'Get the invite link.')
 				.addField(`${prefix}version`, 'Get the version number of current bot.')
 				.addField(`${prefix}faq cardName searchTerm`, 'Get any FAQ of the specified card containing specific term.')
-				.addField(`[card name 1] [card name 2] (-en/-es/-it/-de/-fr)`, 'Searches and displays card as an single image (up to 5) [] required. Add -lang tag to specify language.')
+				.addField(`[card name 1] [card name 2] (-en/-es/-it/-de/-fr/-pl/-pt/-th/-zh)`, 'Searches and displays card as an single image (up to 5) [] required. Add -lang tag to specify language.')
 				.addField('Bot Information', '[SkyJedi\'s Bot Emporium](https://discord.gg/G8au6FH)')
 				.addField('Other Info', ' [KeyForge Discord Server](https://discordapp.com/invite/PcTGhr9) \n[KeyForge](https://www.fantasyflightgames.com/en/products/keyforge/?powered_by=archonMatrixDiscord) by Fantasy Flight Game');
 			break;

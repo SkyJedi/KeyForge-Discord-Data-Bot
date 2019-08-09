@@ -1,9 +1,8 @@
 const main = require('../index');
 const Discord = require('discord.js');
-const fetchCard = require('./fetch').fetchCard;
-const fetchFAQ = require('./fetch').fetchFAQ;
-const buildAttachment = require('./buildAttachment').buildAttachment;
-const emoji = require('./emoji').emoji;
+const {fetchCard, fetchFAQ,} = require('./fetch');
+const {buildAttachment} = require('./buildAttachment');
+const {emoji} = require('./emoji');
 
 const faq = async (msg, params, flags) => {
 	const data = fetchCard(params.length > 1 ? params.slice(0, -1).join(' ') : params.join(' '), flags);
@@ -22,7 +21,7 @@ const faq = async (msg, params, flags) => {
 			.setThumbnail(`attachment://${title}`)
 			.addField(`${house} • ${rarity} • ${data.card_type}`, data.card_text);
 		faqs.forEach(faq => {
-			embed.addField(faq.question.length < 250 ? faq.question : `${faq.question.slice(0, 250)}...`, faq.answer.length < 925 ? faq.answer : `${faq.answer.slice(0, 925)}...[(con't)](${link})`)
+			embed.addField(faq.question.length < 250 ? faq.question : `${faq.question.slice(0, 250)}...`, faq.answer.length < 925 ? faq.answer : `${faq.answer.slice(0, 925)}...[(con't)](${link})`);
 		});
 		if (faqs.length <= 0) embed.addField(`There are no FAQs currently for ${data.card_title} with the search term "${searchTerm}"`, `[Ask the Developers](https://www.fantasyflightgames.com/en/contact/rules/?powered_by=archonMatrixDiscord)`);
 		embed.addField('Data Provided by', `[KeyForge Compendium](https://keyforge-compendium.com/?powered_by=archonMatrixDiscord)`);

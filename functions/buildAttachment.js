@@ -1,8 +1,8 @@
 const Discord = require('discord.js');
 const {createCanvas, loadImage} = require('canvas');
 const path = require('path');
-const _ = require('lodash');
-const getFlagLang = require('./fetch').getFlagLang;
+const {get} = require('lodash');
+const {getFlagLang} = require('./fetch');
 const width = 600, height = 840;
 
 const buildAttachment = async (data, name, flags, deck) => {
@@ -26,7 +26,7 @@ const buildAttachment = async (data, name, flags, deck) => {
 			ctxCard.drawImage(maverick, -14, 10, 600, 840);
 		}
 
-		if (_.get(deck, 'set_era_cards.Legacy', []).includes(card.id)) {
+		if (get(deck, 'set_era_cards.Legacy', []).includes(card.id)) {
 			const legacy = await loadImage(path.join(__dirname, `../card_images/Legacy.png`));
 			ctxCard.drawImage(legacy, 232, 330, 126, 157.5);
 		}

@@ -3,23 +3,17 @@ const all_cards = require('../card_data/all_cards');
 const new_cards = require('../card_data/new_cards');
 const axios = require('axios');
 const fs = require('fs');
-const _ = require('lodash');
+const {get, filter} = require('lodash');
 const path = require('path');
-const deckSearchAPI = require('../config').deckSearchAPI;
-const kfcAPI = require('../config').kfcAPI;
-const dokAPI = require('../config').dokAPI;
-const randomAPI = require('../config').randomAPI;
-const dokKey = require('../config').dokKey;
-const KFCAuth = require('../config').KFCAuth;
-const langs = require('../card_data').langs;
-const sets = require('../card_data').sets;
+const {deckSearchAPI, kfcAPI, dokAPI, randomAPI, dokKey, KFCAuth} = require('../config');
+const {langs, sets} = require('../card_data');
 
 const fetchDeck = (name) => {
 	return new Promise(resolve => {
 		axios.get(encodeURI(deckSearchAPI + '?search=' + name))
 			.then(async response => {
-				const deck = _.get(response, 'data.data[0]', false);
-				deck.cards = await buildCardList(_.get(deck, 'cards', []), _.get(deck, 'id', ''));
+				const deck = get(response, 'data.data[0]', false);
+				deck.cards = await buildCardList(get(deck, 'cards', []), get(deck, 'id', ''));
 				resolve(deck);
 			}).catch(console.error);
 	});
@@ -29,8 +23,8 @@ const fetchDeckBasic = (id) => {
 	return new Promise(resolve => {
 		axios.get(encodeURI(deckSearchAPI + id))
 			.then(async response => {
-				const deck = _.get(response, 'data.data', false);
-				deck.cards = await buildCardList(_.get(deck, 'cards', []), _.get(deck, 'id', ''));
+				const deck = get(response, 'data.data', false);
+				deck.cards = await buildCardList(get(deck, 'cards', []), get(deck, 'id', ''));
 				resolve(deck);
 			}).catch(console.error);
 	});
@@ -125,7 +119,7 @@ const fetchFAQ = (card_number, search) => {
 	return new Promise(resolve => {
 		axios.get(`${kfcAPI}cards/${card_number}.json`, KFCAuth)
 			.then(response => {
-				const data = _.get(response, 'data.faqs', []),
+				const data = get(response, 'data.faqs', []),
 					final = data.map(faq => {
 						const question = faq.question.toLowerCase();
 						if (question === search || question.startsWith(search) || question.includes(search)) return faq;
@@ -136,13 +130,19 @@ const fetchFAQ = (card_number, search) => {
 };
 
 const getFlagSet = (flags) => {
-	const final = _.filter(sets, set => flags.includes(set.flag.toLowerCase()));
-	return _.get(final, '[0].set_number');
+	const final = filter(sets, set => flags.includes(set.flag.toLowerCase()));
+	return get(final, '[0].set_number');
 };
 
 const getFlagLang = (flags) => {
-	const final = _.filter(flags, flag => langs.includes(flag));
-	return _.get(final, '[0]', 'en');
+	const final = filter(flags, flag => langs.includes(flag));
+	return get(final, '[0]', 'en');
+};
+
+const getFlagNumber = (flags, defaultNumber = 0) => {
+	const final = +(get(filter(flags, flag => Number.isInteger(+flag)), '[0]'));
+	if (final) return final;
+	else return defaultNumber;
 };
 
 exports.fetchDeck = fetchDeck;
@@ -154,3 +154,4 @@ exports.fetchUnknownCard = fetchUnknownCard;
 exports.fetchRandomDecks = fetchRandomDecks;
 exports.getFlagLang = getFlagLang;
 exports.getFlagSet = getFlagSet;
+exports.getFlagNumber = getFlagNumber;

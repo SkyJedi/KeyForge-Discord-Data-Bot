@@ -1,10 +1,9 @@
 const main = require('../index');
 const Discord = require('discord.js');
-const fetchDeck = require('./fetch').fetchDeck;
-const fetchDeckBasic = require('./fetch').fetchDeckBasic;
-const fetchDoK = require('./fetch').fetchDoK;
-const emoji = require('./emoji').emoji;
-const sets = {341: 'CotA', 435: 'AoA'};
+const {fetchDeck, fetchDeckBasic, fetchDoK} = require('./fetch');
+const {emoji} = require('./emoji');
+const {sets} = require('../card_data');
+const {get} = require('lodash');
 
 const deck = async (msg, params, flags) => {
 	let deck;
@@ -25,10 +24,10 @@ const deck = async (msg, params, flags) => {
 				rarity = ['Special', 'Rare', 'Uncommon', 'Common'].map(type => {
 					if (cardStats.rarity[type]) return `${emoji(type.toLowerCase())}: ${cardStats.rarity[type]}`;
 				}).filter(Boolean).join(', '),
-				links = `[Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) **•** [Decks of KeyForge](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord) **•** [Burger Tokens](https://burgertokens.com/pages/keyforge-deck-analyzer?deck=${deck.id}&powered_by=archonMatrixDiscord)`;
-
+				links = `[Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) **•** [Decks of KeyForge](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord) **•** [Burger Tokens](https://burgertokens.com/pages/keyforge-deck-analyzer?deck=${deck.id}&powered_by=archonMatrixDiscord)`,
+				set = get(sets.filter(set => deck.expansion === set.set_number), '[0].flag', 'ERROR');
 			embed.setColor('178110')
-				.setTitle(` ${deck.name} • ${sets[deck.expansion]}`)
+				.setTitle(` ${deck.name} • ${set}`)
 				.addField(houses + power, cardTypes)
 				.addField(rarity + ', ' + mavericks + legacy, dokStats.sas)
 				.addField(dokStats.deckAERC, links)
@@ -44,12 +43,15 @@ const getCardStats = (cards, expansion) => {
 			{Action: 0, Artifact: 0, Creature: 0, Upgrade: 0}
 		),
 		rarity: cards.reduce((acc, card) =>
-			({...acc, [rarityFix(card.rarity)]: acc[rarityFix(card.rarity)] ? acc[rarityFix(card.rarity)] + 1: 1}), {}),
+			({
+				...acc,
+				[rarityFix(card.rarity)]: acc[rarityFix(card.rarity)] ? acc[rarityFix(card.rarity)] + 1 : 1
+			}), {}),
 		is_maverick: cards.filter(card => card.is_maverick).length,
 		legacy: cards.filter(card => !(card.expansion === expansion)).length
 	};
 };
 
-const rarityFix = rarity => rarity === 'FIXED' || rarity === 'Variant' ? 'Special': rarity;
+const rarityFix = rarity => rarity === 'FIXED' || rarity === 'Variant' ? 'Special' : rarity;
 
 exports.deck = deck;
