@@ -12,11 +12,14 @@ const rule = (msg, params) => {
 	if (key) {
 		embed.setColor('1DE5C7')
 			.setTitle(`RULE - ${upperCase(key)}`)
-			.setDescription(rules[key]);
-	}
-	else embed.setColor('FF0000').setDescription(`Rule: ${params.join(' ')} not found`);
+			.setDescription(format(rules[key]));
+	} else embed.setColor('FF0000').setDescription(`Rule: ${params.join(' ')} not found`);
 
 	main.sendMessage(msg, {embed});
+};
+
+const format = (text) => {
+	return text.replace(/([a-z\d_-]+):/gi, "**$1:**");
 };
 
 exports.rule = rule;

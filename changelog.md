@@ -1,3 +1,8 @@
+# 1.3.3
+    added amberpips
+    simplified rules lookup to use the same JSON as the twitch bot
+# 1.3.2
+    -randomCard
 # 1.3.1
     -fixed emoji build
     -add number flag for random hand

@@ -5,6 +5,7 @@ exports.deck = require('./deck').deck;
 exports.errata = require('./errata').errata;
 exports.help = require('./help').help;
 exports.invite = require('./invite').invite;
+exports.randomCard = require('./randomCard').randomCard;
 exports.randomHand = require('./randomHand').randomHand;
 exports.rule = require('./rule').rule;
 exports.stats = require('./stats').stats;

@@ -20,6 +20,7 @@ const deck = async (msg, params, flags) => {
 				cardStats = getCardStats(deck.cards, deck.expansion),
 				cardTypes = Object.keys(cardStats.card_type).map(type => `${type}: ${cardStats.card_type[type]}`).join(' **•** '),
 				mavericks = `${emoji('maverick')}: ${cardStats.is_maverick}`,
+				amber = `${emoji('aember')}: ${cardStats.amber}`,
 				legacy = `${emoji('legacy')}: ${cardStats.legacy}`,
 				rarity = ['Special', 'Rare', 'Uncommon', 'Common'].map(type => {
 					if (cardStats.rarity[type]) return `${emoji(type.toLowerCase())}: ${cardStats.rarity[type]}`;
@@ -29,7 +30,7 @@ const deck = async (msg, params, flags) => {
 			embed.setColor('178110')
 				.setTitle(` ${deck.name} • ${set}`)
 				.addField(houses + power, cardTypes)
-				.addField(rarity + ', ' + mavericks + legacy, dokStats.sas)
+				.addField(amber + ', ' + rarity + ', ' + mavericks + ', ' + legacy, dokStats.sas)
 				.addField(dokStats.deckAERC, links)
 				.setFooter(`Posted by: @${msg.author.username}`);
 			main.sendMessage(msg, {embed}, null, flags);
@@ -39,6 +40,7 @@ const deck = async (msg, params, flags) => {
 
 const getCardStats = (cards, expansion) => {
 	return {
+		amber: cards.reduce((acc, card) => acc + card.amber, 0),
 		card_type: cards.reduce((acc, card) => ({...acc, [card.card_type]: acc[card.card_type] + 1}),
 			{Action: 0, Artifact: 0, Creature: 0, Upgrade: 0}
 		),

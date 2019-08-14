@@ -62,9 +62,13 @@ const onMessage = (msg, client) => {
 			commandName = 'version';
 			break;
 		case 'rh':
-		case 'random':
 		case 'randomhand':
 			commandName = 'randomHand';
+			break;
+		case 'rc':
+		case 'random':
+		case 'randomcard':
+			commandName = 'randomCard';
 			break;
 		default:
 			break;
