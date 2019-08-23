@@ -12,14 +12,13 @@ const rule = (msg, params) => {
 	if (key) {
 		embed.setColor('1DE5C7')
 			.setTitle(`RULE - ${upperCase(key)}`)
-			.setDescription(format(rules[key]));
-	} else embed.setColor('FF0000').setDescription(`Rule: ${params.join(' ')} not found`);
-
-	main.sendMessage(msg, {embed});
+			.setDescription(format(rules[key]))
+			.setFooter("Data pulled from Official rules v1.3 May, 2019")
+			.setURL("https://images-cdn.fantasyflightgames.com/filer_public/f9/a2/f9a28865-cd96-4f36-97e5-0f8ea75288c0/keyforge_rulebook_v9-compressed.pdf");
+		main.sendMessage(msg, {embed});
+	}
 };
 
-const format = (text) => {
-	return text.replace(/([a-z\d_-]+):/gi, "**$1:**");
-};
+const format = (text) => text.replace(/([a-z\d_-]+):/gi, "**$1:**");
 
 exports.rule = rule;

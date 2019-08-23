@@ -2,7 +2,7 @@ const main = require('../index');
 const errataText = require('../card_data/errata');
 const Discord = require('discord.js');
 
-const errata = async (msg) => {
+const errata = (msg) => {
 	const embed = new Discord.RichEmbed()
 		.setColor('4c4cff')
 		.setTitle('Card Errata');

@@ -1,3 +1,5 @@
+# 1.3.4
+    changed faq to official rules
 # 1.3.3
     added amberpips
     simplified rules lookup to use the same JSON as the twitch bot

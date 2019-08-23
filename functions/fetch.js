@@ -1,11 +1,12 @@
 const cards = require('../card_data/');
 const all_cards = require('../card_data/all_cards');
 const new_cards = require('../card_data/new_cards');
+const faq = require('../card_data/faq');
 const axios = require('axios');
 const fs = require('fs');
 const {get, filter} = require('lodash');
 const path = require('path');
-const {deckSearchAPI, kfcAPI, dokAPI, randomAPI, dokKey, KFCAuth} = require('../config');
+const {deckSearchAPI, dokAPI, randomAPI, dokKey} = require('../config');
 const {langs, sets} = require('../card_data');
 
 const fetchDeck = (name) => {
@@ -115,18 +116,8 @@ const fetchDoK = (deckID) => {
 	});
 };
 
-const fetchFAQ = (card_number, search) => {
-	return new Promise(resolve => {
-		axios.get(`${kfcAPI}cards/${card_number}.json`, KFCAuth)
-			.then(response => {
-				const data = get(response, 'data.faqs', []),
-					final = data.map(faq => {
-						const question = faq.question.toLowerCase();
-						if (question === search || question.startsWith(search) || question.includes(search)) return faq;
-					}).filter(Boolean);
-				resolve(final);
-			}).catch(console.error);
-	});
+const fetchFAQ = (params) => {
+	return faq.find(x => params.every(y => x.question.toLowerCase().includes(y.toLowerCase())));
 };
 
 const getFlagSet = (flags) => {

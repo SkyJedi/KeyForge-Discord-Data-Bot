@@ -32,7 +32,7 @@ const deck = async (msg, params, flags) => {
 				.addField(houses + power, cardTypes)
 				.addField(amber + ', ' + rarity + ', ' + mavericks + ', ' + legacy, dokStats.sas)
 				.addField(dokStats.deckAERC, links)
-				.setFooter(`Posted by: @${msg.author.username}`);
+				.setFooter(`Posted by: @${msg.member.nickname ? msg.member.nickname : msg.author.username}`);
 			main.sendMessage(msg, {embed}, null, flags);
 		}).catch(console.error);
 	} else main.sendMessage(msg, embed.setColor('FF0000').setDescription(`Deck - ${params.join(' ')}: not found!`));

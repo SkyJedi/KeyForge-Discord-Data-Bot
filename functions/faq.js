@@ -1,33 +1,22 @@
 const main = require('../index');
 const Discord = require('discord.js');
-const {fetchCard, fetchFAQ,} = require('./fetch');
-const {buildAttachment} = require('./buildAttachment');
-const {emoji} = require('./emoji');
+const {fetchFAQ} = require('./fetch');
 
 const faq = async (msg, params, flags) => {
-	const data = fetchCard(params.length > 1 ? params.slice(0, -1).join(' ') : params.join(' '), flags);
-	const embed = new Discord.RichEmbed();
+	const data = fetchFAQ(params, flags);
 	if (data) {
-		const link = `https://keyforge-compendium.com/cards/${data.card_number}?powered_by=archonMatrixDiscord`,
-			searchTerm = params.length > 1 ? params.slice(-1).join() : '',
-			faqs = await fetchFAQ(data.card_number, searchTerm),
-			title = `${data.card_number}.png`,
-			attachment = await buildAttachment([data], title, flags),
-			house = emoji(data.house.toLowerCase()),
-			rarity = emoji(data.rarity.toLowerCase());
-		embed.setColor('ffa500')
-			.setTitle(`${data.card_title} #${data.card_number}`)
-			.attachFile(attachment)
-			.setThumbnail(`attachment://${title}`)
-			.addField(`${house} • ${rarity} • ${data.card_type}`, data.card_text);
-		faqs.forEach(faq => {
-			embed.addField(faq.question.length < 250 ? faq.question : `${faq.question.slice(0, 250)}...`, faq.answer.length < 925 ? faq.answer : `${faq.answer.slice(0, 925)}...[(con't)](${link})`);
-		});
-		if (faqs.length <= 0) embed.addField(`There are no FAQs currently for ${data.card_title} with the search term "${searchTerm}"`, `[Ask the Developers](https://www.fantasyflightgames.com/en/contact/rules/?powered_by=archonMatrixDiscord)`);
-		embed.addField('Data Provided by', `[KeyForge Compendium](https://keyforge-compendium.com/?powered_by=archonMatrixDiscord)`);
-	} else embed.setColor('FF0000').setDescription(`Card: ${params.join(' ')}: not found!`);
+		const embed = new Discord.RichEmbed()
+			.setColor('ffa500')
+			.setTitle(data.question)
+			.setDescription(format(data.answer))
+			.setFooter("Data pulled from Official rules v1.3 May, 2019")
+			.setURL("https://images-cdn.fantasyflightgames.com/filer_public/f9/a2/f9a28865-cd96-4f36-97e5-0f8ea75288c0/keyforge_rulebook_v9-compressed.pdf");
 
-	main.sendMessage(msg, {embed});
+		main.sendMessage(msg, {embed});
+	}
 };
+
+const format = (text) => text.replace(/([a-z\d_-]+):/gi, "**$1:**");
+
 
 exports.faq = faq;
