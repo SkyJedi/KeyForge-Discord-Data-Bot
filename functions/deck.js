@@ -1,11 +1,12 @@
 const main = require('../index');
 const Discord = require('discord.js');
-const {fetchDeck, fetchDeckBasic, fetchDoK} = require('./fetch');
+const {fetchDeck, fetchDeckBasic, fetchDoK, getFlagLang} = require('./fetch');
 const {emoji} = require('./emoji');
 const {sets} = require('../card_data');
 const {get} = require('lodash');
 
 const deck = async (msg, params, flags) => {
+	const lang = getFlagLang(flags);
 	let deck;
 	if (0 >= params.length) return;
 	if (params.length === 1 && params[0].length === 36) deck = await fetchDeckBasic(params[0]);
@@ -13,6 +14,7 @@ const deck = async (msg, params, flags) => {
 
 	const embed = new Discord.RichEmbed();
 	if (deck) {
+		console.log(`https://images.skyjedi.com/${deck.id}/${lang}/deck_list/`);
 		const dokStats = fetchDoK(deck.id);
 		Promise.all([dokStats]).then(([dokStats]) => {
 			const houses = deck._links.houses.map(house => emoji(house.toLowerCase())).join(' **•** '),
@@ -30,8 +32,9 @@ const deck = async (msg, params, flags) => {
 			embed.setColor('178110')
 				.setTitle(` ${deck.name} • ${set}`)
 				.addField(houses + power, cardTypes)
-				.addField(amber + ', ' + rarity + ', ' + mavericks + ', ' + legacy, dokStats.sas)
+				.addField(amber + ', ' + rarity + ', ' + mavericks + ', ' + legacy, dokStats.sas + ' **•** ' + dokStats.sasStar)
 				.addField(dokStats.deckAERC, links)
+				.setImage(`https://images.skyjedi.com/custom/${deck.id}/${lang}/deck_list/`)
 				.setFooter(`Posted by: @${msg.member.nickname ? msg.member.nickname : msg.author.username}`);
 			main.sendMessage(msg, {embed}, null, flags);
 		}).catch(console.error);

@@ -106,11 +106,12 @@ const fetchDoK = (deckID) => {
 							amberControl: A, expectedAmber: E,
 							artifactControl: R, creatureControl: C,
 							deckManipulation: D, effectivePower: P,
-							sasRating
+							sasRating, sasPercentile
 						} = response.data.deck,
 						sas = `${sasRating} SAS • ${A + E + R + C + D + (P / 10)} AERC`,
-						deckAERC = `A: ${A} • E: ${E} • R: ${R} • C: ${C} • D: ${D} • P: ${P}`;
-					resolve({sas, deckAERC});
+						deckAERC = `A: ${A} • E: ${E} • R: ${R} • C: ${C} • D: ${D} • P: ${P}`,
+						sasStar = sasStarRating(sasPercentile);
+					resolve({sas, deckAERC, sasStar});
 				} else resolve(['Unable to Retrieve SAS', 'Unable to Retrieve AERC']);
 			}).catch(() => resolve(['Unable to Retrieve SAS, DoK non-responsive', 'Unable to Retrieve AERC, DoK non-responsive']));
 	});
@@ -118,6 +119,35 @@ const fetchDoK = (deckID) => {
 
 const fetchFAQ = (params) => {
 	return faq.find(x => params.every(y => x.question.toLowerCase().includes(y.toLowerCase())));
+};
+
+const sasStarRating = (x) => {
+	switch (true) {
+		case (x >= 99.99):
+			return '✮✮✮✮✮';
+		case (x >= 99.9):
+			return '★★★★★';
+		case (x >= 99):
+			return '★★★★½';
+		case (x >= 90):
+			return '★★★★';
+		case (x >= 75):
+			return '★★★½';
+		case (x >= 25):
+			return '★★★';
+		case (x >= 10):
+			return '★★½';
+		case (x >= 1):
+			return '★★';
+		case (x >= 0.1):
+			return '★½';
+		case (x >= 0.01):
+			return '★';
+		case (x > 0):
+			return '½';
+		default:
+			return 'No Star Rating';
+	}
 };
 
 const getFlagSet = (flags) => {

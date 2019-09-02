@@ -1,3 +1,5 @@
+# 1.3.5
+    added decklist to deck command
 # 1.3.4
     changed faq to official rules
 # 1.3.3
