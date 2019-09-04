@@ -70,6 +70,12 @@ const onMessage = (msg, client) => {
 		case 'randomcard':
 			commandName = 'randomCard';
 			break;
+		case 'time':
+		case 'timing':
+		case 'chart':
+		case 'timingchart':
+			commandName = 'timingChart';
+			break;
 		default:
 			break;
 	}

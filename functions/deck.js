@@ -14,7 +14,6 @@ const deck = async (msg, params, flags) => {
 
 	const embed = new Discord.RichEmbed();
 	if (deck) {
-		console.log(`https://images.skyjedi.com/${deck.id}/${lang}/deck_list/`);
 		const dokStats = fetchDoK(deck.id);
 		Promise.all([dokStats]).then(([dokStats]) => {
 			const houses = deck._links.houses.map(house => emoji(house.toLowerCase())).join(' **•** '),

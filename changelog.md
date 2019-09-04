@@ -1,3 +1,6 @@
+# 1.3.6
+    timing chart
+    updated rules/faq/errata
 # 1.3.5
     added decklist to deck command
 # 1.3.4
