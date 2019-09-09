@@ -9,12 +9,14 @@ const path = require('path');
 const {deckSearchAPI, dokAPI, randomAPI, dokKey} = require('../config');
 const {langs, sets} = require('../card_data');
 
-const fetchDeck = (name) => {
+const fetchDeck = (name, lang = 'en') => {
 	return new Promise(resolve => {
-		axios.get(encodeURI(deckSearchAPI + '?search=' + name))
+		axios.get(encodeURI(deckSearchAPI + '?search=' + name), {headers: {'Accept-Language': lang}})
 			.then(async response => {
 				const deck = get(response, 'data.data[0]', false);
-				deck.cards = await buildCardList(get(deck, 'cards', []), get(deck, 'id', ''));
+				deck.cards = await buildCardList(get(deck, 'cards', []), deck);
+				deck.houses = deck._links.houses;
+				deck.cardList = deck._links.cards;
 				resolve(deck);
 			}).catch(console.error);
 	});
@@ -25,17 +27,21 @@ const fetchDeckBasic = (id) => {
 		axios.get(encodeURI(deckSearchAPI + id))
 			.then(async response => {
 				const deck = get(response, 'data.data', false);
-				deck.cards = await buildCardList(get(deck, 'cards', []), get(deck, 'id', ''));
+				deck.houses = deck._links.houses;
+				deck.cardList = deck._links.cards;
+				deck.cards = await buildCardList(get(deck, 'cards', []), deck);
 				resolve(deck);
 			}).catch(console.error);
 	});
 };
 
-const buildCardList = (cardList, id) => {
+const buildCardList = (cardList, deck) => {
 	return new Promise(async resolve => {
 		const cards = await cardList.map(async card => {
-			const data = all_cards.find(o => o.id === card);
-			return data ? data : await fetchUnknownCard(card, id).catch(console.error);
+			let data = all_cards.find(o => o.id === card);
+			if (!data) data = await fetchUnknownCard(card, deck.id).catch(console.error);
+			data.is_legacy = get(deck, 'set_era_cards.Legacy', []).includes(card.id);
+			return data;
 		});
 		Promise.all(cards).then(cards => resolve(cards));
 	});
@@ -71,23 +77,6 @@ const fetchUnknownCard = (cardId, deckId) => {
 		} else resolve(card);
 	});
 };
-
-// const fetchRandomDecks = (set) => {
-// 	return new Promise(resolve => {
-// 		let randomPage = _.random(0, set ? (set === 341 ? 94200 : 19999) : 114000);
-// 		console.log(set, randomPage)
-// 		const url = `${deckSearchAPI}?page=${randomPage}${set ? `&expansion=${set}`: ''}`
-// 		console.log(url)
-// 		axios.get(encodeURI(url))
-// 			.then(async response => {
-// 				const randomDeck = response.data.data.length-1;
-// 				console.log(randomDeck)
-// 				const deck = _.get(response, `data.data[${_.random(0, randomDeck)}`, false);
-// 				deck.cards = await buildCardList(_.get(deck, 'cards', []), _.get(deck, 'id', ''));
-// 				resolve(deck);
-// 			}).catch(console.error);
-// 	});
-// };
 
 const fetchRandomDecks = () => {
 	return new Promise(resolve => {
@@ -166,6 +155,11 @@ const getFlagNumber = (flags, defaultNumber = 0) => {
 	else return defaultNumber;
 };
 
+const format = (text) => {
+	text = text.replace(/<I>/gi, "*");
+	text = text.replace(/<B>/gi, "**");
+	return text;
+};
 exports.fetchDeck = fetchDeck;
 exports.fetchDeckBasic = fetchDeckBasic;
 exports.fetchCard = fetchCard;
@@ -176,3 +170,4 @@ exports.fetchRandomDecks = fetchRandomDecks;
 exports.getFlagLang = getFlagLang;
 exports.getFlagSet = getFlagSet;
 exports.getFlagNumber = getFlagNumber;
+exports.format = format;

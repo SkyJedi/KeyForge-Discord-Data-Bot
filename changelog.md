@@ -1,3 +1,5 @@
+# 1.3.7
+    made the decklist internal to the bot
 # 1.3.6
     timing chart
     updated rules/faq/errata

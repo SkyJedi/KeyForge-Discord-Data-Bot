@@ -2,6 +2,7 @@ const main = require('../index');
 const Discord = require('discord.js');
 const rules = require('../card_data/rules');
 const {findIndex, upperCase} = require('lodash');
+const {format} = require('./fetch');
 
 const rule = (msg, params) => {
 	let i = findIndex(Object.keys(rules), term => term === params.join(' '));
@@ -19,7 +20,5 @@ const rule = (msg, params) => {
 		main.sendMessage(msg, {embed});
 	}
 };
-
-const format = (text) => text.replace(/([a-z\d_-]+):/gi, "**$1:**");
 
 exports.rule = rule;
