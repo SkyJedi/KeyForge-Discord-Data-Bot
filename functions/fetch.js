@@ -4,7 +4,7 @@ const new_cards = require('../card_data/new_cards');
 const faq = require('../card_data/faq');
 const axios = require('axios');
 const fs = require('fs');
-const {get, filter} = require('lodash');
+const {get, filter, findIndex} = require('lodash');
 const path = require('path');
 const {deckSearchAPI, dokAPI, randomAPI, dokKey} = require('../config');
 const {langs, sets} = require('../card_data');
@@ -13,10 +13,12 @@ const fetchDeck = (name, lang = 'en') => {
 	return new Promise(resolve => {
 		axios.get(encodeURI(deckSearchAPI + '?search=' + name), {headers: {'Accept-Language': lang}})
 			.then(async response => {
-				const deck = get(response, 'data.data[0]', false);
+				let deck;
+				let index = findIndex(response.data.data, deck => deck.name.toLowerCase() === name.replace(/\+/gi, ' '));
+				deck = get(response, `data.data[${Math.max(index, 0)}]`, false);
 				deck.cards = await buildCardList(get(deck, 'cards', []), deck);
-				deck.houses = deck._links.houses;
-				deck.cardList = deck._links.cards;
+				deck.houses = get(deck, '_links.houses');
+				deck.cardList = get(deck, '_links.cards');
 				resolve(deck);
 			}).catch(console.error);
 	});
@@ -27,8 +29,8 @@ const fetchDeckBasic = (id) => {
 		axios.get(encodeURI(deckSearchAPI + id))
 			.then(async response => {
 				const deck = get(response, 'data.data', false);
-				deck.houses = deck._links.houses;
-				deck.cardList = deck._links.cards;
+				deck.houses = get(deck, '_links.houses');
+				deck.cardList = get(deck, '_links.cards');
 				deck.cards = await buildCardList(get(deck, 'cards', []), deck);
 				resolve(deck);
 			}).catch(console.error);

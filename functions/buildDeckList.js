@@ -1,5 +1,4 @@
-const Discord = require('discord.js');
-const {snakeCase, get} = require('lodash');
+const {get} = require('lodash');
 const {createCanvas, loadImage, registerFont} = require('canvas');
 const path = require('path');
 const card_titles = require('../card_data/card_titles');
@@ -11,18 +10,16 @@ new registerFont(path.join(__dirname, '../fonts/Kanit-Regular.ttf'), {family: 'a
 new registerFont(path.join(__dirname, '../fonts/Kanit-Bold.ttf'), {family: 'allFontsBold'});
 
 const buildDeckList = ({houses, cards, ...deck}, lang = 'en') => {
-	return new Promise(async res => {
+	return new Promise(res => {
 		const canvas = createCanvas(600, 840),
 			ctx = canvas.getContext('2d'),
-			cardBack = await loadImage(path.join(__dirname, '../card_images/decklist.png')),
-			Rarities = {
-				Common: await loadImage(path.join(__dirname, `../card_images/Common.png`)),
-				Uncommon: await loadImage(path.join(__dirname, `../card_images/Uncommon.png`)),
-				Rare: await loadImage(path.join(__dirname, `../card_images/Rare.png`)),
-				Special: await loadImage(path.join(__dirname, `../card_images/Special.png`))
-			},
-			maverick = await loadImage(path.join(__dirname, `../card_images/Maverick.png`)),
-			legacy = await loadImage(path.join(__dirname, `../card_images/Legacy.png`)),
+			cardBack = loadImage(path.join(__dirname, '../card_images/decklist.png')),
+			Common = loadImage(path.join(__dirname, `../card_images/Common.png`)),
+			Uncommon = loadImage(path.join(__dirname, `../card_images/Uncommon.png`)),
+			Rare = loadImage(path.join(__dirname, `../card_images/Rare.png`)),
+			Special = loadImage(path.join(__dirname, `../card_images/Special.png`)),
+			maverick = loadImage(path.join(__dirname, `../card_images/Maverick.png`)),
+			legacy = loadImage(path.join(__dirname, `../card_images/Legacy.png`)),
 			houseData = {
 				size: 35,
 				0: {x: 55, y: 120},
@@ -34,48 +31,52 @@ const buildDeckList = ({houses, cards, ...deck}, lang = 'en') => {
 				start: {x: 60, y: 185}
 			};
 
-		ctx.drawImage(cardBack, 0, 0);
+		Promise.all([cardBack, maverick, legacy, Common, Uncommon, Rare, Special]).then(([cardBack, maverick, legacy, Common, Uncommon, Rare, Special]) => {
+			const Rarities = {Common, Uncommon, Rare, Special};
+			ctx.drawImage(cardBack, 0, 0);
 
-		const houseProm = await houses.map(async (house, index) => {
-			return new Promise(async res => {
-				const img = await loadImage(path.join(__dirname, `../card_images/${house}.png`));
-				ctx.drawImage(img, houseData[index].x, houseData[index].y, houseData.size, houseData.size);
-				ctx.fillStyle = 'black';
-				ctx.font = `25px allFontsBold`;
-				ctx.textAlign = 'left';
-				ctx.fillText(house, houseData[index].x + 40, houseData[index].y + 28);
-				res();
+			const houseProm = houses.map((house, index) => {
+				return new Promise(async res1 => {
+					const img = await loadImage(path.join(__dirname, `../card_images/${house}.png`));
+					ctx.drawImage(img, houseData[index].x, houseData[index].y, houseData.size, houseData.size);
+					ctx.fillStyle = 'black';
+					ctx.font = `25px allFontsBold`;
+					ctx.textAlign = 'left';
+					ctx.fillText(house, houseData[index].x + 40, houseData[index].y + 28);
+					res1();
+				});
+
 			});
 
-		});
-
-		const cardProm = await cards.map(async (card, index) => {
-			return new Promise(async res => {
-				const title = get(card_titles, `[${card.expansion}][${card.card_number}][${lang}]`, card.card_title);
-				let x = cardData.start.x,
-					y = cardData.start.y + (index * 25);
-				if (index > 11) y = y + 75;
-				if (index > 20) {
-					x = x + 255;
-					y = cardData.start.y + ((index - 22.5) * 25);
-				}
-				if (index > 23) y = y + 60;
-				ctx.drawImage((Rarities[card.rarity === 'FIXED' || card.rarity === 'Variant' ? 'Special' : card.rarity]), x, y - 19, cardData.size, cardData.size);
-				ctx.fillStyle = 'black';
-				ctx.font = `20px allFontsBold`;
-				ctx.textAlign = 'left';
-				ctx.fillText(card.card_number, x + 22, y);
-				ctx.font = `20px allFonts`;
-				ctx.fillText(title, x + 60, y);
-				if (card.is_maverick) ctx.drawImage(maverick, x + ((title.length * 6) + 100), y - 18, cardData.size, cardData.size);
-				if (card.is_legacy) ctx.drawImage(legacy, x + ((title.length * 6) + 100) + (card.is_maverick ? 20 : 0), y - 18, cardData.size, cardData.size);
-				res();
+			const cardProm = cards.map((card, index) => {
+				return new Promise(async res2 => {
+					const title = get(card_titles, `[${card.expansion}][${card.card_number}][${lang}]`, card.card_title);
+					let x = cardData.start.x,
+						y = cardData.start.y + (index * 25);
+					if (index > 11) y = y + 75;
+					if (index > 20) {
+						x = x + 255;
+						y = cardData.start.y + ((index - 22.5) * 25);
+					}
+					if (index > 23) y = y + 60;
+					ctx.drawImage((Rarities[card.rarity === 'FIXED' || card.rarity === 'Variant' ? 'Special' : card.rarity]), x, y - 19, cardData.size, cardData.size);
+					ctx.fillStyle = 'black';
+					ctx.font = `20px allFontsBold`;
+					ctx.textAlign = 'left';
+					ctx.fillText(card.card_number, x + 22, y);
+					ctx.font = `20px allFonts`;
+					ctx.fillText(title, x + 60, y);
+					if (card.is_maverick) ctx.drawImage(maverick, x + ((title.length * 6) + 100), y - 18, cardData.size, cardData.size);
+					if (card.is_legacy) ctx.drawImage(legacy, x + ((title.length * 6) + 100) + (card.is_maverick ? 20 : 0), y - 18, cardData.size, cardData.size);
+					res2();
+				});
+			});
+			ctx.drawImage((getCircularText(deck.name, 2000, 0)), -700, 30);
+			Promise.all([...houseProm, ...cardProm]).then(() => {
+				res(canvas);
 			});
 		});
-		ctx.drawImage((getCircularText(deck.name, 2000, 0)), -700, 30);
-		Promise.all([...houseProm, ...cardProm]).then(() => {
-			res(new Discord.Attachment(canvas.toBuffer(), `${snakeCase(deck.name)}.png`));
-		});
+
 	});
 };
 

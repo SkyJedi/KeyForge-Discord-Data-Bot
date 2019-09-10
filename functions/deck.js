@@ -29,14 +29,17 @@ const deck = async (msg, params, flags) => {
 					if (cardStats.rarity[type]) return `${emoji(type.toLowerCase())}: ${cardStats.rarity[type]}`;
 				}).filter(Boolean).join(', '),
 				links = `[Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) **•** [Decks of KeyForge](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord) **•** [Burger Tokens](https://burgertokens.com/pages/keyforge-deck-analyzer?deck=${deck.id}&powered_by=archonMatrixDiscord)`,
-				set = get(sets.filter(set => deck.expansion === set.set_number), '[0].flag', 'ERROR');
+				set = get(sets.filter(set => deck.expansion === set.set_number), '[0].flag', 'ERROR'),
+				name = `${snakeCase(deck.name)}.png`,
+				file = new Discord.Attachment(attachment.toBuffer(), name);
+
 			embed.setColor('178110')
 				.setTitle(` ${deck.name} • ${set}`)
 				.addField(houses + power, cardTypes)
 				.addField(amber + ', ' + rarity + ', ' + mavericks + ', ' + legacy, dokStats.sas + ' **•** ' + dokStats.sasStar)
 				.addField(dokStats.deckAERC, links)
-				.attachFile(attachment)
-				.setImage(`attachment://${snakeCase(deck.name)}.png`)
+				.attachFile(file)
+				.setImage(`attachment://${name}`)
 				.setFooter(`Posted by: @${msg.member.nickname ? msg.member.nickname : msg.author.username}`);
 			main.sendMessage(msg, {embed}, null, flags);
 		}).catch(console.error);
