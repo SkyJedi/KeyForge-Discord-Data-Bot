@@ -34,7 +34,7 @@ const onMessage = (msg, client) => {
 				if (params < 1) flags = [...flags, 'delete'];
 				params = arr;
 			}
-			if (commandName !== 'brackets' && params.length > 1) {
+			if ((commandName === 'd' || commandName === 'deck') && params.length > 1) {
 				commandName = 'multiDeck';
 				params = params.slice(0, 3);
 			}

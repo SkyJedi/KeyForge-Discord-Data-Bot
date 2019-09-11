@@ -4,10 +4,11 @@ const new_cards = require('../card_data/new_cards');
 const faq = require('../card_data/faq');
 const axios = require('axios');
 const fs = require('fs');
-const {get, filter, findIndex} = require('lodash');
+const {get, filter, findIndex, sortBy} = require('lodash');
 const path = require('path');
 const {deckSearchAPI, dokAPI, randomAPI, dokKey} = require('../config');
 const {langs, sets} = require('../card_data');
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const fetchDeck = (name, lang = 'en') => {
 	return new Promise(resolve => {
@@ -42,10 +43,11 @@ const buildCardList = (cardList, deck) => {
 		const cards = await cardList.map(async card => {
 			let data = all_cards.find(o => o.id === card);
 			if (!data) data = await fetchUnknownCard(card, deck.id).catch(console.error);
-			data.is_legacy = get(deck, 'set_era_cards.Legacy', []).includes(card.id);
+			await sleep(2000);
+			data.is_legacy = get(deck, 'set_era_cards.Legacy', []).includes(card);
 			return data;
 		});
-		Promise.all(cards).then(cards => resolve(cards));
+		Promise.all(cards).then(cards => resolve(sortBy(cards, ['house', 'card_number'])));
 	});
 };
 

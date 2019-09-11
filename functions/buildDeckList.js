@@ -52,13 +52,13 @@ const buildDeckList = ({houses, cards, ...deck}, lang = 'en') => {
 				return new Promise(async res2 => {
 					const title = get(card_titles, `[${card.expansion}][${card.card_number}][${lang}]`, card.card_title);
 					let x = cardData.start.x,
-						y = cardData.start.y + (index * 25);
-					if (index > 11) y = y + 75;
+						y = cardData.start.y + (index * 28);
+					if (index > 11) y = y + 45;
 					if (index > 20) {
-						x = x + 255;
-						y = cardData.start.y + ((index - 22.5) * 25);
+						x = x + 245;
+						y = cardData.start.y + ((index - 22.5) * 28);
 					}
-					if (index > 23) y = y + 60;
+					if (index > 23) y = y + 52;
 					ctx.drawImage((Rarities[card.rarity === 'FIXED' || card.rarity === 'Variant' ? 'Special' : card.rarity]), x, y - 19, cardData.size, cardData.size);
 					ctx.fillStyle = 'black';
 					ctx.font = `20px allFontsBold`;
