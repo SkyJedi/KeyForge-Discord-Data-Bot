@@ -1,5 +1,6 @@
 const {get} = require('lodash');
 const {createCanvas, loadImage, registerFont} = require('canvas');
+const QRCode = require('qrcode');
 const path = require('path');
 const card_titles = require('../card_data/card_titles');
 
@@ -34,6 +35,11 @@ const buildDeckList = ({houses, cards, ...deck}, lang = 'en') => {
 		Promise.all([cardBack, maverick, legacy, Common, Uncommon, Rare, Special]).then(([cardBack, maverick, legacy, Common, Uncommon, Rare, Special]) => {
 			const Rarities = {Common, Uncommon, Rare, Special};
 			ctx.drawImage(cardBack, 0, 0);
+
+			const qrCode = QRCode.toBuffer(`https://www.keyforgegame.com/deck-details/${deck.id}`, {margin: 0})
+				.then(async buffer => {
+					ctx.drawImage(await loadImage(buffer), 332, 612, 150, 150);
+				}).catch(console.error);
 
 			const houseProm = houses.map((house, index) => {
 				return new Promise(async res1 => {
@@ -72,10 +78,11 @@ const buildDeckList = ({houses, cards, ...deck}, lang = 'en') => {
 				});
 			});
 			ctx.drawImage((getCircularText(deck.name, 2000, 0)), -700, 30);
-			Promise.all([...houseProm, ...cardProm]).then(() => {
+			Promise.all([...houseProm, ...cardProm, qrCode]).then(() => {
 				res(canvas);
 			});
-		});
+		})
+		;
 
 	});
 };

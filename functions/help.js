@@ -40,6 +40,7 @@ const help = (msg, params) => {
 				.addField(`[card name 1] [card name 2] (-en/-es/-it/-de/-fr/-pl/-pt/-th/-zh)`, 'Searches and displays card as an single image (up to 5) [] required. Add -lang tag to specify language.')
 				.addField(`{deck name 1 / decklink} {deck name 2 / decklink} (-en/-es/-it/-de/-fr/-pl/-pt/-th/-zh)`, 'Searches and displays decklists as an single image (up to 3) {} required. Add -lang tag to specify language.')
 				.addField('Bot Information', '[SkyJedi\'s Bot Emporium](https://discord.gg/G8au6FH)')
+				.addField('Support SkyJedi', '[SkyJedi\'s Patreon](https://www.patreon.com/SkyJedi)')
 				.addField('Other Info', ' [KeyForge Discord Server](https://discordapp.com/invite/PcTGhr9) \n[KeyForge](https://www.fantasyflightgames.com/en/products/keyforge/?powered_by=archonMatrixDiscord) by Fantasy Flight Game');
 			break;
 	}

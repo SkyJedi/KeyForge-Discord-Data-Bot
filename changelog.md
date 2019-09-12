@@ -1,3 +1,6 @@
+# 1.4.0
+    added patreon stuff
+    QR codes now point to decks on MV
 # 1.3.9
     fix legacy sort
 # 1.3.8
