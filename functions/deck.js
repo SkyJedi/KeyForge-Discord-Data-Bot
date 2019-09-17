@@ -10,7 +10,7 @@ const deck = async (msg, params, flags) => {
 	const lang = getFlagLang(flags);
 	let deck;
 	if (0 >= params.length) return;
-	if (params.length === 1 && params[0].length === 36) deck = await fetchDeckBasic(params[0], lang);
+	if (/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/.test(params[0])) deck = await fetchDeckBasic(params[0], lang);
 	else deck = await fetchDeck(params.join('+'), lang);
 
 	const embed = new Discord.RichEmbed();

@@ -4,7 +4,7 @@ const new_cards = require('../card_data/new_cards');
 const faq = require('../card_data/faq');
 const axios = require('axios');
 const fs = require('fs');
-const {get, filter, findIndex, sortBy} = require('lodash');
+const {get, filter, findIndex, sortBy, round} = require('lodash');
 const path = require('path');
 const {deckSearchAPI, dokAPI, randomAPI, dokKey} = require('../config');
 const {langs, sets} = require('../card_data');
@@ -98,11 +98,11 @@ const fetchDoK = (deckID) => {
 					const {
 							amberControl: A, expectedAmber: E,
 							artifactControl: R, creatureControl: C,
-							deckManipulation: D, effectivePower: P,
-							sasRating, sasPercentile
+							efficiency: F, disruption: D, effectivePower: P,
+							sasRating, sasPercentile, aercScore
 						} = response.data.deck,
-						sas = `${sasRating} SAS • ${A + E + R + C + D + (P / 10)} AERC`,
-						deckAERC = `A: ${A} • E: ${E} • R: ${R} • C: ${C} • D: ${D} • P: ${P}`,
+						sas = `${sasRating} SAS • ${round(aercScore, 2)} AERC`,
+						deckAERC = `A: ${A} • E: ${E} • R: ${R} • C: ${C} • F: ${F} • D: ${D} • P: ${P}`,
 						sasStar = sasStarRating(sasPercentile);
 					resolve({sas, deckAERC, sasStar});
 				} else resolve(['Unable to Retrieve SAS', 'Unable to Retrieve AERC']);

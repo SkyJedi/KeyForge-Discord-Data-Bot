@@ -11,7 +11,7 @@ const multiDeck = async (msg, params, flags) => {
 	if (0 >= params.length) return;
 	const decks = params.map(id => {
 		if (/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/.test(id)) return fetchDeckBasic(id, lang);
-		else return fetchDeck(id.split(' ').join('+'), lang);
+		else return fetchDeck(id.split(' ').filter(Boolean).join('+'), lang);
 	});
 	Promise.all(decks).then(decks => {
 		const deckImages = decks.filter(Boolean).map(deck => buildDeckList(deck, lang));

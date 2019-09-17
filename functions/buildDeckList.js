@@ -32,14 +32,18 @@ const buildDeckList = ({houses, cards, ...deck}, lang = 'en') => {
 				start: {x: 60, y: 185}
 			};
 
-		Promise.all([cardBack, maverick, legacy, Common, Uncommon, Rare, Special]).then(([cardBack, maverick, legacy, Common, Uncommon, Rare, Special]) => {
+		const qrCode = new Promise(res => {
+			QRCode.toBuffer(`https://www.keyforgegame.com/deck-details/${deck.id}`, {margin: 0})
+				.then(buffer => {
+					loadImage(buffer)
+						.then(final => res(final));
+				}).catch(console.error);
+		});
+
+		Promise.all([cardBack, maverick, legacy, Common, Uncommon, Rare, Special, qrCode]).then(([cardBack, maverick, legacy, Common, Uncommon, Rare, Special, qrCode]) => {
 			const Rarities = {Common, Uncommon, Rare, Special};
 			ctx.drawImage(cardBack, 0, 0);
-
-			const qrCode = QRCode.toBuffer(`https://www.keyforgegame.com/deck-details/${deck.id}`, {margin: 0})
-				.then(async buffer => {
-					ctx.drawImage(await loadImage(buffer), 332, 612, 150, 150);
-				}).catch(console.error);
+			ctx.drawImage(qrCode, 332, 612, 150, 150);
 
 			const houseProm = houses.map((house, index) => {
 				return new Promise(async res1 => {

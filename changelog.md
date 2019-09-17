@@ -1,3 +1,5 @@
+# 1.4.1
+    added poly
 # 1.4.0
     added patreon stuff
     QR codes now point to decks on MV

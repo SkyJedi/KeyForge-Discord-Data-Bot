@@ -4,6 +4,7 @@ exports.faq = require('./faq').faq;
 exports.deck = require('./deck').deck;
 exports.timingChart = require('./timingChart').timingChart;
 exports.patreon = require('./patreon').patreon;
+exports.poly = require('./poly').poly;
 exports.errata = require('./errata').errata;
 exports.help = require('./help').help;
 exports.invite = require('./invite').invite;
