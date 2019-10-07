@@ -14,13 +14,13 @@ const buildDeckList = ({houses, cards, ...deck}, lang = 'en') => {
 	return new Promise(res => {
 		const canvas = createCanvas(600, 840),
 			ctx = canvas.getContext('2d'),
-			cardBack = loadImage(path.join(__dirname, '../card_images/decklist.png')),
-			Common = loadImage(path.join(__dirname, `../card_images/Common.png`)),
-			Uncommon = loadImage(path.join(__dirname, `../card_images/Uncommon.png`)),
-			Rare = loadImage(path.join(__dirname, `../card_images/Rare.png`)),
-			Special = loadImage(path.join(__dirname, `../card_images/Special.png`)),
-			maverick = loadImage(path.join(__dirname, `../card_images/Maverick.png`)),
-			legacy = loadImage(path.join(__dirname, `../card_images/Legacy.png`)),
+			cardBack = loadImage(path.join(__dirname, '../card_images/cardback/decklist.png')),
+			Common = loadImage(path.join(__dirname, `../card_images/cardback/rarity/Common.png`)),
+			Uncommon = loadImage(path.join(__dirname, `../card_images/cardback/rarity/Uncommon.png`)),
+			Rare = loadImage(path.join(__dirname, `../card_images/cardback/rarity/Rare.png`)),
+			Special = loadImage(path.join(__dirname, `../card_images/cardback/rarity/Special.png`)),
+			maverick = loadImage(path.join(__dirname, `../card_images/cardback/Maverick.png`)),
+			legacy = loadImage(path.join(__dirname, `../card_images/cardback/Legacy.png`)),
 			houseData = {
 				size: 35,
 				0: {x: 55, y: 120},
@@ -47,7 +47,7 @@ const buildDeckList = ({houses, cards, ...deck}, lang = 'en') => {
 
 			const houseProm = houses.map((house, index) => {
 				return new Promise(async res1 => {
-					const img = await loadImage(path.join(__dirname, `../card_images/${house}.png`));
+					const img = await loadImage(path.join(__dirname, `../card_images/cardback/decklist_houses/${ house }.png`));
 					ctx.drawImage(img, houseData[index].x, houseData[index].y, houseData.size, houseData.size);
 					ctx.fillStyle = 'black';
 					ctx.font = `25px allFontsBold`;
@@ -81,7 +81,7 @@ const buildDeckList = ({houses, cards, ...deck}, lang = 'en') => {
 					res2();
 				});
 			});
-			ctx.drawImage((getCircularText(deck.name, 2000, 0)), -700, 30);
+			ctx.drawImage((getCircularText(deck.name, 1600, 0)), -500, 30);
 			Promise.all([...houseProm, ...cardProm, qrCode]).then(() => {
 				res(canvas);
 			});

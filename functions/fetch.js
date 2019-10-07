@@ -110,6 +110,15 @@ const fetchDoK = (deckID) => {
 	});
 };
 
+const fetchDoKSealed = (deckID) => {
+    return new Promise(resolve => {
+        axios.get(`${ dokAPI }${ deckID }`, dokKey)
+            .then(response => resolve(response.data.deck))
+            .catch(() => resolve(false));
+    });
+};
+
+
 const fetchFAQ = (params) => {
 	return faq.find(x => params.every(y => x.question.toLowerCase().includes(y.toLowerCase())));
 };
@@ -168,6 +177,7 @@ exports.fetchDeck = fetchDeck;
 exports.fetchDeckBasic = fetchDeckBasic;
 exports.fetchCard = fetchCard;
 exports.fetchDoK = fetchDoK;
+exports.fetchDoKSealed = fetchDoKSealed;
 exports.fetchFAQ = fetchFAQ;
 exports.fetchUnknownCard = fetchUnknownCard;
 exports.fetchRandomDecks = fetchRandomDecks;

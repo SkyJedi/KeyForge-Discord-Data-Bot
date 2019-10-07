@@ -10,7 +10,7 @@ const multiDeck = async (msg, params, flags) => {
 	const lang = getFlagLang(flags);
 	if (0 >= params.length) return;
 	const decks = params.map(id => {
-		if (/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/.test(id)) return fetchDeckBasic(id, lang);
+		if(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/.test(id)) return fetchDeckBasic(id, lang);
 		else return fetchDeck(id.split(' ').filter(Boolean).join('+'), lang);
 	});
 	Promise.all(decks).then(decks => {
@@ -21,12 +21,11 @@ const multiDeck = async (msg, params, flags) => {
 			deckImages.forEach((img, index) => {
 				ctx.drawImage(img, width * index + 5 * index, 0, width, height);
 			});
-			const name = decks.map(deck => snakeCase(deck.name)).join('_vs_') + '.png';
-			const attachment = new Discord.Attachment(canvas.toBuffer(), name);
+			const name = decks.map(deck => snakeCase(deck.name)).join('_vs_') + '.jpg';
+			const attachment = new Discord.Attachment(canvas.toBuffer('image/jpeg', {quality: 0.75}), name);
 			main.sendMessage(msg, `**${decks.map(deck => deck.name).join('** vs **')}**`, attachment);
 		});
 	});
-
 };
 
 exports.multiDeck = multiDeck;

@@ -10,7 +10,7 @@ const deck = async (msg, params, flags) => {
 	const lang = getFlagLang(flags);
 	let deck;
 	if (0 >= params.length) return;
-	if (/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/.test(params[0])) deck = await fetchDeckBasic(params[0], lang);
+	if(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/.test(params[0])) deck = await fetchDeckBasic(params[0], lang);
 	else deck = await fetchDeck(params.join('+'), lang);
 
 	const embed = new Discord.RichEmbed();
@@ -30,8 +30,8 @@ const deck = async (msg, params, flags) => {
 				}).filter(Boolean).join(', '),
 				links = `[Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) **•** [Decks of KeyForge](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord) **•** [Burger Tokens](https://burgertokens.com/pages/keyforge-deck-analyzer?deck=${deck.id}&powered_by=archonMatrixDiscord)`,
 				set = get(sets.filter(set => deck.expansion === set.set_number), '[0].flag', 'ERROR'),
-				name = `${snakeCase(deck.name)}.png`,
-				file = new Discord.Attachment(attachment.toBuffer(), name);
+				name = `${ snakeCase(deck.name) }.jpg`,
+				file = new Discord.Attachment(attachment.toBuffer('image/jpeg', {quality: 0.75}), name);
 
 			embed.setColor('178110')
 				.setTitle(` ${deck.name} • ${set}`)

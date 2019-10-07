@@ -1,3 +1,6 @@
+# 1.4.2
+    moved around a few images in prep for moving servers
+    optimized build attachment
 # 1.4.1
     added poly
 # 1.4.0

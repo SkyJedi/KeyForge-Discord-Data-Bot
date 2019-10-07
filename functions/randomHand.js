@@ -12,7 +12,7 @@ const randomHand = async (msg, params, flags) => {
 		const randomCards = sortBy(shuffle(deck.cards).slice(0, Math.min(number ? number : 6, 8)), ['house', 'card_number']);
 
 		//build Title
-		const name = randomCards.map(card => `${card.card_number}`).join('_') + '.png';
+        const name = randomCards.map(card => `${ card.card_number }`).join('_') + '.jpg';
 		attachment = await buildAttachment(randomCards, name, flags, deck);
 		text = '**Random hand from ' + deck.name + '**';
 	} else return;

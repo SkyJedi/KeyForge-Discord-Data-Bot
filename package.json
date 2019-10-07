@@ -1,6 +1,6 @@
 {
   "name": "keyforge-discord-data-bot",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Discord bot to lookup data for KeyForge",
   "main": "index.js",
   "scripts": {
@@ -32,6 +32,7 @@
     ]
   },
   "devDependencies": {
+    "csvtojson": "^2.0.10",
     "nodemon": "^1.19.2"
   }
 }

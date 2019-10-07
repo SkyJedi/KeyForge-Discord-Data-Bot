@@ -1,41 +1,40 @@
 const Discord = require('discord.js');
 const {createCanvas, loadImage} = require('canvas');
 const path = require('path');
-const {get} = require('lodash');
 const {getFlagLang} = require('./fetch');
 const width = 600, height = 840;
 
-const buildAttachment = async (data, name, flags, deck) => {
-	if (0 >= data.length) return;
+const buildAttachment = (data, name, flags) => new Promise(resolve => {
+    if(0 >= data.length) resolve();
 	const lang = getFlagLang(flags);
+    const maverick = loadImage(path.join(__dirname, `../card_images/cardback/card_mavericks/Maverick.png`));
+    const legacy = loadImage(path.join(__dirname, `../card_images/cardback/Legacy.png`));
+    const cards = data.map(card => loadImage(path.join(__dirname, `../card_images/${ lang }/${ card.expansion }/${ card.card_number }.png`)));
 
-	//build new png
-	const canvas = createCanvas((width * data.length) + (data.length > 1 && 5 * data.length), height);
-	const ctx = canvas.getContext('2d');
-	const imgArray = data.map(async card => {
-		const canvasCard = createCanvas(width, height),
-			ctxCard = canvasCard.getContext('2d'),
-			cardImg = await loadImage(path.join(__dirname, `../card_images/${lang}/${card.expansion}_HD/${card.card_number}.png`));
+    Promise.all([maverick, legacy, ...cards]).then(([maverick, legacy, ...cards]) => {
+        const finalCards = cards.map((card, index) => new Promise(async resolve1 => {
+            const canvasCard = createCanvas(width, height);
+            const ctxCard = canvasCard.getContext('2d');
+            ctxCard.drawImage(card, 0, 0, width, height);
 
-		ctxCard.drawImage(cardImg, 0, 0, width, height);
+            if(data[index].is_maverick) {
+                ctxCard.drawImage(await loadImage(path.join(__dirname, `../card_images/cardback/card_mavericks/${ data[index].house }.png`)), 0, 0);
+                ctxCard.drawImage(maverick, 0, 0);
+            }
+            if(data[index].is_legacy) {
+                ctxCard.drawImage(legacy, 500, 735, 100, 100);
+            }
+            resolve1(canvasCard);
+        }));
+        Promise.all(finalCards)
+            .then(final => {
+                const canvas = createCanvas((width * data.length) + (data.length > 1 && 5 * data.length), height);
+                const ctx = canvas.getContext('2d');
+                final.forEach((img, index) => ctx.drawImage(img, width * index + 5 * index, 0, width, height));
+                resolve(new Discord.Attachment(canvas.toBuffer(), name));
+            });
+    });
 
-		if (card.is_maverick) {
-			const maverick = await loadImage(path.join(__dirname, `../card_images/card_Maverick.png`)),
-				house = await loadImage(path.join(__dirname, `../card_images/${card.house}.png`));
-			ctxCard.drawImage(house, 24, 22, 126, 126);
-			ctxCard.drawImage(maverick, -14, 10, 600, 840);
-		}
+});
 
-		if (get(deck, 'set_era_cards.Legacy', []).includes(card.id)) {
-			const legacy = await loadImage(path.join(__dirname, `../card_images/Legacy.png`));
-			ctxCard.drawImage(legacy, 232, 330, 126, 157.5);
-		}
-
-		return canvasCard;
-	});
-
-	await Promise.all(imgArray).then(final => final.forEach((img, index) => ctx.drawImage(img, width * index + 5 * index, 0, width, height)));
-
-	return new Discord.Attachment(canvas.toBuffer(), name);
-};
 exports.buildAttachment = buildAttachment;

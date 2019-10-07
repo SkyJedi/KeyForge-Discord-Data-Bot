@@ -6,6 +6,7 @@ const emojiList = [
 	'dis', 'logos', 'mars', 'brobnar', 'untamed', 'shadows', 'sanctum',
 	'armor', 'damage', 'power', 'maverick', 'chains', 'aember', 'keyforge',
 	'common', 'uncommon', 'rare', 'special', 'legacy', 'saurian', 'staralliance', 'rage', 'ward',
+	'anomaly'
 ];
 
 const build = (msg, params, flags, bot) => {
