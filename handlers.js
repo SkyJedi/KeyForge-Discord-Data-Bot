@@ -6,13 +6,14 @@ const {dropWhile, get} = require('lodash');
 // Called every time a message comes in:
 const onMessage = (msg, client) => {
 	if (msg.author.bot) return; // Ignore messages from the bot
+	if(msg.content.includes('`')) return; // Ignore messages that contain `
 	let params = msg.content.toLowerCase().split(' '),
 		commandName = params.map(a => a.startsWith(commandPrefix) && a).filter(Boolean).join().slice(1),
 		flags = params.filter(a => a.startsWith('-')).map(flag => flag.slice(1)),
 		types = {
-			brackets: /\[(.*?)\]/,
-			d: /[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/,
-			deck: /\{(.*?)\}/,
+			brackets: /\[(.*?)]/,
+			d: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
+			deck: /{(.*?)}/,
 		};
 
 	if (commandName) {
