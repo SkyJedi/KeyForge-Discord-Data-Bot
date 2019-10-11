@@ -23,6 +23,7 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
             maverick = loadImage(path.join(__dirname, `../card_images/cardback/Maverick.png`)),
             legacy = loadImage(path.join(__dirname, `../card_images/cardback/Legacy.png`)),
             crest = loadImage(path.join(__dirname, `../card_images/cardback/crest.png`)),
+            set = loadImage(path.join(__dirname, `../card_images/cardback/${ sets.find(x => x.set_number === expansion).flag.toLowerCase() }.png`)),
             houseData = {
                 size: 35,
                 0: {x: 55, y: 120},
@@ -42,21 +43,20 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
                 }).catch(console.error);
         });
 
-        Promise.all([cardBack, maverick, legacy, Common, Uncommon, Rare, Special, qrCode, crest])
-            .then(([cardBack, maverick, legacy, Common, Uncommon, Rare, Special, qrCode, crest]) => {
+        Promise.all([cardBack, maverick, legacy, Common, Uncommon, Rare, Special, qrCode, crest, set])
+            .then(([cardBack, maverick, legacy, Common, Uncommon, Rare, Special, qrCode, crest, set]) => {
                 const Rarities = {Common, Uncommon, Rare, Special};
                 ctx.drawImage(cardBack, 0, 0);
                 ctx.drawImage(qrCode, 332, 612, 150, 150);
                 ctx.drawImage(crest, 515, 758, 40, 40);
-                ctx.fillStyle = 'black';
-                ctx.font = `18px allFonts`;
-                ctx.textAlign = 'right';
-                ctx.fillText(sets.find(x => x.set_number === expansion).flag.toUpperCase(), 253, 109);
+                ctx.drawImage(set, 232, 92, 20, 20);
 
                 const houseProm = houses.map((house, index) => {
                     return new Promise(async res1 => {
                         const img = await loadImage(path.join(__dirname, `../card_images/cardback/decklist_houses/${ house }.png`));
                         ctx.drawImage(img, houseData[index].x, houseData[index].y, houseData.size, houseData.size);
+                        ctx.fillStyle = 'black';
+
                         ctx.font = `25px allFontsBold`;
                         ctx.textAlign = 'left';
                         ctx.fillText(house, houseData[index].x + 40, houseData[index].y + 28);
