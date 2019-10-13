@@ -1,6 +1,6 @@
 const main = require('../index');
 const Discord = require('discord.js');
-const {get} = require('lodash');
+const {get, lowerCase} = require('lodash');
 const {getFlagNumber, fetchDoKSealed, fetchRandomDecks} = require('./fetch');
 const {sets} = require('../card_data');
 const {emoji} = require('./emoji');
@@ -18,7 +18,7 @@ const sealed = (msg, params, flags) => {
                 links = decks.map(deck => `[Official](https://www.keyforgegame.com/deck-details/${ deck.keyforgeId }?powered_by=archonMatrixDiscord) **•** [DoK](https://decksofkeyforge.com/decks/${ deck.keyforgeId }?powered_by=archonMatrixDiscord) **•** [BT](https://burgertokens.com/pages/keyforge-deck-analyzer?deck=${ deck.keyforgeId }&powered_by=archonMatrixDiscord)`);
             arr.forEach((a, index) => {
                 embed.addField(
-                    `${ decks[index].name } **•** ${ sets.find(x => x.set_number === decks[index].expansion).flag }`,
+                    `${ decks[index].name } **•** ${ sets.find(x => lowerCase(x.name) === lowerCase(decks[index].expansion)).flag }`,
                     `${ houses[index] } **•** ${ links[index] }`);
             });
             main.sendMessage(msg, {embed});
