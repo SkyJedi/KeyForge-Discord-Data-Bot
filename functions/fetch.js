@@ -11,28 +11,40 @@ const twilio = require('twilio')(twilioAccountSid, twilioToken);
 
 const text = (msg) => twilio.messages.create({from: twilioSender, to: twilioReceiver, body: msg});
 
-const fetchDeck = (name, lang = 'en') => {
-    return new Promise(resolve => {
-        axios.get(encodeURI(deckSearchAPI + '?search=' + name), {headers: {'Accept-Language': lang}})
-            .then(async response => {
-                let deck;
-                let index = findIndex(response.data.data, deck => deck.name.toLowerCase() === name.replace(/\+/gi, ' '));
-                deck = get(response, `data.data[${ Math.max(index, 0) }]`, false);
-                deck.cards = await buildCardList(deck);
-                deck.houses = get(deck, '_links.houses');
-                resolve(deck);
-            }).catch(console.error);
-    });
-};
+const fetchDeck = (name) => new Promise(resolve => {
+    axios.get(encodeURI(deckSearchAPI + '?search=' + name))
+        .then(async response => {
+            let deck;
+            let index = findIndex(response.data.data, deck => deck.name.toLowerCase() === name.replace(/\+/gi, ' '));
+            deck = get(response, `data.data[${ Math.max(index, 0) }]`, false);
+            deck.cards = await buildCardList(deck);
+            deck.houses = get(deck, '_links.houses');
+            resolve(deck);
+        }).catch(console.error);
+});
 
 const fetchDeckBasic = (id) => {
     return new Promise(resolve => {
-        axios.get(encodeURI(deckSearchAPI + id))
-            .then(async response => {
-                const deck = get(response, 'data.data', false);
-                deck.houses = get(deck, '_links.houses');
-                deck.cards = await buildCardList(deck);
-                resolve(deck);
+        db.collection('decks').doc(id).get()
+            .then(async doc => {
+                if(doc.exists) {
+                    const deck = doc.data();
+                    deck.houses = get(deck, '_links.houses');
+                    deck.cards = await buildCardList(deck);
+                    resolve(deck);
+                } else {
+                    console.log(`${ id } is not in DB, fetching from the man`);
+                    axios.get(encodeURI(deckSearchAPI + id))
+                        .then(async response => {
+                            const deck = get(response, 'data.data', false);
+                            if(deck) {
+                                db.collection('decks').doc(deck.id).set(deck);
+                                deck.houses = get(deck, '_links.houses');
+                                deck.cards = await buildCardList(deck);
+                            }
+                            resolve(deck);
+                        }).catch(console.error);
+                }
             }).catch(console.error);
     });
 };
