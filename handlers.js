@@ -71,10 +71,12 @@ const onMessage = (msg, client) => {
 			commandName = 'randomHand';
 			break;
 		case 'rc':
-		case 'random':
 		case 'randomcard':
 			commandName = 'randomCard';
-			break;
+            break;
+        case 'randomdeck':
+            commandName = 'randomDeck';
+            break;
 		case 'time':
 		case 'timing':
 		case 'chart':

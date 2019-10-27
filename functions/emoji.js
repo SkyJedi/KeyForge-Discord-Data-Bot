@@ -2,7 +2,7 @@ const emojiDB = require('../card_data/emoji');
 
 const findEmoji = (str, client) => {
 	return new Promise(resolve => {
-		client.shard.broadcastEval(`(${findGuild}).call(this,'${str}')`)
+        client.shard.broadcastEval(`(${ findGuild }).call(this,'${ str.replace(' ', '') }')`)
 			.then(emojiArray => resolve(emojiArray.find(emoji => emoji)))
 			.catch(console.error);
 	})

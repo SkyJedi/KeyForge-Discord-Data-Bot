@@ -35,7 +35,7 @@ const help = (msg, params) => {
 				.addField(`${prefix}errata`, 'Shows all the cards that have been errata\'ed')
 				.addField(`${prefix}randomhand deckName -X`, 'Draws X Random cards from selected deck. (max 8, defaults to 6')
 				.addField(`${prefix}randomcard -X -set`, 'Draws X Random cards from -set (max 8, defaults to 1 and all sets)')
-				.addField(`${prefix}sealed -X`, 'Pull X random decks.  (max 5, defaults 2)')
+				.addField(`${ prefix }sealed -X -set`, 'Pull X random decks from Y set.  (max 10, defaults 2 and any set)')
 				.addField(`${prefix}rule ruleName`, 'Searches and displays Rule.')
 				.addField(`${prefix}invite`, 'Get the invite link.')
 				.addField(`${prefix}version`, 'Get the version number of current bot.')

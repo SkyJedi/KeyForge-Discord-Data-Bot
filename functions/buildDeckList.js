@@ -22,6 +22,7 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
             Special = loadImage(path.join(__dirname, `../card_images/cardback/rarity/Special.png`)),
             maverick = loadImage(path.join(__dirname, `../card_images/cardback/Maverick.png`)),
             legacy = loadImage(path.join(__dirname, `../card_images/cardback/Legacy.png`)),
+            anomaly = loadImage(path.join(__dirname, `../card_images/cardback/Anomaly.png`)),
             crest = loadImage(path.join(__dirname, `../card_images/cardback/crest.png`)),
             set = loadImage(path.join(__dirname, `../card_images/cardback/${ sets.find(x => x.set_number === expansion).flag.toLowerCase() }.png`)),
             houseData = {
@@ -43,8 +44,8 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
                 }).catch(console.error);
         });
 
-        Promise.all([cardBack, maverick, legacy, Common, Uncommon, Rare, Special, qrCode, crest, set])
-            .then(([cardBack, maverick, legacy, Common, Uncommon, Rare, Special, qrCode, crest, set]) => {
+        Promise.all([cardBack, anomaly, maverick, legacy, Common, Uncommon, Rare, Special, qrCode, crest, set])
+            .then(([cardBack, anomaly, maverick, legacy, Common, Uncommon, Rare, Special, qrCode, crest, set]) => {
                 const Rarities = {Common, Uncommon, Rare, Special};
                 ctx.drawImage(cardBack, 0, 0);
                 ctx.drawImage(qrCode, 332, 612, 150, 150);
@@ -84,6 +85,7 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
                         ctx.font = `20px allFonts`;
                         ctx.fillText(title, x + 60, y);
                         if(card.is_maverick) ctx.drawImage(maverick, x + ((title.length * 6) + 100), y - 18, cardData.size, cardData.size);
+                        if(card.is_anomaly) ctx.drawImage(anomaly, x + ((title.length * 6) + 100), y - 18, cardData.size, cardData.size);
                         if(card.is_legacy) ctx.drawImage(legacy, x + ((title.length * 6) + 100) + (card.is_maverick ? 20 : 0), y - 18, cardData.size, cardData.size);
                         res2();
                     });

@@ -1,3 +1,5 @@
+# 1.5.0
+    -switched !sealed over to firestore
 # 1.4.4
     fuxed sealed
 # 1.4.3
