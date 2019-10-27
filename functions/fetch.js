@@ -25,31 +25,33 @@ const fetchDeck = (name) => new Promise(resolve => {
         }).catch(console.error);
 });
 
-const fetchDeckBasic = (id) => {
-    return new Promise(resolve => {
-        db.collection('decks').doc(id).get()
-            .then(async doc => {
-                if(doc.exists) {
-                    const deck = doc.data();
-                    deck.houses = get(deck, '_links.houses');
-                    deck.cards = await buildCardList(deck);
-                    resolve(deck);
-                } else {
-                    console.log(`${ id } is not in DB, fetching from the man`);
-                    axios.get(encodeURI(deckSearchAPI + id))
-                        .then(async response => {
-                            const deck = get(response, 'data.data', false);
-                            if(deck) {
-                                db.collection('decks').doc(deck.id).set(deck);
-                                deck.houses = get(deck, '_links.houses');
-                                deck.cards = await buildCardList(deck);
-                            }
-                            resolve(deck);
-                        }).catch(console.error);
-                }
-            }).catch(console.error);
-    });
-};
+const fetchDeckBasic = (id) => new Promise(resolve => {
+    db.collection('decks').doc(id).get()
+        .then(async doc => {
+            if(doc.exists) {
+                const deck = doc.data();
+                deck.houses = get(deck, '_links.houses');
+                deck.cards = await buildCardList(deck);
+                resolve(deck);
+            } else {
+                console.log(`${ id } is not in DB, fetching from the man`);
+                resolve(await fetchDeckBasicMV(id));
+            }
+        }).catch(console.error);
+});
+
+const fetchDeckBasicMV = (id) => new Promise(resolve => {
+    axios.get(encodeURI(deckSearchAPI + id))
+        .then(async response => {
+            const deck = get(response, 'data.data', false);
+            if(deck) {
+                db.collection('decks').doc(deck.id).set(deck);
+                deck.houses = get(deck, '_links.houses');
+                deck.cards = await buildCardList(deck);
+            }
+            resolve(deck);
+        }).catch(console.error);
+});
 
 const buildCardList = (deck) => new Promise(async resolve => {
     const cardRefs = deck.cards.map(card => db.collection('AllCards').doc(card));
@@ -195,6 +197,7 @@ const format = (text) => {
 
 exports.fetchDeck = fetchDeck;
 exports.fetchDeckBasic = fetchDeckBasic;
+exports.fetchDeckBasicMV = fetchDeckBasicMV;
 exports.fetchCard = fetchCard;
 exports.fetchDoK = fetchDoK;
 exports.fetchFAQ = fetchFAQ;

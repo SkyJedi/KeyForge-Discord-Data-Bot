@@ -1,7 +1,7 @@
 const main = require('../index');
 const Discord = require('discord.js');
 const {buildDeckList} = require('./buildDeckList');
-const {fetchDeck, fetchDeckBasic, fetchDoK, getFlagLang} = require('./fetch');
+const {fetchDeck, fetchDeckBasicMV, fetchDoK, getFlagLang} = require('./fetch');
 const {emoji} = require('./emoji');
 const {sets} = require('../card_data');
 const {get, snakeCase} = require('lodash');
@@ -10,8 +10,8 @@ const deck = async (msg, params, flags) => {
     const lang = getFlagLang(flags);
     let deck;
     if(0 >= params.length) return;
-    if(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/.test(params[0])) deck = await fetchDeckBasic(params[0], lang);
-    else deck = await fetchDeck(params.join('+'), lang);
+    if(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/.test(params[0])) deck = await fetchDeckBasicMV(params[0]);
+    else deck = await fetchDeck(params.join('+'));
 
     const embed = new Discord.RichEmbed();
     if(deck) {
