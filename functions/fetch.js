@@ -17,8 +17,10 @@ const fetchDeck = (name) => new Promise(resolve => {
             let deck;
             let index = findIndex(response.data.data, deck => deck.name.toLowerCase() === name.replace(/\+/gi, ' '));
             deck = get(response, `data.data[${ Math.max(index, 0) }]`, false);
-            deck.cards = await buildCardList(deck);
-            deck.houses = get(deck, '_links.houses');
+            if(deck) {
+                deck.cards = await buildCardList(deck);
+                deck.houses = get(deck, '_links.houses');
+            }
             resolve(deck);
         }).catch(console.error);
 });
