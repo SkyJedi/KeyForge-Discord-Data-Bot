@@ -20,12 +20,12 @@ const deck = async (msg, params, flags) => {
         Promise.all([dokStats, attachment]).then(([dokStats, attachment]) => {
             const houses = deck._links.houses.map(house => emoji(house.toLowerCase())).join(' • '),
                 power = ` • ${ deck.power_level } ${ emoji('power') } • ${ deck.chains } ${ emoji('chains') } • ${ deck.wins }W/${ deck.losses }L`,
-                cardStats = getCardStats(deck.cards, deck.expansion),
+                cardStats = getCardStats(deck.cards),
                 cardTypes = Object.keys(cardStats.card_type).map(type => `${ cardStats.card_type[type] } ${ type }s`).join(' • '),
                 amber = `${ cardStats.amber }${ emoji('aember') }`,
                 mavericks = cardStats.is_maverick > 0 ? `${ cardStats.is_maverick }${ emoji('maverick') }` : false,
                 anomaly = cardStats.is_anomaly > 0 ? `${ cardStats.is_anomaly }${ emoji('anomaly') }` : false,
-                legacy = cardStats.legacy > 0 ? `${ cardStats.legacy }${ emoji('legacy') }` : false,
+                legacy = deck.set_era_cards.Legacy.length > 0 ? `${ deck.set_era_cards.Legacy.length }${ emoji('legacy') }` : false,
                 rarity = ['Special', 'Rare', 'Uncommon', 'Common'].map(type => {
                     if(cardStats.rarity[type]) return `${ cardStats.rarity[type] }${ emoji(type.toLowerCase()) }`;
                 }).filter(Boolean).join(' • '),
@@ -47,7 +47,7 @@ const deck = async (msg, params, flags) => {
     } else main.sendMessage(msg, embed.setColor('FF0000').setDescription(`Deck - ${ params.join(' ') }: not found!`));
 };
 
-const getCardStats = (cards, expansion) => {
+const getCardStats = (cards) => {
     return {
         amber: cards.reduce((acc, card) => acc + card.amber, 0),
         card_type: cards.reduce((acc, card) => ({...acc, [card.card_type]: acc[card.card_type] + 1}),
@@ -60,7 +60,6 @@ const getCardStats = (cards, expansion) => {
             }), {}),
         is_maverick: cards.filter(card => card.is_maverick).length,
         is_anomaly: cards.filter(card => card.is_anomaly).length,
-        legacy: cards.filter(card => +card.expansion < +expansion).length
     };
 };
 

@@ -1,3 +1,5 @@
+# 1.5.1
+    all_cards DB is now in firestore
 # 1.5.0
     -switched !sealed over to firestore
 # 1.4.4

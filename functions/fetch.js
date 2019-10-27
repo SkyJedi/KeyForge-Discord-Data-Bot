@@ -1,16 +1,16 @@
 const axios = require('axios');
-const fs = require('fs');
 const {db} = require('./firestore');
 const uuid = require('uuid/v4');
 const {get, filter, findIndex, sortBy, round} = require('lodash');
-const path = require('path');
-const {deckSearchAPI, dokAPI, dokKey} = require('../config');
+
+const {deckSearchAPI, dokAPI, dokKey, twilioAccountSid, twilioToken, twilioSender, twilioReceiver} = require('../config');
 const {langs, sets} = require('../card_data');
-const sleep = (sec) => new Promise(resolve => setTimeout(resolve, sec * 1000));
 const cards = require('../card_data/');
-const all_cards = require('../card_data/all_cards');
-const new_cards = require('../card_data/new_cards');
 const faq = require('../card_data/faq');
+const twilio = require('twilio')(twilioAccountSid, twilioToken);
+
+const text = (msg) => twilio.messages.create({from: twilioSender, to: twilioReceiver, body: msg});
+
 const fetchDeck = (name, lang = 'en') => {
     return new Promise(resolve => {
         axios.get(encodeURI(deckSearchAPI + '?search=' + name), {headers: {'Accept-Language': lang}})
@@ -18,9 +18,8 @@ const fetchDeck = (name, lang = 'en') => {
                 let deck;
                 let index = findIndex(response.data.data, deck => deck.name.toLowerCase() === name.replace(/\+/gi, ' '));
                 deck = get(response, `data.data[${ Math.max(index, 0) }]`, false);
-                deck.cards = await buildCardList(get(deck, 'cards', []), deck);
+                deck.cards = await buildCardList(deck);
                 deck.houses = get(deck, '_links.houses');
-                deck.cardList = get(deck, '_links.cards');
                 resolve(deck);
             }).catch(console.error);
     });
@@ -32,25 +31,32 @@ const fetchDeckBasic = (id) => {
             .then(async response => {
                 const deck = get(response, 'data.data', false);
                 deck.houses = get(deck, '_links.houses');
-                deck.cardList = get(deck, '_links.cards');
-                deck.cards = await buildCardList(get(deck, 'cards', []), deck);
+                deck.cards = await buildCardList(deck);
                 resolve(deck);
             }).catch(console.error);
     });
 };
 
-const buildCardList = (cardList, deck) => {
-    return new Promise(async resolve => {
-        const cards = await cardList.map(async card => {
-            let data = all_cards.find(o => o.id === card);
-            if(!data) data = await fetchUnknownCard(card, deck.id).catch(console.error);
-            await sleep(2);
-            data.is_legacy = get(deck, 'set_era_cards.Legacy', []).includes(card);
-            return data;
+const buildCardList = (deck) => new Promise(async resolve => {
+    const cardRefs = deck.cards.map(card => db.collection('AllCards').doc(card));
+    return db.runTransaction(transaction => {
+        return transaction.getAll(...cardRefs).then(async docs => {
+            let list = [];
+            for(let x = 0; x < docs.length; x++) {
+                if(docs[x].exists) {
+                    let card = docs[x].data();
+                    card.is_legacy = deck.set_era_cards.Legacy.includes(card.id);
+                    list.push(card);
+                } else {
+                    let unknownCard = await fetchUnknownCard(deck.cards[x], deck.id);
+                    unknownCard.is_legacy = deck.set_era_cards.Legacy.includes(unknownCard.id);
+                    list.push(unknownCard);
+                }
+            }
+            resolve(sortBy(list, ['house', 'card_number']));
         });
-        Promise.all(cards).then(cards => resolve(sortBy(cards, ['house', 'card_number'])));
     });
-};
+});
 
 const fetchCard = (search, flags) => {
     const set = getFlagSet(flags),
@@ -58,30 +64,28 @@ const fetchCard = (search, flags) => {
     let final;
     final = cards[lang].find(card => card.card_title.toLowerCase() === search && (set ? card.expansion === set : true));
     if(final) return final;
+    final = cards[lang].find(card => card.card_number.toLowerCase() === search && (set ? card.expansion - 1 === set : true));
+    if(final) return final;
+    final = cards[lang].find(card => +card.card_number === +search && (set ? card.expansion === set : true));
+    if(final) return final;
     final = cards[lang].find(card => card.card_title.toLowerCase().startsWith(search) && (set ? card.expansion === set : true));
     if(final) return final;
     final = cards[lang].find(card => card.card_title.toLowerCase().endsWith(search) && (set ? card.expansion === set : true));
-    if(final) return final;
-    final = cards[lang].find(card => +card.card_number === +search && (set ? card.expansion === set : true));
     if(final) return final;
     final = cards[lang].find(card => card.card_title.toLowerCase().replace(/['"’`“”\d]/g, '').includes(search.replace(/['"’`“”\d]/g, '')) && (set ? card.expansion === set : true));
     return final;
 };
 
-const fetchUnknownCard = (cardId, deckId) => {
-    return new Promise(async resolve => {
-        console.log(`${ cardId } not found, fetching from the man`);
-        const fetchedCards = await axios.get(`http://www.keyforgegame.com/api/decks/${ deckId }/?links=cards`);
-        const card = fetchedCards.data._linked.cards.find(o => o.id === cardId);
-        if(!new_cards.find(o => o.id === cardId)) {
-            fs.writeFile(path.join(__dirname, '../card_data/new_cards.json'), JSON.stringify(new_cards.concat(card)), (err) => {
-                if(err) throw err;
-                console.log(`${ cardId } has been added to new_cards.json`);
-                resolve(card);
-            });
-        } else resolve(card);
+const fetchUnknownCard = (cardId, deckId) => new Promise(async resolve => {
+    console.log(`${ cardId } not found, fetching from the man`);
+    const fetchedCards = await axios.get(`http://www.keyforgegame.com/api/decks/${ deckId }/?links=cards`);
+    const card = fetchedCards.data._linked.cards.find(o => o.id === cardId);
+    resolve(card);
+    db.collection('AllCards').doc(card.id).set(card).then(() => {
+        console.log(`${ card.id } has been added to firestore`);
+        text(`${ card.card_title } in House ${ card.house } had been found!`);
     });
-};
+});
 
 const fetchRandomDecks = (expansion) => new Promise(resolve => {
     const key = uuid();
@@ -174,6 +178,7 @@ const format = (text) => {
     text = text.replace(/<B>/gi, "**");
     return text;
 };
+
 exports.fetchDeck = fetchDeck;
 exports.fetchDeckBasic = fetchDeckBasic;
 exports.fetchCard = fetchCard;
