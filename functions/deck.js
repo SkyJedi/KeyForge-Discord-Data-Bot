@@ -30,7 +30,7 @@ const buildDeck = (msg, deck, flags) => {
         description += ` • ${deck.power_level} ${emoji('power')} • ${deck.chains} ${emoji('chains')} • ${deck.wins}W/${deck.losses}L\n`;
         description += Object.keys(cardStats.card_type).map(type => `${cardStats.card_type[type]} ${type}s`).join(' • ') + '\n';
         description += `${cardStats.amber}${emoji('aember')} • `;
-        description += ['Special', 'Rare', 'Uncommon', 'Common'].map(type => cardStats.rarity[type] ? `${cardStats.rarity[type]}${emoji(type.toLowerCase())}` : '').join(' • ');
+        description += ['Special', 'Rare', 'Uncommon', 'Common'].map(type => cardStats.rarity[type] ? `${cardStats.rarity[type]}${emoji(type.toLowerCase())}` : false).filter(Boolean).join(' • ');
         description += ([mavericks, legacy, anomaly].some(type => type) ? ' • ' : '') + [mavericks, legacy, anomaly].filter(type => type).join(' • ') + '\n';
         description += `${dokStats.sas}  •  ${dokStats.sasStar}\n${dokStats.deckAERC}\n`;
         description += `[Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) • [Decks of KeyForge](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord) • [Burger Tokens](https://burgertokens.com/pages/keyforge-deck-analyzer?deck=${deck.id}&powered_by=archonMatrixDiscord)`;
