@@ -15,8 +15,8 @@ const rule = (msg, params) => {
 		embed.setColor('1DE5C7')
 			.setTitle(`RULE - ${upperCase(key)}`)
 			.setDescription(format(rules[key]))
-			.setFooter("Data pulled from Official rules v1.4 Sept, 2019")
-			.setURL("https://images-cdn.fantasyflightgames.com/filer_public/88/71/8871df4e-5647-4a22-a8cc-4e6b0a46a15c/keyforge_rulebook_v10-compressed.pdf");
+			.setFooter("Data pulled from Official rules v1.5 Nov, 2019")
+			.setURL("https://images-cdn.fantasyflightgames.com/filer_public/7f/d1/7fd1d910-f915-4b2c-9941-9457a8ab693a/keyforge_rulebook_v11-compressed.pdf");
 		main.sendMessage(msg, {embed});
 	}
 };

@@ -8,8 +8,8 @@ const timingChart = async (msg, params) => {
 	const step = timing.find(x => params.every(y => x.phase.toLowerCase().includes(y.toLowerCase())));
 	const embed = new Discord.RichEmbed()
 		.setColor('800000')
-		.setFooter("Data pulled from Official rules v1.4 Sept, 2019")
-		.setURL("https://images-cdn.fantasyflightgames.com/filer_public/88/71/8871df4e-5647-4a22-a8cc-4e6b0a46a15c/keyforge_rulebook_v10-compressed.pdf");
+		.setFooter("Data pulled from Official rules v1.5 Nov, 2019")
+		.setURL("https://images-cdn.fantasyflightgames.com/filer_public/7f/d1/7fd1d910-f915-4b2c-9941-9457a8ab693a/keyforge_rulebook_v11-compressed.pdf");
 	if (step && params.length > 0) {
 		embed.setTitle(toUpper(step.phase))
 			.setDescription(format(step.steps));

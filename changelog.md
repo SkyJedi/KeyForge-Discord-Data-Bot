@@ -1,3 +1,6 @@
+# 1.5.2
+    redid deck embed
+    redid fetch to prioritize my DB
 # 1.5.1
     all_cards DB is now in firestore
 # 1.5.0

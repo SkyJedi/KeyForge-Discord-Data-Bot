@@ -65,7 +65,9 @@ config.json
 data/*
 .idea
 card_images/*
+card_images
 card_data/*
+card_data
 fetchImages.js
 scrapper.js
 OLD

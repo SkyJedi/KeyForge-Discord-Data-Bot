@@ -1,57 +1,56 @@
 const main = require('../index');
 const Discord = require('discord.js');
-const {buildDeckList} = require('./buildDeckList');
-const {fetchDeck, fetchDeckBasicMV, fetchDoK, getFlagLang} = require('./fetch');
-const {emoji} = require('./emoji');
-const {sets} = require('../card_data');
-const {get, snakeCase} = require('lodash');
+const { buildDeckList } = require('./buildDeckList');
+const { fetchDeck, fetchDoK, getFlagLang } = require('./fetch');
+const { emoji } = require('./emoji');
+const { sets } = require('../card_data');
+const { get, snakeCase } = require('lodash');
 
-const deck = async (msg, params, flags) => {
-    const lang = getFlagLang(flags);
-    let deck;
+const deck = (msg, params, flags) => {
     if(0 >= params.length) return;
-    if(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/.test(params[0])) deck = await fetchDeckBasicMV(params[0]);
-    else deck = await fetchDeck(params.join('+'));
+    fetchDeck(params)
+        .then(deck => buildDeck(msg, deck[0], flags))
+        .catch(() => main.sendMessage(msg, new Discord.RichEmbed().setColor('FF0000').setDescription(`Deck - ${params.join(' ')}: not found!`)));
+};
 
+const buildDeck = (msg, deck, flags) => {
+    const lang = getFlagLang(flags);
     const embed = new Discord.RichEmbed();
-    if(deck) {
-        const dokStats = fetchDoK(deck.id);
-        const attachment = buildDeckList(deck, lang);
-        Promise.all([dokStats, attachment]).then(([dokStats, attachment]) => {
-            const houses = deck._links.houses.map(house => emoji(house.toLowerCase())).join(' • '),
-                power = ` • ${ deck.power_level } ${ emoji('power') } • ${ deck.chains } ${ emoji('chains') } • ${ deck.wins }W/${ deck.losses }L`,
-                cardStats = getCardStats(deck.cards),
-                cardTypes = Object.keys(cardStats.card_type).map(type => `${ cardStats.card_type[type] } ${ type }s`).join(' • '),
-                amber = `${ cardStats.amber }${ emoji('aember') }`,
-                mavericks = cardStats.is_maverick > 0 ? `${ cardStats.is_maverick }${ emoji('maverick') }` : false,
-                anomaly = cardStats.is_anomaly > 0 ? `${ cardStats.is_anomaly }${ emoji('anomaly') }` : false,
-                legacy = deck.set_era_cards.Legacy.length > 0 ? `${ deck.set_era_cards.Legacy.length }${ emoji('legacy') }` : false,
-                rarity = ['Special', 'Rare', 'Uncommon', 'Common'].map(type => {
-                    if(cardStats.rarity[type]) return `${ cardStats.rarity[type] }${ emoji(type.toLowerCase()) }`;
-                }).filter(Boolean).join(' • '),
-                links = `[Official](https://www.keyforgegame.com/deck-details/${ deck.id }?powered_by=archonMatrixDiscord) • [Decks of KeyForge](https://decksofkeyforge.com/decks/${ deck.id }?powered_by=archonMatrixDiscord) • [Burger Tokens](https://burgertokens.com/pages/keyforge-deck-analyzer?deck=${ deck.id }&powered_by=archonMatrixDiscord)`,
-                set = get(sets.filter(set => deck.expansion === set.set_number), '[0].flag', 'ERROR'),
-                name = `${ snakeCase(deck.name) }.jpg`,
-                file = new Discord.Attachment(attachment.toBuffer('image/jpeg', {quality: 0.75}), name);
+    const dokStats = fetchDoK(deck.id);
+    const attachment = buildDeckList(deck, lang);
 
-            embed.setColor('178110')
-                .setTitle(` ${ deck.name } • ${ set }`)
-                .addField(houses + power, cardTypes)
-                .addField(amber + ' • ' + rarity + ([mavericks, legacy, anomaly].some(type => type.length > 0) ? ' • ' : '') + [mavericks, legacy, anomaly].filter(type => type).join(' • '), dokStats.sas + ' • ' + dokStats.sasStar)
-                .addField(dokStats.deckAERC, links)
-                .attachFile(file)
-                .setImage(`attachment://${ name }`)
-                .setFooter(`Posted by: @${ msg.member.nickname ? msg.member.nickname : msg.author.username }`);
-            main.sendMessage(msg, {embed}, null, flags);
-        }).catch(console.error);
-    } else main.sendMessage(msg, embed.setColor('FF0000').setDescription(`Deck - ${ params.join(' ') }: not found!`));
+    Promise.all([dokStats, attachment]).then(([dokStats, attachment]) => {
+        const cardStats = getCardStats(deck.cards);
+        const mavericks = cardStats.is_maverick > 0 ? `${cardStats.is_maverick}${emoji('maverick')}` : false;
+        const anomaly = cardStats.is_anomaly > 0 ? `${cardStats.is_anomaly}${emoji('anomaly')}` : false;
+        const legacy = deck.set_era_cards.Legacy.length > 0 ? `${deck.set_era_cards.Legacy.length}${emoji('legacy')}` : false;
+        const set = get(sets.filter(set => deck.expansion === set.set_number), '[0].flag', 'ERROR');
+        const name = `${snakeCase(deck.name)}.jpg`;
+        let description = deck._links.houses.map(house => emoji(house.toLowerCase())).join(' • ');
+        description += ` • ${deck.power_level} ${emoji('power')} • ${deck.chains} ${emoji('chains')} • ${deck.wins}W/${deck.losses}L\n`;
+        description += Object.keys(cardStats.card_type).map(type => `${cardStats.card_type[type]} ${type}s`).join(' • ') + '\n';
+        description += `${cardStats.amber}${emoji('aember')} • `;
+        description += ['Special', 'Rare', 'Uncommon', 'Common'].map(type => cardStats.rarity[type] ? `${cardStats.rarity[type]}${emoji(type.toLowerCase())}` : '').join(' • ');
+        description += ([mavericks, legacy, anomaly].some(type => type) ? ' • ' : '') + [mavericks, legacy, anomaly].filter(type => type).join(' • ') + '\n';
+        description += `${dokStats.sas}  •  ${dokStats.sasStar}\n${dokStats.deckAERC}\n`;
+        description += `[Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) • [Decks of KeyForge](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord) • [Burger Tokens](https://burgertokens.com/pages/keyforge-deck-analyzer?deck=${deck.id}&powered_by=archonMatrixDiscord)`;
+        const file = new Discord.Attachment(attachment.toBuffer('image/jpeg', { quality: 0.75 }), name);
+
+        embed.setColor('178110')
+            .setTitle(` ${deck.name} • ${set}`)
+            .setDescription(description)
+            .attachFile(file)
+            .setImage(`attachment://${name}`)
+            .setFooter(`Posted by: ${msg.member ? (msg.member.nickname ? msg.member.nickname : msg.author.username) : 'you'}`);
+        main.sendMessage(msg, { embed }, null, flags);
+    }).catch(console.error);
 };
 
 const getCardStats = (cards) => {
     return {
         amber: cards.reduce((acc, card) => acc + card.amber, 0),
-        card_type: cards.reduce((acc, card) => ({...acc, [card.card_type]: acc[card.card_type] + 1}),
-            {Action: 0, Artifact: 0, Creature: 0, Upgrade: 0}
+        card_type: cards.reduce((acc, card) => ({ ...acc, [card.card_type]: acc[card.card_type] + 1 }),
+            { Action: 0, Artifact: 0, Creature: 0, Upgrade: 0 }
         ),
         rarity: cards.reduce((acc, card) =>
             ({
@@ -66,3 +65,4 @@ const getCardStats = (cards) => {
 const rarityFix = rarity => rarity === 'FIXED' || rarity === 'Variant' ? 'Special' : rarity;
 
 exports.deck = deck;
+exports.buildDeck = buildDeck;
