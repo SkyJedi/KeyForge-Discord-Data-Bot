@@ -55,6 +55,7 @@ const onMessage = (msg, client) => {
 			break;
 		case 'd':
 			commandName = 'deck';
+			params = [params.join(' ')];
 			break;
 		case 'f':
 			commandName = 'faq';

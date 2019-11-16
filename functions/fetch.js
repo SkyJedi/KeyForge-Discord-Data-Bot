@@ -13,7 +13,7 @@ const deckIdRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}
 const text = (msg) => twilio.messages.create({ from: twilioSender, to: twilioReceiver, body: msg });
 
 const fetchDeck = (params) => new Promise((resolve, reject) => {
-    const data = params.map(param => deckIdRegex.test(param) ? fetchDeckId(param) : fetchDeckNameMV(param));
+    const data = params.map(param => deckIdRegex.test(param) ? fetchDeckId(param.match(deckIdRegex)[0]) : fetchDeckNameMV(param));
     Promise.all(data).then(data => resolve(data)).catch(() => reject());
 });
 
