@@ -1,11 +1,11 @@
 const axios = require('axios');
+const Fuse = require('fuse.js');
 const { db } = require('./firestore');
 const uuid = require('uuid/v4');
 const { get, filter, findIndex, sortBy, round, shuffle } = require('lodash');
 
 const { deckSearchAPI, dokAPI, dokKey, twilioAccountSid, twilioToken, twilioSender, twilioReceiver } = require('../config');
 const { langs, sets, houses } = require('../card_data');
-const cards = require('../card_data/');
 const faq = require('../card_data/faq');
 const twilio = require('twilio')(twilioAccountSid, twilioToken);
 const deckIdRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
@@ -202,19 +202,20 @@ const sasStarRating = (x) => {
 const fetchCard = (search, flags) => {
     const set = getFlagSet(flags),
         lang = getFlagLang(flags);
-    let final;
-    final = cards[lang].find(card => card.card_title.toLowerCase() === search && (set ? card.expansion === set : true));
-    if(final) return final;
-    final = cards[lang].find(card => card.card_number.toLowerCase() === search && (set ? card.expansion - 1 === set : true));
-    if(final) return final;
-    final = cards[lang].find(card => +card.card_number === +search && (set ? card.expansion === set : true));
-    if(final) return final;
-    final = cards[lang].find(card => card.card_title.toLowerCase().startsWith(search) && (set ? card.expansion === set : true));
-    if(final) return final;
-    final = cards[lang].find(card => card.card_title.toLowerCase().endsWith(search) && (set ? card.expansion === set : true));
-    if(final) return final;
-    final = cards[lang].find(card => card.card_title.toLowerCase().replace(/['"’`“”\d]/g, '').includes(search.replace(/['"’`“”\d]/g, '')) && (set ? card.expansion === set : true));
-    return final;
+    const options = {
+        shouldSort: true,
+        keys: [{
+            name: 'card_number',
+            weight: 0.3
+        }, {
+            name: 'card_title',
+            weight: 0.3
+        }],
+    };
+    const cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
+    const fuse = new Fuse(cards, options);
+    const final = fuse.search(search);
+    return get(final, '[0]');
 };
 const fetchFAQ = (params) => faq.find(x => params.every(y => x.question.toLowerCase().includes(y.toLowerCase())));
 

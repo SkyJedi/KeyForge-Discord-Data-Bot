@@ -1,3 +1,5 @@
+# 1.5.3
+    added fuse.js for card search
 # 1.5.2
     redid deck embed
     redid fetch to prioritize my DB

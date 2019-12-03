@@ -1,6 +1,6 @@
 {
   "name": "keyforge-discord-data-bot",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Discord bot to lookup data for KeyForge",
   "main": "index.js",
   "scripts": {
@@ -23,6 +23,7 @@
     "discord.js": "^11.5.1",
     "firebase": "^7.2.1",
     "firebase-admin": "^8.6.1",
+    "fuse.js": "^3.4.6",
     "lodash": "^4.17.15",
     "path": "^0.12.7",
     "qrcode": "^1.4.1",

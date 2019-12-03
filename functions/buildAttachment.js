@@ -9,10 +9,9 @@ const buildAttachment = (data, name, flags) => new Promise(resolve => {
 	const lang = getFlagLang(flags);
     const maverick = loadImage(path.join(__dirname, `../card_images/cardback/card_mavericks/Maverick.png`));
     const legacy = loadImage(path.join(__dirname, `../card_images/cardback/Legacy.png`));
-    const anomaly = loadImage(path.join(__dirname, `../card_images/cardback/Anomaly.png`));
     const cards = data.map(card => loadImage(path.join(__dirname, `../card_images/${ lang }/${ card.expansion }/${ card.card_number }.png`)));
 
-    Promise.all([maverick, legacy, anomaly, ...cards]).then(([maverick, legacy, anomaly, ...cards]) => {
+    Promise.all([maverick, legacy, ...cards]).then(([maverick, legacy, ...cards]) => {
         const finalCards = cards.map((card, index) => new Promise(async resolve1 => {
             const canvasCard = createCanvas(width, height);
             const ctxCard = canvasCard.getContext('2d');
@@ -24,9 +23,6 @@ const buildAttachment = (data, name, flags) => new Promise(resolve => {
             }
             if(data[index].is_legacy) {
                 ctxCard.drawImage(legacy, 500, 735, 100, 100);
-            }
-            if(data[index].is_anomaly) {
-                ctxCard.drawImage(anomaly, 500, 735, 100, 100);
             }
             resolve1(canvasCard);
         }));
