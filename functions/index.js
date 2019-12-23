@@ -13,6 +13,7 @@ exports.randomHand = require('./randomHand').randomHand;
 exports.rule = require('./rule').rule;
 exports.stats = require('./stats').stats;
 exports.sealed = require('./sealed').sealed;
+exports.trait = require('./trait').trait;
 exports.version = require('./version').version;
 exports.multiDeck = require('./multiDeck').multiDeck;
 exports.weirdo = require('./weirdo').weirdo;

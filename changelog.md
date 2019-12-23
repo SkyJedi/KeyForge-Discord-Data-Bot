@@ -1,3 +1,5 @@
+# 1.5.4
+    addes !trait
 # 1.5.3
     added fuse.js for card search
 # 1.5.2

@@ -1,5 +1,6 @@
 const axios = require('axios');
 const Fuse = require('fuse.js');
+const levenshtein = require('js-levenshtein');
 const { db } = require('./firestore');
 const uuid = require('uuid/v4');
 const { get, filter, findIndex, sortBy, round, shuffle } = require('lodash');
@@ -16,7 +17,6 @@ const fetchDeck = (params) => new Promise((resolve, reject) => {
     const data = params.map(param => deckIdRegex.test(param) ? fetchDeckId(param.match(deckIdRegex)[0]) : fetchDeckNameMV(param));
     Promise.all(data).then(data => resolve(data)).catch(() => reject());
 });
-
 const fetchDeckId = (id) => new Promise((resolve, reject) => {
     db.collection('decks').doc(id).get()
         .then(doc => {
@@ -100,7 +100,6 @@ const fetchUnknownCard = (cardId, deckId) => new Promise(resolve => {
             });
         });
 });
-
 const fetchMavCard = (name, house) => new Promise((resolve, reject) => {
     db.collection('AllCards').limit(1)
         .where('card_title', '==', name)
@@ -204,22 +203,56 @@ const fetchCard = (search, flags) => {
         lang = getFlagLang(flags);
     const options = {
         shouldSort: true,
+        tokenize: true,
+        matchAllTokens: true,
+        includeScore: true,
+        threshold: 0.3,
         keys: [{
             name: 'card_number',
             weight: 0.3
         }, {
             name: 'card_title',
-            weight: 0.3
+            weight: 0.7
         }],
     };
     const cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
     const fuse = new Fuse(cards, options);
-    const final = fuse.search(search);
-    return get(final, '[0]');
+    let results = fuse.search(search);
+    if(0 >= results.length) return [];
+    results = results.filter(result => result.score === results[0].score);
+    results = results.map(result => {
+        result.score = levenshtein(result.item.card_title, search);
+        return result;
+    });
+    results = sortBy(results, ['score']);
+    return get(results, '[0].item');
+};
+const fetchTrait = (search, flags) => {
+    const set = getFlagSet(flags),
+        lang = getFlagLang(flags);
+    const options = {
+        shouldSort: true,
+        tokenize: true,
+        matchAllTokens: true,
+        includeScore: true,
+        threshold: 0.3,
+        keys: ['traits'],
+    };
+    const cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
+    const fuse = new Fuse(cards, options);
+    let results = fuse.search(search);
+    if(0 >= results.length) return [];
+    results = results.filter(result => result.score === results[0].score);
+    results = results.map(result => {
+        result.score = levenshtein(result.item.traits, search);
+        return result;
+    });
+    return sortBy(results.map(item => item.item), ['card_title']);
 };
 const fetchFAQ = (params) => faq.find(x => params.every(y => x.question.toLowerCase().includes(y.toLowerCase())));
 
 const getFlagSet = (flags) => get(filter(sets, set => flags.includes(set.flag.toLowerCase())), '[0].set_number');
+const getSet = (number) => get(sets.filter(set => number === set.set_number), '[0].flag', 'ERROR');
 const getFlagHouse = (flags) => houses[filter(Object.keys(houses), house => flags.includes(house))];
 const getFlagLang = (flags) => get(filter(flags, flag => langs.includes(flag)), '[0]', 'en');
 const getFlagNumber = (flags, defaultNumber = 0) => +(get(filter(flags, flag => Number.isInteger(+flag)), '[0]', defaultNumber));
@@ -229,6 +262,7 @@ const format = (text) => text.replace(/<I>/gi, "*").replace(/<B>/gi, "**");
 exports.fetchDeck = fetchDeck;
 exports.fetchDeckWithCard = fetchDeckWithCard;
 exports.fetchCard = fetchCard;
+exports.fetchTrait = fetchTrait;
 exports.fetchDoK = fetchDoK;
 exports.fetchFAQ = fetchFAQ;
 exports.fetchUnknownCard = fetchUnknownCard;
@@ -236,6 +270,7 @@ exports.fetchRandomDecks = fetchRandomDecks;
 exports.getFlagLang = getFlagLang;
 exports.getFlagHouse = getFlagHouse;
 exports.getFlagSet = getFlagSet;
+exports.getSet = getSet;
 exports.getFlagNumber = getFlagNumber;
 exports.format = format;
 exports.fetchMavCard = fetchMavCard;
