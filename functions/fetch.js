@@ -217,34 +217,33 @@ const fetchCard = (search, flags) => {
     };
     const cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
     const fuse = new Fuse(cards, options);
-    let results = fuse.search(search);
-    if(0 >= results.length) return [];
-    results = results.filter(result => result.score === results[0].score);
+    let results = fuse.search(search)
+    if(0 >= results.length) return
+    results = results.filter(result => result.score === results[0].score)
     results = results.map(result => {
-        result.score = levenshtein(result.item.card_title, search);
-        return result;
-    });
-    results = sortBy(results, ['score']);
-    return get(results, '[0].item');
+        result.score = levenshtein(result.item.card_title, search)
+        return result
+    })
+    results = sortBy(results, ['score'])
+    return get(results, '[0].item')
 };
-const fetchTrait = (search, flags) => {
+const fetchText = (search, flags, type = 'card_text') => {
     const set = getFlagSet(flags),
-        lang = getFlagLang(flags);
+      lang = getFlagLang(flags)
     const options = {
         shouldSort: true,
         tokenize: true,
         matchAllTokens: true,
         includeScore: true,
         threshold: 0.3,
-        keys: ['traits'],
-    };
+        keys: [type],
+    }
     const cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
     const fuse = new Fuse(cards, options);
     let results = fuse.search(search);
     if(0 >= results.length) return [];
-    results = results.filter(result => result.score === results[0].score);
     results = results.map(result => {
-        result.score = levenshtein(result.item.traits, search);
+        result.score = levenshtein(result.item[type], search)
         return result;
     });
     return sortBy(results.map(item => item.item), ['card_title']);
@@ -261,9 +260,9 @@ const format = (text) => text.replace(/<I>/gi, "*").replace(/<B>/gi, "**");
 
 exports.fetchDeck = fetchDeck;
 exports.fetchDeckWithCard = fetchDeckWithCard;
-exports.fetchCard = fetchCard;
-exports.fetchTrait = fetchTrait;
-exports.fetchDoK = fetchDoK;
+exports.fetchCard = fetchCard
+exports.fetchText = fetchText
+exports.fetchDoK = fetchDoK
 exports.fetchFAQ = fetchFAQ;
 exports.fetchUnknownCard = fetchUnknownCard;
 exports.fetchRandomDecks = fetchRandomDecks;

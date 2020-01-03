@@ -1,3 +1,5 @@
+# 1.5.5
+    added !text
 # 1.5.4
     addes !trait
 # 1.5.3

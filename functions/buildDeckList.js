@@ -85,8 +85,9 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
                         ctx.font = `20px allFonts`;
                         ctx.fillText(title, x + 60, y);
                         if(card.is_maverick) ctx.drawImage(maverick, x + ((title.length * 6) + 100), y - 18, cardData.size, cardData.size);
-                        if(card.is_anomaly) ctx.drawImage(anomaly, x + ((title.length * 6) + 100), y - 18, cardData.size, cardData.size);
-                        if(card.is_legacy) ctx.drawImage(legacy, x + ((title.length * 6) + 100) + (card.is_maverick ? 20 : 0), y - 18, cardData.size, cardData.size);
+                        if(card.is_anomaly) ctx.drawImage(anomaly, x + ((title.length * 6) + 100), y - 18, cardData.size, cardData.size)
+                        if(card.is_legacy) ctx.drawImage(legacy, x + ((title.length * 6) + 100) + (card.is_maverick ? 20 : 0), y - 18,
+                          cardData.size * 0.8, cardData.size)
                         res2();
                     });
                 });

@@ -1,12 +1,11 @@
 {
   "name": "keyforge-discord-data-bot",
-  "version": "1.5.4",
+  "version": "1.5.5",
   "description": "Discord bot to lookup data for KeyForge",
   "main": "index.js",
   "scripts": {
     "start": "node start.js",
-    "debug": "nodemon start.js",
-    "fetchImages": "node fetchImages.js"
+    "debug": "nodemon start.js"
   },
   "keywords": [
     "discord",
