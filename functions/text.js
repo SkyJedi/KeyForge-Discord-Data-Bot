@@ -10,7 +10,9 @@ const text = (msg, params, flags) => {
   if(0 < cards.length) {
     let filtered = uniqBy(cards, 'card_title')
     let text = filtered.map(
-      card => `${card.card_title} • ${cards.filter(x => x.card_title === card.card_title).map(x => getSet(x.expansion)).join('/')}`).join('\n')
+        card => `${card.card_title} • ${cards.filter(x => x.card_title === card.card_title).
+            map(x => getSet(x.expansion)).
+            join('/')} • ${card.card_type}`).join('\n')
     if(text.length > 2048) text = text.slice(0, 2030) + '\n and more.....'
     const embed = new Discord.RichEmbed().setColor('a6a6a6').setTitle(`Cards with text: ${params.join(', ').toUpperCase()}`).setDescription(text)
     main.sendMessage(msg, { embed })
