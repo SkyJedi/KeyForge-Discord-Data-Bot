@@ -1,3 +1,5 @@
+# 1.5.6
+    added server set point for languages
 # 1.5.5
     added !text
 # 1.5.4

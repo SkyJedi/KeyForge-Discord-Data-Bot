@@ -1,11 +1,12 @@
 const knownCommands = require('./functions/index');
+const { fetchServerLanguage, getFlagLang } = require('./functions/fetch');
 const commandPrefix = require('./config').prefix;
 const version = require('./package').version;
-const {dropWhile, get} = require('lodash');
+const { dropWhile, get } = require('lodash');
 
 // Called every time a message comes in:
-const onMessage = (msg, client) => {
-	if (msg.author.bot) return; // Ignore messages from the bot
+const onMessage = async (msg, client) => {
+	if(msg.author.bot) return; // Ignore messages from the bot
 	if(msg.content.includes('`')) return; // Ignore messages that contain `
 	let params = msg.content.toLowerCase().split(' '),
 		commandName = params.map(a => a.startsWith(commandPrefix) && a).filter(Boolean).join().slice(1),
@@ -16,34 +17,35 @@ const onMessage = (msg, client) => {
 			deck: /{(.*?)}/,
 		};
 
-	if (commandName) {
-		params = dropWhile(params, a => !a.includes(commandPrefix))
-			.slice(1)
-			.filter(a => !a.startsWith('-'));
+	if(commandName) {
+		params = dropWhile(params, a => !a.includes(commandPrefix)).slice(1).filter(a => !a.startsWith('-'));
 	} else {
 		Object.keys(types).forEach(a => {
 			let message = msg.content.toLowerCase(), arr = [];
 			do {
 				let param = message.match(types[a]);
-				if (param) {
+				if(param) {
 					arr.push(get(param, '1', param[0]));
 					message = message.replace(get(param, '0'), '');
 				}
 			} while (message.match(types[a]));
-			if (arr.length > 0) {
+			if(arr.length > 0) {
 				commandName = a;
-				if (params < 1) flags = [...flags, 'delete'];
+				if(params < 1) flags = [...flags, 'delete'];
 				params = arr;
 			}
-			if ((commandName === 'd' || commandName === 'deck') && params.length > 1) {
+			if((commandName === 'd' || commandName === 'deck') && params.length > 1) {
 				commandName = 'multiDeck';
 				params = params.slice(0, 3);
 			}
 		});
 	}
 
-	if (!commandName) return;
+	if(!commandName) return;
 	params = params.filter(Boolean);
+
+	if(!getFlagLang(flags)) flags = [...flags, await fetchServerLanguage(msg, client)];
+
 	switch (commandName) {
 		case 'c':
 		case 'card':
@@ -74,10 +76,10 @@ const onMessage = (msg, client) => {
 		case 'rc':
 		case 'randomcard':
 			commandName = 'randomCard';
-            break;
-        case 'randomdeck':
-            commandName = 'randomDeck';
-            break;
+			break;
+		case 'randomdeck':
+			commandName = 'randomDeck';
+			break;
 		case 'time':
 		case 'timing':
 		case 'chart':
@@ -89,7 +91,7 @@ const onMessage = (msg, client) => {
 	}
 
 	// If the command is known, let's execute it:
-	if (commandName in knownCommands) {
+	if(commandName in knownCommands) {
 		console.log(`${msg.author.username}, ${commandName}, ${params}, ${flags}, ${new Date()}`);
 		knownCommands[commandName](msg, params, flags, client);
 	}
