@@ -4,7 +4,7 @@ const { buildDeckList } = require('./buildDeckList');
 const { fetchDeck, fetchDoK, getFlagLang } = require('./fetch');
 const { emoji } = require('./emoji');
 const { sets } = require('../card_data');
-const { get, snakeCase } = require('lodash');
+const { get } = require('lodash');
 
 const deck = (msg, params, flags) => {
     if(0 >= params.length) return;
@@ -25,13 +25,15 @@ const buildDeck = (msg, deck, flags) => {
         const anomaly = cardStats.is_anomaly > 0 ? `${cardStats.is_anomaly}${emoji('anomaly')}` : false;
         const legacy = deck.set_era_cards.Legacy.length > 0 ? `${deck.set_era_cards.Legacy.length}${emoji('legacy')}` : false;
         const set = get(sets.filter(set => deck.expansion === set.set_number), '[0].flag', 'ERROR');
-        const name = `${snakeCase(deck.name)}.jpg`;
+        const name = `${deck.id}.jpg`;
         let description = deck._links.houses.map(house => emoji(house.toLowerCase())).join(' • ');
         description += ` • ${deck.power_level} ${emoji('power')} • ${deck.chains} ${emoji('chains')} • ${deck.wins}W/${deck.losses}L\n`;
         description += Object.keys(cardStats.card_type).map(type => `${cardStats.card_type[type]} ${type}s`).join(' • ') + '\n';
         description += `${cardStats.amber}${emoji('aember')} • `;
-        description += ['Special', 'Rare', 'Uncommon', 'Common'].map(type => cardStats.rarity[type] ? `${cardStats.rarity[type]}${emoji(type.toLowerCase())}` : false).filter(Boolean).join(' • ');
-        description += ([mavericks, legacy, anomaly].some(type => type) ? ' • ' : '') + [mavericks, legacy, anomaly].filter(type => type).join(' • ') + '\n';
+        description += ['Special', 'Rare', 'Uncommon', 'Common'].map(
+            type => cardStats.rarity[type] ? `${cardStats.rarity[type]}${emoji(type.toLowerCase())}` : false).filter(Boolean).join(' • ');
+        description += ([mavericks, legacy, anomaly].some(type => type) ? ' • ' : '') +
+            [mavericks, legacy, anomaly].filter(type => type).join(' • ') + '\n';
         description += `${dokStats.sas}  •  ${dokStats.sasStar}\n${dokStats.deckAERC}\n`;
         description += `[Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) • [Decks of KeyForge](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord) • [Burger Tokens](https://burgertokens.com/pages/keyforge-deck-analyzer?deck=${deck.id}&powered_by=archonMatrixDiscord)`;
         const file = new Discord.Attachment(attachment.toBuffer('image/jpeg', { quality: 0.75 }), name);

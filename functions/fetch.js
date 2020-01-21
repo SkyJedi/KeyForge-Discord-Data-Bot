@@ -215,6 +215,12 @@ const fetchCard = (search, flags) => {
 	results = sortBy(results, ['score']);
 	return get(results, '[0].item');
 };
+const fetchReprints = (card, flags) => {
+	const set = getFlagSet(flags),
+		lang = getFlagLang(flags);
+	const cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
+	return cards.filter(x => x.card_title === card.card_title);
+};
 const fetchText = (search, flags, type = 'card_text') => {
 	const set = getFlagSet(flags),
 		lang = getFlagLang(flags),
@@ -235,7 +241,23 @@ const fetchText = (search, flags, type = 'card_text') => {
 	if(cardType) results = results.filter(x => x.item.card_type === cardType);
 	return sortBy(results.map(item => item.item), ['card_title']);
 };
-const fetchFAQ = (params) => faq.find(x => params.every(y => x.question.toLowerCase().includes(y.toLowerCase())));
+const fetchFAQ = (text) => {
+	const options = {
+		shouldSort: true,
+		tokenize: true,
+		matchAllTokens: true,
+		includeScore: true,
+		threshold: 0.3,
+		keys: [
+			{ name: 'question', weight: 0.6 },
+			{ name: 'answer', weight: 0.4 },
+		],
+	};
+	const fuse = new Fuse(faq, options);
+	let results = fuse.search(text);
+	results = sortBy(results.filter(x => x.score < 0.6), 'score');
+	return results.map(item => item.item)[0];
+};
 
 const fetchServerLanguage = (message, client) => new Promise((resolve, reject) => {
 	db.collection('Bots').doc(`${client.user.username}_Discord`).collection(message.channel.id).doc('language').get().then(doc => {
@@ -246,7 +268,6 @@ const fetchServerLanguage = (message, client) => new Promise((resolve, reject) =
 });
 const setServerLanguage = (message, client, flags) => new Promise((resolve, reject) => {
 	const language = getFlagLang(flags);
-	console.log(language);
 	db.collection('Bots').
 		doc(`${client.user.username}_Discord`).
 		collection(message.channel.id).
@@ -268,6 +289,7 @@ const format = (text) => text.replace(/<I>/gi, '*').replace(/<B>/gi, '**');
 exports.fetchDeck = fetchDeck;
 exports.fetchDeckWithCard = fetchDeckWithCard;
 exports.fetchCard = fetchCard;
+exports.fetchReprints = fetchReprints;
 exports.fetchText = fetchText;
 exports.fetchDoK = fetchDoK;
 exports.fetchFAQ = fetchFAQ;

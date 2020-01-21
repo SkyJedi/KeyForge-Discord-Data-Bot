@@ -1,3 +1,5 @@
+# 1.5.7
+    cleaned up cards and faq
 # 1.5.6
     added server set point for languages
 # 1.5.5
