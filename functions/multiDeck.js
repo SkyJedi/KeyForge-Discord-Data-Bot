@@ -6,9 +6,9 @@ const {createCanvas} = require('canvas');
 const {snakeCase} = require('lodash');
 const width = 600, height = 840;
 
-const multiDeck = async (msg, params, flags) => {
+const multiDeck = (msg, params, flags) => {
 	const lang = getFlagLang(flags);
-	if (0 >= params.length) return;
+	if(0 >= params.length) return;
 	fetchDeck(params).then(decks => {
 		const deckImages = decks.filter(Boolean).map(deck => buildDeckList(deck, lang));
 		Promise.all(deckImages).then(deckImages => {

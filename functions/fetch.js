@@ -193,7 +193,7 @@ const fetchCard = (search, flags) => {
 		tokenize: true,
 		matchAllTokens: true,
 		includeScore: true,
-		threshold: 0.3,
+		threshold: 0.2,
 		keys: [
 			{
 				name: 'card_number',
@@ -231,7 +231,7 @@ const fetchText = (search, flags, type = 'card_text') => {
 		tokenize: true,
 		matchAllTokens: true,
 		includeScore: true,
-		threshold: 0.3,
+		threshold: 0.2,
 		keys: [type],
 	};
 	const cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);

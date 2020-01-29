@@ -1,3 +1,6 @@
+# 1.5.8
+    sealed easy copy/paste
+    archon achana links
 # 1.5.7
     cleaned up cards and faq
 # 1.5.6

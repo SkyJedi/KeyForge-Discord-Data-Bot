@@ -1,6 +1,6 @@
 {
   "name": "keyforge-discord-data-bot",
-  "version": "1.5.7",
+  "version": "1.5.8",
   "description": "Discord bot to lookup data for KeyForge",
   "main": "index.js",
   "scripts": {
@@ -33,6 +33,7 @@
   "nodemonConfig": {
     "ignore": [
       "card_images/",
+      "fonts/",
       "card_data/"
     ]
   },
