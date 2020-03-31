@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const main = require('../index');
-const { fetchCard, fetchReprints, getSet } = require('./fetch');
+const { fetchCard, fetchReprints, getSet, getCardLink } = require('./fetch');
 const { buildAttachment } = require('./buildAttachment');
 
 const cards = (msg, params, flags) => {
@@ -15,9 +15,7 @@ const cards = (msg, params, flags) => {
 		const text = cards.map(card => {
 			const reprints = fetchReprints(card, flags);
 			const title = `**${card.card_title}**`;
-			const link = encodeURI(
-				`https://archonarcana.com/${card.card_title.replace(' ', '_').replace(/[\[\]']+/g, '')}?powered_by=archonMatrixDiscord`);
-			const value = `[${reprints.map(x => `${getSet(x.expansion)} (${x.card_number})`).join(' • ')}](${link})`;
+			const value = `[${reprints.map(x => `${getSet(x.expansion)} (${x.card_number})`).join(' • ')}](${getCardLink(card)})`;
 			return title + ' • ' + value;
 		}).join('\n');
 

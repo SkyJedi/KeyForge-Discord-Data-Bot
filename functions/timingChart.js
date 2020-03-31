@@ -2,14 +2,15 @@ const main = require('../index');
 const Discord = require('discord.js');
 const {toUpper} = require('lodash');
 const timing = require('../card_data/timing');
-const {format} = require('./fetch');
+const { format } = require('./fetch');
+const { rules } = require('../card_data');
 
 const timingChart = async (msg, params) => {
-	const step = timing.find(x => params.every(y => x.phase.toLowerCase().includes(y.toLowerCase())));
-	const embed = new Discord.RichEmbed()
-		.setColor('800000')
-		.setFooter("Data pulled from Official rules v1.5 Nov, 2019")
-		.setURL("https://images-cdn.fantasyflightgames.com/filer_public/7f/d1/7fd1d910-f915-4b2c-9941-9457a8ab693a/keyforge_rulebook_v11-compressed.pdf");
+    const step = timing.find(x => params.every(y => x.phase.toLowerCase().includes(y.toLowerCase())));
+    const embed = new Discord.RichEmbed()
+        .setColor('800000')
+        .setFooter(`Data pulled from Official rules v${rules.version} ${rules.date}`)
+        .setURL(rules.url);
 	if (step && params.length > 0) {
 		embed.setTitle(toUpper(step.phase))
 			.setDescription(format(step.steps));

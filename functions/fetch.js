@@ -216,9 +216,8 @@ const fetchCard = (search, flags) => {
 	return get(results, '[0].item');
 };
 const fetchReprints = (card, flags) => {
-	const set = getFlagSet(flags),
-		lang = getFlagLang(flags);
-	const cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
+	const lang = getFlagLang(flags);
+	const cards = require(`../card_data/`)[lang];
 	return cards.filter(x => x.card_title === card.card_title);
 };
 const fetchText = (search, flags, type = 'card_text') => {
@@ -277,6 +276,11 @@ const setServerLanguage = (message, client, flags) => new Promise((resolve, reje
 		catch(err => reject(err));
 });
 
+const getCardLink = (card) => {
+	const AllCards = require(`../card_data/en/${card.expansion}`);
+	card = AllCards.find(x => x.card_number === card.card_number);
+	return encodeURI(`https://archonarcana.com/${card.card_title.replace(' ', '_').replace(/[\[\]']+/g, '')}?powered_by=archonMatrixDiscord`);
+};
 const getFlagCardType = (flags) => get(filter(cardTypes, cardType => flags.includes(cardType.toLowerCase())), '[0]');
 const getFlagSet = (flags) => get(filter(sets, set => flags.includes(set.flag.toLowerCase())), '[0].set_number');
 const getSet = (number) => get(sets.filter(set => number === set.set_number), '[0].flag', 'ERROR');
@@ -297,6 +301,7 @@ exports.fetchUnknownCard = fetchUnknownCard;
 exports.fetchRandomDecks = fetchRandomDecks;
 exports.setServerLanguage = setServerLanguage;
 exports.fetchServerLanguage = fetchServerLanguage;
+exports.getCardLink = getCardLink;
 exports.getFlagLang = getFlagLang;
 exports.getFlagHouse = getFlagHouse;
 exports.getFlagSet = getFlagSet;
