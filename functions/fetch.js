@@ -67,7 +67,7 @@ const buildCardList = (deck) => new Promise(resolve => {
 	return db.runTransaction(transaction => {
 		return transaction.getAll(...cardRefs).then(docs => {
 			let list = [];
-			for (let x = 0; x < docs.length; x++) {
+			for(let x = 0; x < docs.length; x++) {
 				if(docs[x].exists) {
 					let card = docs[x].data();
 					card.is_legacy = deck.set_era_cards.Legacy.includes(card.id);
@@ -114,19 +114,26 @@ const fetchDeckWithCard = (cardId) => new Promise((resolve, reject) => {
 		} else reject();
 	}).catch(() => reject());
 });
-const fetchRandomDecks = (expansion) => new Promise((resolve, reject) => {
+const fetchRandomDecks = ({ expansion, house }) => new Promise((resolve, reject) => {
 	const key = uuid();
 	let decksRef = db.collection('decks').limit(1);
 	if(expansion) decksRef = decksRef.where('expansion', '==', expansion);
+	if(house) decksRef = decksRef.where('_links.houses', 'array-contains', house);
 	decksRef.where('id', '>=', key).get().then(snapshot => {
 		if(snapshot.size > 0) snapshot.forEach(doc => resolve(doc.data()));
 		else {
 			decksRef.where('id', '<', key).get().then(snapshot => {
 				if(snapshot.size > 0) snapshot.forEach(doc => resolve(doc.data()));
 				else resolve(false);
-			}).catch(console.error);
+			}).catch(err => {
+				console.error(err);
+				reject();
+			});
 		}
-	}).catch(() => reject());
+	}).catch(err => {
+		console.error(err);
+		reject();
+	});
 });
 
 const fetchDoK = (deckID) => {
@@ -137,7 +144,7 @@ const fetchDoK = (deckID) => {
 						amberControl: A, expectedAmber: E,
 						artifactControl: R, creatureControl: C,
 						efficiency: F, disruption: D, effectivePower: P,
-						sasRating, sasPercentile, aercScore,
+						sasRating, sasPercentile, aercScore
 					} = response.data.deck,
 					sas = `${round(sasRating, 2)} SAS • ${round(aercScore, 2)} AERC`,
 					deckAERC = `A: ${round(A, 2)} • E: ${round(E, 2)} • R: ${round(R, 2)} • C: ${round(C, 2)} • F: ${round(F, 2)} • D: ${round(D,
@@ -147,17 +154,17 @@ const fetchDoK = (deckID) => {
 			} else resolve({
 				sas: 'Unable to Retrieve SAS',
 				deckAERC: 'Unable to Retrieve AERC',
-				sasStar: 'Unable to Retrieve sasStars',
+				sasStar: 'Unable to Retrieve sasStars'
 			});
 		}).catch(() => resolve({
 			sas: 'Unable to Retrieve SAS',
 			deckAERC: 'Unable to Retrieve AERC',
-			sasStar: 'Unable to Retrieve sasStars',
+			sasStar: 'Unable to Retrieve sasStars'
 		}));
 	});
 };
 const sasStarRating = (x) => {
-	switch (true) {
+	switch(true) {
 		case (x >= 99.99):
 			return '✮✮✮✮✮';
 		case (x >= 99.9):
@@ -197,11 +204,11 @@ const fetchCard = (search, flags) => {
 		keys: [
 			{
 				name: 'card_number',
-				weight: 0.3,
+				weight: 0.3
 			}, {
 				name: 'card_title',
-				weight: 0.7,
-			}],
+				weight: 0.7
+			}]
 	};
 	const cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
 	const fuse = new Fuse(cards, options);
@@ -231,7 +238,7 @@ const fetchText = (search, flags, type = 'card_text') => {
 		matchAllTokens: true,
 		includeScore: true,
 		threshold: 0.2,
-		keys: [type],
+		keys: [type]
 	};
 	const cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
 	const fuse = new Fuse(cards, options);
@@ -249,8 +256,8 @@ const fetchFAQ = (text) => {
 		threshold: 0.3,
 		keys: [
 			{ name: 'question', weight: 0.6 },
-			{ name: 'answer', weight: 0.4 },
-		],
+			{ name: 'answer', weight: 0.4 }
+		]
 	};
 	const fuse = new Fuse(faq, options);
 	let results = fuse.search(text);
@@ -267,13 +274,7 @@ const fetchServerLanguage = (message, client) => new Promise((resolve, reject) =
 });
 const setServerLanguage = (message, client, flags) => new Promise((resolve, reject) => {
 	const language = getFlagLang(flags);
-	db.collection('Bots').
-		doc(`${client.user.username}_Discord`).
-		collection(message.channel.id).
-		doc('language').
-		set({ language }).
-		then(() => resolve()).
-		catch(err => reject(err));
+	db.collection('Bots').doc(`${client.user.username}_Discord`).collection(message.channel.id).doc('language').set({ language }).then(() => resolve()).catch(err => reject(err));
 });
 
 const getCardLink = (card) => {
