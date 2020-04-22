@@ -13,7 +13,14 @@ const sealed = (msg, params, flags) => {
     let arr = [...Array(+number)];
 
     if(flags.includes('rainbow')) {
-        arr = arr.map(() => shuffle([341, 435, 452])[0]);
+        arr = arr.map(() => {
+            let setsWithHouses = sets.map(x=> {
+                if (x.set_number === 453) return;
+                if(house && !x.houses.includes(house)) return;
+                return x.set_number;
+            }).filter(Boolean);
+            return shuffle(setsWithHouses)[0];
+        });
     } else arr = arr.fill(set);
 
     const embed = new Discord.RichEmbed().setColor('ffff00').setTitle(`Sealed Deck${arr.length > 1 ? 's' : ''}`);
