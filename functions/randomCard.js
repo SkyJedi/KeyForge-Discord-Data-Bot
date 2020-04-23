@@ -1,26 +1,44 @@
 const main = require('../index');
-const {getFlagSet} = require('./fetch');
-const {getFlagNumber} = require('./fetch');
-const {buildAttachment} = require('./buildAttachment');
-const {sets} = require('../card_data');
-const {shuffle, uniqBy, get} = require('lodash');
+const Discord = require('discord.js');
+const { getFlagSet } = require('./fetch');
+const { getFlagNumber, fetchReprints, getCardLink, getSet, getFlagLang } = require('./fetch');
+const { buildAttachment } = require('./buildAttachment');
+const AllCards = require('../card_data');
+const { shuffle, uniqBy } = require('lodash');
 
 const randomCard = async (msg, params, flags) => {
-	const number = getFlagNumber(flags, 1);
-	const set = getFlagSet(flags);
-	let cards;
+    const number = Math.min(5, getFlagNumber(flags, 1));
+    const language = getFlagLang(flags);
+    const set = getFlagSet(flags);
+    const embed = new Discord.RichEmbed();
+    let cards = uniqBy(AllCards[language], 'card_title');
 
-	if (set === 341) cards = require('../card_data/en/341');
-	else if (set === 435) cards = require('../card_data/en/435');
-	else cards = uniqBy([...require('../card_data/en/341'), ...require('../card_data/en/435')], 'card_title');
+    if(set) {
+        cards = cards.filter(x => x.expansion === set);
+    }
 
-	const shuffled = shuffle(cards);
-	const final = shuffled.slice(0, number);
-	const name = final.map(card => `${card.card_number}`).join('_') + '.png';
-	let text, attachment;
-	attachment = await buildAttachment(final, name, flags);
-	text = final.map(card => `**${card.card_title} • #${card.card_number} • ${get(sets.filter(set => card.expansion === set.set_number), '[0].flag', 'ERROR')}**`).join('\n');
-	main.sendMessage(msg, text, attachment);
+    cards = shuffle(cards).slice(0, number);
+    if(0 >= cards.length) return;
+
+    const name = cards.map(card => `${card.card_number}`).join('_') + '.png';
+    buildAttachment(cards, name, flags).then(attachment => {
+        const text = cards.map(card => {
+            const reprints = fetchReprints(card, flags);
+            const title = `**${card.card_title}**`;
+            const value = `[${reprints.map(x => `${getSet(x.expansion)} (${x.card_number})`)
+                .join(' • ')}](${getCardLink(card)})`;
+            return title + ' • ' + value;
+        }).join('\n');
+
+        embed.setDescription(text);
+
+        embed.setColor('3498DB')
+            .attachFile(attachment)
+            .setImage(`attachment://${name}`)
+            .setFooter(`Links by Archon Arcana • Posted by: ${msg.member
+                                                              ? (msg.member.nickname ? msg.member.nickname : msg.author.username) : 'you'}`);
+        main.sendMessage(msg, { embed });
+    });
 };
 
 exports.randomCard = randomCard;
