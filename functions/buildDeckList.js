@@ -1,143 +1,250 @@
-const { get } = require('lodash');
-const { createCanvas, loadImage, registerFont } = require('canvas');
+const { fabric } = require('fabric');
 const QRCode = require('qrcode');
 const path = require('path');
 const card_titles = require('../card_data/card_titles');
 const houses_languages = require('../card_data/houses_languages');
 const { sets } = require('../card_data/index');
+const { get } = require('lodash');
 
-new registerFont(path.join(__dirname, '../fonts/Oswald-Regular.ttf'), { family: 'allFonts' });
-new registerFont(path.join(__dirname, '../fonts/Oswald-Bold.ttf'), { family: 'allFontsBold' });
-new registerFont(path.join(__dirname, '../fonts/ZCOOL-Regular.ttf'), { family: 'allFonts' });
-new registerFont(path.join(__dirname, '../fonts/Kanit-Regular.ttf'), { family: 'allFonts' });
-new registerFont(path.join(__dirname, '../fonts/Kanit-Bold.ttf'), { family: 'allFontsBold' });
+fabric.nodeCanvas.registerFont(path.join(__dirname, '../fonts/Oswald-Regular.ttf'), {
+    family: 'Keyforge',
+    weight: 'regular',
+    style: 'normal'
+});
+fabric.nodeCanvas.registerFont(path.join(__dirname, '../fonts/ZCOOL-Regular.ttf'), {
+    family: 'Keyforge',
+    weight: 'regular',
+    style: 'normal'
+});
+fabric.nodeCanvas.registerFont(path.join(__dirname, '../fonts/Kanit-Regular.ttf'), {
+    family: 'Keyforge',
+    weight: 'regular',
+    style: 'normal'
+});
+fabric.nodeCanvas.registerFont(path.join(__dirname, '../fonts/Oswald-Bold.ttf'), {
+    family: 'Keyforge',
+    weight: 'bold',
+    style: 'normal'
+});
+fabric.nodeCanvas.registerFont(path.join(__dirname, '../fonts/Kanit-Bold.ttf'), {
+    family: 'Keyforge',
+    weight: 'bold',
+    style: 'normal'
+});
 
 const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
-	return new Promise(res => {
-		const canvas = createCanvas(600, 840),
-			ctx = canvas.getContext('2d'),
-			cardBack = loadImage(path.join(__dirname, '../card_images/cardback/decklist.png')),
-			Common = loadImage(path.join(__dirname, `../card_images/cardback/rarity/Common.png`)),
-			Uncommon = loadImage(path.join(__dirname, `../card_images/cardback/rarity/Uncommon.png`)),
-			Rare = loadImage(path.join(__dirname, `../card_images/cardback/rarity/Rare.png`)),
-			Special = loadImage(path.join(__dirname, `../card_images/cardback/rarity/Special.png`)),
-			maverick = loadImage(path.join(__dirname, `../card_images/cardback/Maverick.png`)),
-			legacy = loadImage(path.join(__dirname, `../card_images/cardback/Legacy.png`)),
-			anomaly = loadImage(path.join(__dirname, `../card_images/cardback/Anomaly.png`)),
-			crest = loadImage(path.join(__dirname, `../card_images/cardback/crest.png`)),
-			set = loadImage(path.join(__dirname, `../card_images/cardback/${sets.find(x => x.set_number === expansion).flag.toLowerCase()}.png`)),
-			houseData = {
-				size: 35,
-				0: { x: 55, y: 120 },
-				1: { x: 55, y: 498 },
-				2: { x: 310, y: 215 },
-			},
-			cardData = {
-				size: 20,
-				start: { x: 60, y: 185 },
-			};
+    return new Promise(res => {
+        const canvas = new fabric.StaticCanvas('decklist');
+        canvas.setDimensions({ width: 600, height: 840 });
+        const Common = loadImage('../card_images/cardback/rarity/Common.png');
+        const Rare = loadImage('../card_images/cardback/rarity/Rare.png');
+        const Special = loadImage('../card_images/cardback/rarity/Special.png');
+        const Uncommon = loadImage('../card_images/cardback/rarity/Uncommon.png');
+        const cardBack = loadImage('../card_images/cardback/decklist.png');
+        const set = loadImage(`../card_images/cardback/${sets.find(x => x.set_number === expansion)
+            .flag
+            .toLowerCase()}.png`);
+        const crest = loadImage('../card_images/cardback/crest.png');
 
-		const qrCode = new Promise(res => {
-			QRCode.toBuffer(`https://www.keyforgegame.com/deck-details/${deck.id}`, { margin: 0 }).then(buffer => {
-				loadImage(buffer).then(final => res(final));
-			}).catch(console.error);
-		});
+        const houseData = {
+            size: 35,
+            0: { x: 55, y: 120 },
+            1: { x: 55, y: 498 },
+            2: { x: 310, y: 215 }
+        };
+        const cardData = {
+            size: 20,
+            start: { x: 60, y: 165 }
+        };
+        const qrCode = new Promise(qrRes => {
+            QRCode.toDataURL(`https://www.keyforgegame.com/deck-details/${deck.id}`, { margin: 0 })
+                .then(url => fabric.Image.fromURL(url, img => qrRes(img)));
+        });
+        const title = getCircularText(deck.name, 1600, 0);
+        Promise.all([cardBack, Common, Uncommon, Rare, Special, qrCode, set, title, crest])
+            .then(([cardBack, Common, Uncommon, Rare, Special, qrCode, set, title, crest]) => {
+                const Rarities = { Common, Uncommon, Rare, Special };
+                qrCode.set({ left: 329, top: 611 }).scaleToWidth(155);
+                set.set({ left: 232, top: 92 }).scaleToWidth(20);
+                title.set({ left: -500, top: 30 });
+                crest.set({ left: 500, top: 735 }).scaleToWidth(50);
+                canvas.add(cardBack)
+                    .add(qrCode)
+                    .add(set)
+                    .add(title)
+                    .add(crest);
 
-		Promise.all([cardBack, anomaly, maverick, legacy, Common, Uncommon, Rare, Special, qrCode, crest, set]).
-			then(([cardBack, anomaly, maverick, legacy, Common, Uncommon, Rare, Special, qrCode, crest, set]) => {
-				const Rarities = { Common, Uncommon, Rare, Special };
-				ctx.drawImage(cardBack, 0, 0);
-				ctx.drawImage(qrCode, 332, 612, 150, 150);
-				ctx.drawImage(crest, 515, 758, 40, 40);
-				ctx.drawImage(set, 232, 92, 20, 20);
+                const houseProm = houses.sort().map((house, index) => {
+                    return new Promise(houseRes => {
+                        loadImage(`../card_images/cardback/decklist_houses/${house}.png`).then(img => {
+                            img.set({
+                                left: houseData[index].x,
+                                top: houseData[index].y
+                            })
+                                .scaleToWidth(30)
+                                .scaleToHeight(30)
+                                .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 3 });
+                            const houseText = new fabric.Text(houses_languages[lang][house], {
+                                fontWeight: 800,
+                                fontFamily: 'Keyforge',
+                                textAlign: 'left',
+                                fillStyle: 'black',
+                                fontSize: 25
+                            }).set({ left: houseData[index].x + 35, top: houseData[index].y + 5 });
+                            canvas.add(houseText).add(img);
+                            houseRes();
+                        });
+                    });
+                });
 
-				const houseProm = houses.map((house, index) => {
-					return new Promise(async res1 => {
-						const img = await loadImage(path.join(__dirname, `../card_images/cardback/decklist_houses/${house}.png`));
-						ctx.drawImage(img, houseData[index].x, houseData[index].y, houseData.size, houseData.size);
-						ctx.fillStyle = 'black';
+                const cardProm = cards.map((card, index) => {
+                    return new Promise(async cardRes => {
+                        let x = cardData.start.x,
+                            y = cardData.start.y + (index * 28);
+                        const name = get(card_titles, `[${card.expansion}][${card.card_number}][${lang}]`, card.card_title);
+                        if(index > 11) {
+                            y = y + 45;
+                        }
 
-						ctx.font = `25px allFontsBold`;
-						ctx.textAlign = 'left';
-						ctx.fillText(houses_languages[lang][house], houseData[index].x + 40, houseData[index].y + 28);
-						res1();
-					});
+                        if(index > 20) {
+                            x = x + 245;
+                            y = cardData.start.y + ((index - 22.5) * 28);
+                        }
 
-				});
+                        if(index > 23) {
+                            y = y + 52;
+                        }
 
-				const cardProm = cards.map((card, index) => {
-					return new Promise(async res2 => {
-						const title = get(card_titles, `[${card.expansion}][${card.card_number}][${lang}]`, card.card_title);
-						let x = cardData.start.x,
-							y = cardData.start.y + (index * 28);
-						if(index > 11) y = y + 45;
-						if(index > 20) {
-							x = x + 245;
-							y = cardData.start.y + ((index - 22.5) * 28);
-						}
-						if(index > 23) y = y + 52;
-						ctx.drawImage((Rarities[card.rarity === 'FIXED' || card.rarity === 'Variant' ? 'Special' : card.rarity]), x, y - 19,
-							cardData.size, cardData.size);
-						ctx.fillStyle = 'black';
-						ctx.font = `20px allFontsBold`;
-						ctx.textAlign = 'left';
-						ctx.fillText(card.card_number, x + 22, y);
-						ctx.font = `20px allFonts`;
-						ctx.fillText(title, x + 60, y);
-						if(card.is_maverick) ctx.drawImage(maverick, x + ((title.length * 6) + 100), y - 18, cardData.size, cardData.size);
-						if(card.is_anomaly) ctx.drawImage(anomaly, x + ((title.length * 6) + 100), y - 18, cardData.size, cardData.size);
-						if(card.is_legacy) ctx.drawImage(legacy, x + ((title.length * 6) + 100) + (card.is_maverick ? 20 : 0), y - 18,
-							cardData.size * 0.8, cardData.size);
-						res2();
-					});
-				});
-				ctx.drawImage((getCircularText(deck.name, 1600, 0)), -500, 30);
-				Promise.all([...houseProm, ...cardProm, qrCode]).then(() => {
-					res(canvas);
-				});
-			})
-		;
+                        const fontProps = {
+                            fontWeight: 800,
+                            fontFamily: 'Keyforge',
+                            textAlign: 'left',
+                            fill: 'black',
+                            fontSize: 20
+                        };
+                        const rarity = new fabric.Image(Rarities[card.rarity === 'FIXED' || card.rarity ===
+                                                                 'Variant' ? 'Special' : card.rarity].getElement())
+                            .set({ left: x, top: y })
+                            .scaleToWidth(cardData.size)
+                            .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 3 });
+                        const number = new fabric.Text(card.card_number, fontProps).set({ left: x + 22, top: y });
 
-	});
+                        if(card.enhancements) {
+                            fontProps.fill = '#0081ad';
+                        }
+
+                        const title = new fabric.Text(name, {
+                            ...fontProps,
+                            fontWeight: 300
+                        }).set({ left: x + 60, top: y });
+
+                        canvas.add(number).add(rarity).add(title);
+
+                        let iconX = x + title.width + number.width + 35;
+
+                        if(card.is_maverick) {
+                            const maverick = await loadImage('../card_images/cardback/Maverick.png');
+                            const maverickImage = new fabric.Image(maverick.getElement())
+                                .set({ left: iconX, top: y })
+                                .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 5 })
+                                .scaleToHeight(cardData.size);
+                            canvas.add(maverickImage);
+                            iconX = iconX + 20;
+                        }
+
+                        if(card.is_legacy) {
+                            const legacy = await loadImage('../card_images/cardback/Legacy.png');
+                            const legacyImage = new fabric.Image(legacy.getElement())
+                                .set({ left: iconX, top: y })
+                                .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 5 })
+                                .scaleToHeight(cardData.size);
+                            canvas.add(legacyImage);
+                        }
+
+                        if(card.is_anomaly) {
+                            const anomaly = await loadImage('../card_images/cardback/Anomaly.png');
+                            const anomalyImage = new fabric.Image(anomaly.getElement())
+                                .set({ left: iconX, top: y })
+                                .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 5 })
+                                .scaleToHeight(cardData.size);
+                            canvas.add(anomalyImage);
+                        }
+
+                        if(card.enhancements) {
+                            for(const enhancement of card.enhancements) {
+                                const enhancementImg = await loadImage(`../card_images/cardback/enhancements/${enhancement}.png`);
+                                const enhancementElement = new fabric.Image(enhancementImg.getElement())
+                                    .set({ left: iconX, top: y })
+                                    .setShadow({ color: 'gray', offsetX: 2, offsetY: 2, blur: 2 })
+                                    .scaleToHeight(cardData.size);
+                                canvas.add(enhancementElement);
+                                iconX = iconX + 25;
+                            }
+                        }
+
+                        cardRes();
+                    });
+                });
+
+                Promise.all([...houseProm, ...cardProm])
+                    .then(() => res(canvas));
+            });
+    });
 };
 
 const getCurvedFontSize = (length) => {
-	const size = (30 / length) * 30;
-	if(size > 30) return 40;
-	return size;
+    const size = (30 / length) * 30;
+    if(size > 30) return 40;
+    return size;
 };
 
-const getCircularText = (text, diameter, kerning) => {
-	let canvas = createCanvas(600, 840);
-	let ctx = canvas.getContext('2d');
-	let textHeight = 40, startAngle = 0;
+const loadImage = (imgPath) => {
+    return new Promise(resolve => fabric.Image.fromURL(`file://${path.join(__dirname, imgPath)}`, image => resolve(image)));
+};
 
-	canvas.width = diameter;
-	canvas.height = diameter;
-	ctx.fillStyle = 'white';
-	ctx.strokeStyle = 'grey';
-	ctx.font = `${getCurvedFontSize(text.length)}px allFonts`;
+const getCircularText = (text = '', diameter, kerning) => {
+    return new Promise((resolve, reject) => {
+        let canvas = fabric.util.createCanvasElement();
+        if(!canvas) {
+            reject();
+            return;
+        }
 
-	text = text.split('').reverse().join('');
+        let ctx = canvas.getContext('2d');
+        let textHeight = 40, startAngle = 0;
 
-	ctx.translate(diameter / 2, diameter / 2); // Move to center
-	ctx.textBaseline = 'middle'; // Ensure we draw in exact center
-	ctx.textAlign = 'center'; // Ensure we draw in exact center
+        canvas.width = diameter;
+        canvas.height = diameter;
+        ctx.fillStyle = 'white';
+        ctx.strokeStyle = 'grey';
+        ctx.shadowColor = 'rgb(32,32,32)';
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 3;
+        ctx.font = `${getCurvedFontSize(text.length)}px Keyforge`;
 
-	for (let j = 0; j < text.length; j++) {
-		let charWid = ctx.measureText(text[j]).width;
-		startAngle += ((charWid + (j === text.length - 1 ? 0 : kerning)) / (diameter / 2 - textHeight)) / 2;
-	}
+        text = text.split('').reverse().join('');
 
-	ctx.rotate(startAngle);
+        ctx.translate(diameter / 2, diameter / 2); // Move to center
+        ctx.textBaseline = 'middle'; // Ensure we draw in exact center
+        ctx.textAlign = 'center'; // Ensure we draw in exact center
 
-	for (let j = 0; j < text.length; j++) {
-		let charWid = ctx.measureText(text[j]).width; // half letter
-		ctx.rotate((charWid / 2) / (diameter / 2 - textHeight) * -1);
-		ctx.fillText(text[j], 0, (0 - diameter / 2 + textHeight / 2));
-		ctx.rotate((charWid / 2 + kerning) / (diameter / 2 - textHeight) * -1); // rotate half letter
-	}
-	return canvas;
+        for(let j = 0; j < text.length; j++) {
+            let charWid = ctx.measureText(text[j]).width;
+            startAngle += ((charWid + (j === text.length - 1 ? 0 : kerning)) / (diameter / 2 - textHeight)) / 2;
+        }
+
+        ctx.rotate(startAngle);
+
+        for(let j = 0; j < text.length; j++) {
+            let charWid = ctx.measureText(text[j]).width; // half letter
+            ctx.rotate((charWid / 2) / (diameter / 2 - textHeight) * -1);
+            ctx.fillText(text[j], 0, (0 - diameter / 2 + textHeight / 2));
+            ctx.rotate((charWid / 2 + kerning) / (diameter / 2 - textHeight) * -1); // rotate half letter
+        }
+        const dataUrl = canvas.toDataURL()
+        fabric.Image.fromURL(dataUrl, img => resolve(img))
+    });
 };
 
 exports.buildDeckList = buildDeckList;
