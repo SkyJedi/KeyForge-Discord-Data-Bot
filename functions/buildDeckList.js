@@ -186,8 +186,7 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
                     });
                 });
 
-                Promise.all([...houseProm, ...cardProm])
-                    .then(() => res(canvas));
+                Promise.all([...houseProm, ...cardProm]).then(() => res(canvas));
             });
     });
 };
