@@ -35,8 +35,8 @@ const buildDeck = (msg, deck, flags) => {
 			[mavericks, legacy, anomaly].filter(type => type).join(' • ') + '\n';
 		description += `${dokStats.sas}  •  ${dokStats.sasStar}\n${dokStats.deckAERC}\n`;
 		description += `[Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) • [Decks of KeyForge](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord)`;
-		attachment = attachment.toDataURL().replace('data:image/png;base64', '');
-		const file = new Discord.Attachment(Buffer.from(attachment, 'base64'), name);
+		const dataUrl = attachment.toDataURL({ format: 'jpeg', quality: 0.7 }).replace('data:image/jpeg;base64,', '');
+		const file = new Discord.Attachment(Buffer.from(dataUrl, 'base64'), name);
 
 		embed.setColor('178110')
 			.setTitle(` ${deck.name} • ${set}`)
