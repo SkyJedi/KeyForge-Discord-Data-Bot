@@ -20,6 +20,7 @@
     "axios": "^0.19.2",
     "canvas": "^2.6.1",
     "discord.js": "^11.6.4",
+    "fabric": "^3.6.3",
     "firebase": "^7.14.1",
     "firebase-admin": "^8.10.0",
     "fuse.js": "^3.6.1",
