@@ -41,9 +41,7 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
         const Special = loadImage('../card_images/cardback/rarity/Special.png');
         const Uncommon = loadImage('../card_images/cardback/rarity/Uncommon.png');
         const cardBack = loadImage('../card_images/cardback/decklist.png');
-        const set = loadImage(`../card_images/cardback/${sets.find(x => x.set_number === expansion)
-            .flag
-            .toLowerCase()}.png`);
+        const set = loadImage(`../card_images/cardback/${sets.find(x => x.set_number === expansion).flag.toLowerCase()}.png`);
         const crest = loadImage('../card_images/cardback/crest.png');
 
         const houseData = {
@@ -60,13 +58,12 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
             QRCode.toDataURL(`https://www.keyforgegame.com/deck-details/${deck.id}`, { margin: 0 })
                 .then(url => fabric.Image.fromURL(url, img => qrRes(img)));
         });
-        const title = getCircularText(deck.name, 1600, 0);
+        const title = getCircularText(deck.name, 1600, 50);
         Promise.all([cardBack, Common, Uncommon, Rare, Special, qrCode, set, title, crest])
             .then(([cardBack, Common, Uncommon, Rare, Special, qrCode, set, title, crest]) => {
                 const Rarities = { Common, Uncommon, Rare, Special };
                 qrCode.set({ left: 329, top: 611 }).scaleToWidth(155);
                 set.set({ left: 232, top: 92 }).scaleToWidth(20);
-                title.set({ left: -500, top: 30 });
                 crest.set({ left: 500, top: 735 }).scaleToWidth(50);
                 canvas.add(cardBack)
                     .add(qrCode)
@@ -77,10 +74,7 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
                 const houseProm = houses.sort().map((house, index) => {
                     return new Promise(houseRes => {
                         loadImage(`../card_images/cardback/decklist_houses/${house}.png`).then(img => {
-                            img.set({
-                                left: houseData[index].x,
-                                top: houseData[index].y
-                            })
+                            img.set({ left: houseData[index].x, top: houseData[index].y })
                                 .scaleToWidth(30)
                                 .scaleToHeight(30)
                                 .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 3 });
@@ -201,49 +195,43 @@ const loadImage = (imgPath) => {
     return new Promise(resolve => fabric.Image.fromURL(`file://${path.join(__dirname, imgPath)}`, image => resolve(image)));
 };
 
-const getCircularText = (text = '', diameter, kerning) => {
-    return new Promise((resolve, reject) => {
-        let canvas = fabric.util.createCanvasElement();
-        if(!canvas) {
-            reject();
-            return;
-        }
+const getCircularText = (text = '', diameter, yOffset = 0) => {
+    const canvas = fabric.util.createCanvasElement();
 
-        let ctx = canvas.getContext('2d');
-        let textHeight = 40, startAngle = 0;
+    let ctx = canvas.getContext('2d');
+    let textHeight = 40, startAngle = 0;
 
-        canvas.width = diameter;
-        canvas.height = diameter;
-        ctx.fillStyle = 'white';
-        ctx.strokeStyle = 'grey';
-        ctx.shadowColor = 'rgb(32,32,32)';
-        ctx.shadowBlur = 4;
-        ctx.shadowOffsetX = 2;
-        ctx.shadowOffsetY = 3;
-        ctx.font = `${getCurvedFontSize(text.length)}px Keyforge`;
+    canvas.width = 600;
+    canvas.height = 800;
+    ctx.fillStyle = 'white';
+    ctx.strokeStyle = 'grey';
+    ctx.shadowColor = 'rgb(32,32,32)';
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 3;
+    ctx.font = `${getCurvedFontSize(text.length)}px Keyforge`;
 
-        text = text.split('').reverse().join('');
+    text = text.split('').reverse().join('');
 
-        ctx.translate(diameter / 2, diameter / 2); // Move to center
-        ctx.textBaseline = 'middle'; // Ensure we draw in exact center
-        ctx.textAlign = 'center'; // Ensure we draw in exact center
+    ctx.translate(300, Math.max((diameter + yOffset) / 2, 400 + yOffset)); // Move to center
+    ctx.textBaseline = 'middle'; // Ensure we draw in exact center
+    ctx.textAlign = 'center'; // Ensure we draw in exact center
 
-        for(let j = 0; j < text.length; j++) {
-            let charWid = ctx.measureText(text[j]).width;
-            startAngle += ((charWid + (j === text.length - 1 ? 0 : kerning)) / (diameter / 2 - textHeight)) / 2;
-        }
+    for(let j = 0; j < text.length; j++) {
+        let charWid = ctx.measureText(text[j]).width;
+        startAngle += (charWid) / (diameter / 2 - textHeight) / 2;
+    }
 
-        ctx.rotate(startAngle);
+    ctx.rotate(startAngle);
 
-        for(let j = 0; j < text.length; j++) {
-            let charWid = ctx.measureText(text[j]).width; // half letter
-            ctx.rotate((charWid / 2) / (diameter / 2 - textHeight) * -1);
-            ctx.fillText(text[j], 0, (0 - diameter / 2 + textHeight / 2));
-            ctx.rotate((charWid / 2 + kerning) / (diameter / 2 - textHeight) * -1); // rotate half letter
-        }
-        const dataUrl = canvas.toDataURL()
-        fabric.Image.fromURL(dataUrl, img => resolve(img))
-    });
+    for(let j = 0; j < text.length; j++) {
+        let charWid = ctx.measureText(text[j]).width; // half letter
+        ctx.rotate((charWid / 2) / (diameter / 2 - textHeight) * -1);
+        ctx.fillText(text[j], 0, (0 - diameter / 2 + textHeight / 2));
+        ctx.rotate((charWid / 2) / (diameter / 2 - textHeight) * -1); // rotate half letter
+    }
+
+    return new fabric.Image(canvas, { left: 0, top: 0 });
 };
 
 exports.buildDeckList = buildDeckList;
