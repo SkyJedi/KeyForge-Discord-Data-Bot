@@ -6,7 +6,7 @@ const { rules } = require('../card_data');
 const faq = (msg, params) => {
 	const data = fetchFAQ(params.join(' '));
 	if(data) {
-        const embed = new Discord.RichEmbed().setColor('ffa500')
+        const embed = new Discord.MessageEmbed().setColor('ffa500')
             .setTitle(`FAQ results for "${params.join(' ')}"`)
             .setDescription(`**${data.question}**\n\n${format(data.answer)}`)
             .setFooter(`Data pulled from Official rules v${rules.version} ${rules.date}`)

@@ -8,7 +8,7 @@ const stats = async (msg, params, flags, client) => {
 		.then(results => stats += `Currently on ${results.reduce((prev, val) => prev + val, 0)} servers.\n`).catch(console.error);
 	await client.shard.broadcastEval(`(${buildMemberList}).call(this)`)
 		.then(list => stats += `Currently assisting ${sum(list)} users.`).catch(console.error);
-	const embed = new Discord.RichEmbed()
+	const embed = new Discord.MessageEmbed()
 		.setTitle(`${client.user.username} Stats`)
 		.setColor('FFFF00')
 		.setDescription(stats);

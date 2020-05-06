@@ -1,3 +1,7 @@
+# 1.6.0
+    fabric refactor
+    faq to fuzzy search
+    update packages
 # 1.5.8
     sealed easy copy/paste
     archon achana links

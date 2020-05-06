@@ -14,7 +14,7 @@ const text = (msg, params, flags) => {
 				map(x => getSet(x.expansion)).
 				join('/')} • ${card.card_type}`).join('\n');
 		if(text.length > 2048) text = text.slice(0, 2030) + '\n and more.....';
-		const embed = new Discord.RichEmbed().setColor('a6a6a6').setTitle(`Cards with text: ${params.join(', ').toUpperCase()}`).setDescription(text);
+		const embed = new Discord.MessageEmbed().setColor('a6a6a6').setTitle(`Cards with text: ${params.join(', ').toUpperCase()}`).setDescription(text);
 		main.sendMessage(msg, { embed });
 	}
 };

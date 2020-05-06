@@ -13,7 +13,7 @@ const deck = (msg, params, flags) => {
 
 const buildDeck = (msg, deck, flags) => {
 	const lang = getFlagLang(flags);
-	const embed = new Discord.RichEmbed();
+	const embed = new Discord.MessageEmbed();
 	const dokStats = fetchDoK(deck.id);
 	const attachment = buildDeckList(deck, lang);
 
@@ -36,12 +36,12 @@ const buildDeck = (msg, deck, flags) => {
 		description += `${dokStats.sas}  •  ${dokStats.sasStar}\n${dokStats.deckAERC}\n`;
 		description += `[Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) • [Decks of KeyForge](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord)`;
 		const dataUrl = attachment.toDataURL({ format: 'jpeg', quality: 0.7 }).replace('data:image/jpeg;base64,', '');
-		const file = new Discord.Attachment(Buffer.from(dataUrl, 'base64'), name);
+		const file = new Discord.MessageAttachment(Buffer.from(dataUrl, 'base64'), name);
 
 		embed.setColor('178110')
 			.setTitle(` ${deck.name} • ${set}`)
 			.setDescription(description)
-			.attachFile(file)
+			.attachFiles(file)
 			.setImage(`attachment://${name}`)
 			.setFooter(`Posted by: ${msg.member ? (msg.member.nickname ? msg.member.nickname : msg.author.username) : 'you'}`);
 		main.sendMessage(msg, { embed }, null, flags);

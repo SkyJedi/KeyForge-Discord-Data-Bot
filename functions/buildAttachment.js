@@ -43,7 +43,7 @@ const buildAttachment = (data, name, flags) => new Promise(resolve => {
         }));
         Promise.all(finalImage).then(() => {
             const dataUrl = canvas.toDataURL({ format: 'jpeg', quality: 0.6 }).replace('data:image/jpeg;base64,', '');
-            const attachment = new Discord.Attachment(Buffer.from(dataUrl, 'base64'), name);
+            const attachment = new Discord.MessageAttachment(Buffer.from(dataUrl, 'base64'), name);
             resolve(attachment);
         });
     });

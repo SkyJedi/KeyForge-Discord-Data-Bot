@@ -23,7 +23,7 @@ const sealed = (msg, params, flags) => {
         });
     } else arr = arr.fill(set);
 
-    const embed = new Discord.RichEmbed().setColor('ffff00').setTitle(`Sealed Deck${arr.length > 1 ? 's' : ''}`);
+    const embed = new Discord.MessageEmbed().setColor('ffff00').setTitle(`Sealed Deck${arr.length > 1 ? 's' : ''}`);
     const decks = arr.map(expansion => fetchRandomDecks({ expansion, house })).filter(Boolean);
     Promise.all(decks).then(decks => {
         decks.filter(Boolean).forEach(deck => {

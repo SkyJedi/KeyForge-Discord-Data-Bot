@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const prefix = require('../config').prefix;
 
 const help = (msg, params) => {
-	const embed = new Discord.RichEmbed()
+	const embed = new Discord.MessageEmbed()
 		.setTitle('Help')
 		.setColor('2D7C2F');
 	switch (params[0]) {

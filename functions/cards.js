@@ -5,7 +5,7 @@ const { buildAttachment } = require('./buildAttachment');
 
 const cards = (msg, params, flags) => {
 	params = params.slice(0, 5);
-	const embed = new Discord.RichEmbed();
+	const embed = new Discord.MessageEmbed();
 	//fetch cards data
 	const cards = params.map(card => fetchCard(card, flags)).filter(Boolean);
 	if(0 >= cards.length) return;
@@ -20,7 +20,7 @@ const cards = (msg, params, flags) => {
 		}).join('\n');
 		embed.setDescription(text)
 			.setColor('3498DB')
-			.attachFile(attachment)
+			.attachFiles(attachment)
 			.setImage(`attachment://${name}`)
 			.setFooter(`Links by Archon Arcana • Posted by: ${msg.member
 			? (msg.member.nickname ? msg.member.nickname : msg.author.username) : 'you'}`);

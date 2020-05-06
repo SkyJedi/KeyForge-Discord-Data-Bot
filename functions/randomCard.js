@@ -10,7 +10,7 @@ const randomCard = async (msg, params, flags) => {
     const number = Math.min(5, getFlagNumber(flags, 1));
     const language = getFlagLang(flags);
     const set = getFlagSet(flags);
-    const embed = new Discord.RichEmbed();
+    const embed = new Discord.MessageEmbed();
     let cards = uniqBy(AllCards[language], 'card_title');
 
     if(set) {
@@ -33,7 +33,7 @@ const randomCard = async (msg, params, flags) => {
         embed.setDescription(text);
 
         embed.setColor('3498DB')
-            .attachFile(attachment)
+            .attachFiles(attachment)
             .setImage(`attachment://${name}`)
             .setFooter(`Links by Archon Arcana • Posted by: ${msg.member
                                                               ? (msg.member.nickname ? msg.member.nickname : msg.author.username) : 'you'}`);

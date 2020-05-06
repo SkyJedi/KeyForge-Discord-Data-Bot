@@ -5,7 +5,7 @@ const Discord = require('discord.js');
 const {format} = require('./fetch');
 
 const errata = (msg) => {
-    const embed = new Discord.RichEmbed()
+    const embed = new Discord.MessageEmbed()
         .setColor('4c4cff')
         .setTitle('Card Errata')
         .setFooter(`Data pulled from Official rules v${rules.version} ${rules.date}`)

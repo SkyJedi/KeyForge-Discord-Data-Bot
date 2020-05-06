@@ -8,6 +8,7 @@ const { get, filter, findIndex, sortBy, round, shuffle } = require('lodash');
 const { deckSearchAPI, dokAPI, dokKey, twilioAccountSid, twilioToken, twilioSender, twilioReceiver } = require('../config');
 const { langs, sets, houses, cardTypes } = require('../card_data');
 const faq = require('../card_data/faq');
+const timing = require('../card_data/timing');
 const twilio = require('twilio')(twilioAccountSid, twilioToken);
 const deckIdRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
 
@@ -267,7 +268,32 @@ const fetchFAQ = (text) => {
     };
     const fuse = new Fuse(faq, options);
     let results = fuse.search(text);
-    results = sortBy(results.filter(x => x.score < 0.6), 'score');
+    results = sortBy(results.filter(x => x.score < 1), 'score');
+    return results.map(item => item.item)[0];
+};
+const fetchTiming = (text) => {
+    const options = {
+        shouldSort: true,
+        tokenize: true,
+        matchAllTokens: true,
+        includeScore: true,
+        threshold: 0.3,
+        keys: [
+            { name: 'phase', weight: 0.9 },
+            { name: 'steps', weight: 0.4 }
+        ]
+    };
+    const fuse = new Fuse(timing, options);
+    let results = fuse.search(text);
+    results = results.map(result => {
+        result.score = result.item.phase.split(' ').map(x => {
+            return levenshtein(x, text)
+        }).sort()[0]
+        return result;
+    });
+
+    results = sortBy(results, 'score');
+
     return results.map(item => item.item)[0];
 };
 
@@ -306,27 +332,27 @@ const getFlagSet = (flags) => get(filter(sets, set => flags.includes(set.flag.to
 const getSet = (number) => get(sets.filter(set => number === set.set_number), '[0].flag', 'ERROR');
 const getFlagHouse = (flags) => houses[filter(Object.keys(houses), house => flags.includes(house))];
 const getFlagLang = (flags) => get(filter(flags, flag => langs.includes(flag)), '[0]');
-const getFlagNumber = (
-    flags, defaultNumber = 0) => +(get(filter(flags, flag => Number.isInteger(+flag)), '[0]', defaultNumber));
+const getFlagNumber = (flags, defaultNumber = 0) => +(get(filter(flags, flag => Number.isInteger(+flag)), '[0]', defaultNumber));
 
 const format = (text) => text.replace(/<I>/gi, '*').replace(/<B>/gi, '**');
 
+exports.fetchCard = fetchCard;
 exports.fetchDeck = fetchDeck;
 exports.fetchDeckWithCard = fetchDeckWithCard;
-exports.fetchCard = fetchCard;
-exports.fetchReprints = fetchReprints;
-exports.fetchText = fetchText;
 exports.fetchDoK = fetchDoK;
 exports.fetchFAQ = fetchFAQ;
-exports.fetchUnknownCard = fetchUnknownCard;
+exports.fetchMavCard = fetchMavCard;
 exports.fetchRandomDecks = fetchRandomDecks;
-exports.setServerLanguage = setServerLanguage;
+exports.fetchReprints = fetchReprints;
 exports.fetchServerLanguage = fetchServerLanguage;
+exports.fetchText = fetchText;
+exports.fetchTiming = fetchTiming;
+exports.fetchUnknownCard = fetchUnknownCard;
+exports.format = format;
 exports.getCardLink = getCardLink;
-exports.getFlagLang = getFlagLang;
 exports.getFlagHouse = getFlagHouse;
+exports.getFlagLang = getFlagLang;
+exports.getFlagNumber = getFlagNumber;
 exports.getFlagSet = getFlagSet;
 exports.getSet = getSet;
-exports.getFlagNumber = getFlagNumber;
-exports.format = format;
-exports.fetchMavCard = fetchMavCard;
+exports.setServerLanguage = setServerLanguage;

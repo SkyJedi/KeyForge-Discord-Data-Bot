@@ -9,7 +9,7 @@ const rule = (msg, params) => {
     if(0 > i) i = findIndex(Object.keys(rulesList), term => term.startsWith(params.join(' ')));
     if(0 > i) i = findIndex(Object.keys(rulesList), term => term.includes(params.join(' ')));
     const key = Object.keys(rulesList)[i];
-    let embed = new Discord.RichEmbed();
+    let embed = new Discord.MessageEmbed();
 
     if(key) {
         embed.setColor('1DE5C7')
