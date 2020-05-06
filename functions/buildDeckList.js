@@ -46,19 +46,19 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
 
         const houseData = {
             size: 35,
-            0: { x: 55, y: 120 },
-            1: { x: 55, y: 498 },
-            2: { x: 310, y: 215 }
+            0: { x: 55, y: 124 },
+            1: { x: 55, y: 502 },
+            2: { x: 310, y: 219 }
         };
         const cardData = {
             size: 20,
-            start: { x: 60, y: 165 }
+            start: { x: 58, y: 165 }
         };
         const qrCode = new Promise(qrRes => {
             QRCode.toDataURL(`https://www.keyforgegame.com/deck-details/${deck.id}`, { margin: 0 })
                 .then(url => fabric.Image.fromURL(url, img => qrRes(img)));
         });
-        const title = getCircularText(deck.name, 1600, 50);
+        const title = getCircularText(deck.name, 1600, 55);
         Promise.all([cardBack, Common, Uncommon, Rare, Special, qrCode, set, title, crest])
             .then(([cardBack, Common, Uncommon, Rare, Special, qrCode, set, title, crest]) => {
                 const Rarities = { Common, Uncommon, Rare, Special };
@@ -101,12 +101,12 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
                         }
 
                         if(index > 20) {
-                            x = x + 245;
-                            y = cardData.start.y + ((index - 22.5) * 28);
+                            x = x + 249;
+                            y = cardData.start.y + ((index - 22.1) * 28);
                         }
 
                         if(index > 23) {
-                            y = y + 52;
+                            y = y + 44;
                         }
 
                         const fontProps = {
@@ -116,8 +116,7 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
                             fill: 'black',
                             fontSize: 20
                         };
-                        const rarity = new fabric.Image(Rarities[card.rarity === 'FIXED' || card.rarity ===
-                                                                 'Variant' ? 'Special' : card.rarity].getElement())
+                        const rarity = new fabric.Image(Rarities[card.rarity === 'FIXED' || card.rarity === 'Variant' ? 'Special' : card.rarity].getElement())
                             .set({ left: x, top: y })
                             .scaleToWidth(cardData.size)
                             .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 3 });
@@ -203,7 +202,7 @@ const getCircularText = (text = '', diameter, yOffset = 0) => {
 
     canvas.width = 600;
     canvas.height = 800;
-    ctx.fillStyle = 'white';d
+    ctx.fillStyle = 'white';
     ctx.strokeStyle = 'grey';
     ctx.shadowColor = 'rgb(32,32,32)';
     ctx.shadowBlur = 4;
