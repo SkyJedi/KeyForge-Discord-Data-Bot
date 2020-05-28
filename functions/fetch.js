@@ -3,7 +3,7 @@ const Fuse = require('fuse.js');
 const levenshtein = require('js-levenshtein');
 const { db } = require('./firestore');
 const uuid = require('uuid').v4;
-const { get, filter, findIndex, sortBy, round, shuffle } = require('lodash');
+const { get, filter, findIndex, sortBy, round, shuffle, uniqBy } = require('lodash');
 
 const { deckSearchAPI, dokAPI, dokKey, twilioAccountSid, twilioToken, twilioSender, twilioReceiver } = require('../config');
 const { langs, sets, houses, cardTypes } = require('../card_data');
@@ -170,6 +170,7 @@ const fetchDoK = (deckID) => {
         }));
     });
 };
+
 const sasStarRating = (x) => {
     switch(true) {
         case (x >= 99.99):
@@ -200,8 +201,9 @@ const sasStarRating = (x) => {
 };
 
 const fetchCard = (search, flags) => {
-    const set = getFlagSet(flags),
-        lang = getFlagLang(flags);
+    const set = getFlagSet(flags);
+    const lang = getFlagLang(flags);
+    const house = getFlagHouse(flags);
     const options = {
         shouldSort: true,
         tokenize: true,
@@ -217,7 +219,10 @@ const fetchCard = (search, flags) => {
                 weight: 0.7
             }]
     };
-    const cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
+    let cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
+    if(house) {
+        cards = cards.filter(x=>x.house === house);
+    }
     const fuse = new Fuse(cards, options);
     let results = fuse.search(search);
     if(0 >= results.length) return;
@@ -232,7 +237,7 @@ const fetchCard = (search, flags) => {
 const fetchReprints = (card, flags) => {
     const lang = getFlagLang(flags);
     const cards = require(`../card_data/`)[lang];
-    return cards.filter(x => x.card_title === card.card_title);
+    return uniqBy(cards.filter(x => x.card_title === card.card_title), 'card_number');
 };
 const fetchText = (search, flags, type = 'card_text') => {
     const set = getFlagSet(flags),

@@ -58,7 +58,7 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
             QRCode.toDataURL(`https://www.keyforgegame.com/deck-details/${deck.id}`, { margin: 0 })
                 .then(url => fabric.Image.fromURL(url, img => qrRes(img)));
         });
-        const title = getCircularText(deck.name, 1600, 55);
+        const title = getCircularText(deck.name, 1600, 60);
         Promise.all([cardBack, Common, Uncommon, Rare, Special, qrCode, set, title, crest])
             .then(([cardBack, Common, Uncommon, Rare, Special, qrCode, set, title, crest]) => {
                 const Rarities = { Common, Uncommon, Rare, Special };
@@ -122,7 +122,7 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
                             .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 3 });
                         const number = new fabric.Text(card.card_number, fontProps).set({ left: x + 22, top: y });
 
-                        if(card.enhancements) {
+                        if(card.is_enhanced) {
                             fontProps.fill = '#0081ad';
                         }
 

@@ -21,9 +21,9 @@ const multiDeck = (msg, params, flags) => {
                     img.set({ left: width * index + 5 * index, top: 0 });
                     canvas.add(img);
                 });
-                const name = decks.map(deck => snakeCase(deck.name)).join('_vs_') + '.png';
-                const attachment = new Discord.MessageAttachment(Buffer.from(canvas.toDataURL()
-                    .replace('data:image/png;base64', ''), 'base64'), name);
+                const name = decks.map(deck => snakeCase(deck.name)).join('_vs_') + '.jpg';
+                const dataUrl = canvas.toDataURL({ format: 'jpeg', quality: 0.6 }).replace('data:image/jpeg;base64,', '');
+                const attachment = new Discord.MessageAttachment(Buffer.from(dataUrl, 'base64'), name);
                 main.sendMessage(msg, `**${decks.map(deck => deck.name).join('** vs **')}**`, attachment);
             });
         });
