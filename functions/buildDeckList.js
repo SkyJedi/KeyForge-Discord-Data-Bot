@@ -31,6 +31,11 @@ fabric.nodeCanvas.registerFont(path.join(__dirname, '../fonts/Kanit-Bold.ttf'), 
     weight: 'bold',
     style: 'normal'
 });
+fabric.nodeCanvas.registerFont(path.join(__dirname, '../fonts/BlackHanSans-Regular.ttf'), {
+    family: 'Keyforge',
+    weight: 'regular',
+    style: 'normal'
+});
 
 const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
     return new Promise(res => {

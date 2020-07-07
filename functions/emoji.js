@@ -9,9 +9,9 @@ const findEmoji = (str, client) => {
 };
 
 const findGuild = (emojiID) => {
-	const guild = this.guilds.get('519921261401604106');
+	const guild = this.guilds.cache.get('519921261401604106');
 	if (!guild) return emojiID;
-	const emoji = guild.emojis.find(val => val.name === emojiID);
+	const emoji = guild.emojis.cache.find(val => val.name === emojiID);
 	return emoji ? emoji.toString() : emojiID;
 };
 

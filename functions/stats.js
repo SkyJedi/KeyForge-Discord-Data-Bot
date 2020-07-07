@@ -4,7 +4,7 @@ const {sum} = require('lodash');
 
 const stats = async (msg, params, flags, client) => {
 	let stats = `Currently there are ${client.shard.count} shards.\n`;
-	await client.shard.broadcastEval('this.guilds.size')
+	await client.shard.broadcastEval('this.guilds.cache.size')
 		.then(results => stats += `Currently on ${results.reduce((prev, val) => prev + val, 0)} servers.\n`).catch(console.error);
 	await client.shard.broadcastEval(`(${buildMemberList}).call(this)`)
 		.then(list => stats += `Currently assisting ${sum(list)} users.`).catch(console.error);
@@ -17,7 +17,7 @@ const stats = async (msg, params, flags, client) => {
 
 const buildMemberList = () => {
 	let users = 0;
-	this.guilds.forEach(guild => users += +guild.memberCount);
+	this.guilds.cache.forEach(guild => users += +guild.memberCount);
 	return users;
 };
 

@@ -2,13 +2,18 @@ const Discord = require('discord.js');
 const { fabric } = require('fabric');
 const path = require('path');
 const { getFlagLang } = require('./fetch');
+const { sets } = require('../card_data');
 
 const buildAttachment = (data, name, flags) => new Promise(async resolve => {
     if (0 >= data.length) resolve();
-    const lang = getFlagLang(flags);
+    let lang = getFlagLang(flags);
     const maverick = loadImage('../card_images/cardback/card_mavericks/Maverick.png');
     const legacy = loadImage('../card_images/cardback/Legacy.png');
     const cards = data.map(card => {
+        const set = sets.find(x=> x.set_number === card.expansion);
+        if (!set.languages.includes(lang)) {
+            lang = 'en';
+        }
         let imgPath = `../card_images/${lang}/${card.expansion}/${card.card_number}`;
         if (card.expansion === 479) {
             //Dark Amber Vault and its coming

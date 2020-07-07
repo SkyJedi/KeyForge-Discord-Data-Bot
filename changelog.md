@@ -1,3 +1,5 @@
+# 1.6.1
+    added enhanced field to deck command
 # 1.6.0
     fabric refactor
     faq to fuzzy search

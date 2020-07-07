@@ -1,6 +1,6 @@
 {
   "name": "keyforge-discord-data-bot",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Discord bot to lookup data for KeyForge",
   "main": "index.js",
   "scripts": {
@@ -20,15 +20,15 @@
     "axios": "^0.19.2",
     "discord.js": "^12.2.0",
     "fabric": "^3.6.3",
-    "firebase": "^7.14.2",
-    "firebase-admin": "^8.11.0",
+    "firebase": "^7.15.1",
+    "firebase-admin": "^8.12.1",
     "fuse.js": "^5.2.3",
     "js-levenshtein": "^1.1.6",
     "lodash": "^4.17.15",
     "path": "^0.12.7",
     "qrcode": "^1.4.4",
-    "twilio": "^3.43.0",
-    "uuid": "^8.0.0"
+    "twilio": "^3.46.0",
+    "uuid": "^8.1.0"
   },
   "nodemonConfig": {
     "ignore": [
@@ -39,6 +39,6 @@
   },
   "devDependencies": {
     "csvtojson": "^2.0.10",
-    "nodemon": "^2.0.3"
+    "nodemon": "^2.0.4"
   }
 }
