@@ -29,7 +29,7 @@ const buildDeck = (msg, deck, flags) => {
         const set = get(sets.filter(set => deck.expansion === set.set_number), '[0].flag', 'ERROR');
         const name = `${deck.id}.jpg`;
         const enhancements = deck.enhancements ? 'Enhancements: ' + Object.keys(deck.enhancements)
-                                                       .map(x => `${deck.enhancements[x]} ${emoji(x)}`)
+                                                       .map(x => `${deck.enhancements[x]}${emoji(x)}`)
                                                        .join(' • ') + '\n' : '';
         let description = deck._links.houses.map(house => emoji(house.toLowerCase())).join(' • ');
         description += deck.wins === 0 && deck.losses ===

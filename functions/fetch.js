@@ -72,16 +72,18 @@ const buildEnhancements = (deck) => {
             text.forEach(x => {
                 switch(x) {
                     case 'P':
+                        break;
+                    case 'A':
                         enhancements.aember++
                         break;
                     case 'T':
-                        enhancements.draw++
+                        enhancements.capture++
                         break;
-                    case 'd':
+                    case 'D':
                         enhancements.damage++
                         break;
                     case 'R':
-                        enhancements.capture++
+                        enhancements.draw++
                         break;
                     default:
                         break;

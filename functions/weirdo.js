@@ -1,13 +1,13 @@
 const { fetchCard, fetchMavCard, getFlagHouse, fetchDeckWithCard } = require('./fetch');
 const { buildDeck } = require('./deck');
 
-const weirdo = (msg, params, flags) => {
+const weirdo = async (msg, params, flags) => {
     const house = getFlagHouse(flags);
+    flags = flags.filter(x => x !== house.toLowerCase())
     const card = fetchCard(params.join(' '), flags);
-    fetchMavCard(card.card_title, house)
-        .then(mavCard => {
-            fetchDeckWithCard(mavCard.id).then(deck => buildDeck(msg, deck, flags));
-        }).catch(() => console.log('Card not found'));
+    const mavCard = await fetchMavCard(card.card_title, house);
+    const deck = await fetchDeckWithCard(mavCard.id)
+    buildDeck(msg, deck, flags);
 };
 
 exports.weirdo = weirdo;

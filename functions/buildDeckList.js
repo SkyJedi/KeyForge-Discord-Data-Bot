@@ -84,7 +84,7 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
                                 .scaleToHeight(30)
                                 .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 3 });
                             const houseText = new fabric.Text(houses_languages[lang][house], {
-                                fontWeight: 800,
+                                fontWeight: lang === 'ko' ? 100 : 800,
                                 fontFamily: 'Keyforge',
                                 textAlign: 'left',
                                 fillStyle: 'black',
