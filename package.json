@@ -24,7 +24,7 @@
     "firebase-admin": "^8.12.1",
     "fuse.js": "^5.2.3",
     "js-levenshtein": "^1.1.6",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "path": "^0.12.7",
     "qrcode": "^1.4.4",
     "twilio": "^3.46.0",
