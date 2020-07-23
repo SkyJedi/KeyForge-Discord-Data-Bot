@@ -369,8 +369,14 @@ const setServerLanguage = (message, client, flags) => new Promise((resolve, reje
 const getCardLink = (card) => {
     const AllCards = require(`../card_data/en/${card.expansion}`);
     card = AllCards.find(x => x.card_number === card.card_number);
-    return encodeURI(`https://archonarcana.com/${card.card_title.replace(' ', '_')
+    return encodeURI(`https://archonarcana.com/${card.card_title.replace(/\s+/g, '_')
                                                      .replace(/[\[\]']+/g, '')}?powered_by=archonMatrixDiscord`);
+};
+const getCardLinkDoK = (card) => {
+    const AllCards = require(`../card_data/en/${card.expansion}`);
+    card = AllCards.find(x => x.card_number === card.card_number);
+    return encodeURI(`https://decksofkeyforge.com/cards/${card.card_title.replace(/\s+/g, '-').toLowerCase()
+                                                     .replace(/[\[\]Ææ']+/g, '')}?powered_by=archonMatrixDiscord`);
 };
 const getFlagCardType = (flags) => get(filter(cardTypes, cardType => flags.includes(cardType.toLowerCase())), '[0]');
 const getFlagSet = (flags) => get(filter(sets, set => flags.includes(set.flag.toLowerCase())), '[0].set_number');
@@ -397,6 +403,7 @@ exports.fetchTiming = fetchTiming;
 exports.fetchUnknownCard = fetchUnknownCard;
 exports.format = format;
 exports.getCardLink = getCardLink;
+exports.getCardLinkDoK = getCardLinkDoK;
 exports.getFlagHouse = getFlagHouse;
 exports.getFlagLang = getFlagLang;
 exports.getFlagNumber = getFlagNumber;
