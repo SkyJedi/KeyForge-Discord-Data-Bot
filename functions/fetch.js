@@ -64,7 +64,7 @@ const fetchDeckNameMV = (name) => new Promise((resolve, reject) => {
 });
 
 const buildEnhancements = (deck) => {
-    if(deck.cards.every(x=> !x.is_enhanced)) return false;
+    if (deck.cards.every(x => !x.is_enhanced)) return false;
     const enhancements = { aember: 0, capture: 0, damage: 0, draw: 0 };
     deck.cards.forEach(card => {
         if (card.card_text.startsWith('Enhance ')) {
@@ -74,21 +74,21 @@ const buildEnhancements = (deck) => {
                     case 'P':
                         break;
                     case 'A':
-                        enhancements.aember++
+                        enhancements.aember++;
                         break;
                     case 'T':
-                        enhancements.capture++
+                        enhancements.capture++;
                         break;
                     case 'D':
-                        enhancements.damage++
+                        enhancements.damage++;
                         break;
                     case 'R':
-                        enhancements.draw++
+                        enhancements.draw++;
                         break;
                     default:
                         break;
                 }
-            })
+            });
         }
     });
     return enhancements;
@@ -151,11 +151,14 @@ const fetchDeckWithCard = (cardId) => new Promise((resolve, reject) => {
         } else reject();
     }).catch(() => reject());
 });
-const fetchRandomDecks = ({ expansion, house }) => new Promise((resolve, reject) => {
+const fetchRandomDecks = ({ expansion, houses }) => new Promise((resolve, reject) => {
     const key = uuid();
     let decksRef = db.collection('decks').limit(1);
     if (expansion) decksRef = decksRef.where('expansion', '==', expansion);
-    if (house) decksRef = decksRef.where('_links.houses', 'array-contains', house);
+    if (houses.length > 0) {
+        if (houses.length === 3) decksRef = decksRef.where('_links.houses', '==', houses);
+        else decksRef = decksRef.where('_links.houses', 'array-contains-any', houses);
+    }
     decksRef.where('id', '>=', key).get().then(snapshot => {
         if (snapshot.size > 0) snapshot.forEach(doc => resolve(doc.data()));
         else {
@@ -233,7 +236,7 @@ const sasStarRating = (x) => {
 const fetchCard = (search, flags) => {
     const set = getFlagSet(flags);
     const lang = getFlagLang(flags);
-    const house = getFlagHouse(flags);
+    const house = getFlagHouse(flags)[0];
     const options = {
         shouldSort: true,
         tokenize: true,
@@ -376,12 +379,12 @@ const getCardLinkDoK = (card) => {
     const AllCards = require(`../card_data/en/${card.expansion}`);
     card = AllCards.find(x => x.card_number === card.card_number);
     return encodeURI(`https://decksofkeyforge.com/cards/${card.card_title.replace(/\s+/g, '-').toLowerCase()
-                                                     .replace(/[\[\]Ææ']+/g, '')}?powered_by=archonMatrixDiscord`);
+                                                              .replace(/[\[\]Ææ']+/g, '')}?powered_by=archonMatrixDiscord`);
 };
 const getFlagCardType = (flags) => get(filter(cardTypes, cardType => flags.includes(cardType.toLowerCase())), '[0]');
 const getFlagSet = (flags) => get(filter(sets, set => flags.includes(set.flag.toLowerCase())), '[0].set_number');
 const getSet = (number) => get(sets.filter(set => number === set.set_number), '[0].flag', 'ERROR');
-const getFlagHouse = (flags) => houses[filter(Object.keys(houses), house => flags.includes(house))];
+const getFlagHouse = (flags) => flags.filter(x => Object.keys(houses).includes(x)).map(x => houses[x]).sort();
 const getFlagLang = (flags) => get(filter(flags, flag => langs.includes(flag)), '[0]');
 const getFlagNumber = (
     flags, defaultNumber = 0) => +(get(filter(flags, flag => Number.isInteger(+flag)), '[0]', defaultNumber));

@@ -4,7 +4,7 @@ const { fetchCard, fetchReprints, getSet, getCardLink, getCardLinkDoK } = requir
 const { buildAttachment } = require('./buildAttachment');
 
 const cards = async (msg, params, flags) => {
-    params = params.slice(0, 5);
+    params = params.slice(0, 7);
     const embed = new Discord.MessageEmbed();
     //fetch cards data
     const cards = params.map(card => fetchCard(card, flags)).filter(Boolean);
