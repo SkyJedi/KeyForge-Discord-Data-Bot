@@ -20,7 +20,7 @@ const randomCard = async (msg, params, flags) => {
     cards = shuffle(cards).slice(0, number);
     if(0 >= cards.length) return;
 
-    const name = cards.map(card => `${card.card_number}`).join('_') + '.png';
+    const name = cards.map(card => `${card.card_number}`).join('_') + '.jpg';
     buildAttachment(cards, name, flags).then(attachment => {
         const text = cards.map(card => {
             const reprints = fetchReprints(card, flags);

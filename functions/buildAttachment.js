@@ -4,7 +4,7 @@ const path = require('path');
 const { getFlagLang } = require('./fetch');
 const { sets } = require('../card_data');
 
-const buildAttachment = async (data, name, flags) =>  {
+const buildAttachment = async (data, name, flags) => {
     if (0 >= data.length) return;
     let lang = getFlagLang(flags);
     let cards = [];
@@ -64,13 +64,11 @@ const buildAttachment = async (data, name, flags) =>  {
         cardX += card.width + 5;
         canvas.renderAll();
     }
-
-    const dataUrl = canvas.toDataURL({ format: 'jpeg', quality: 0.6 }).replace('data:image/jpeg;base64,', '');
-    return new Discord.MessageAttachment(Buffer.from(dataUrl, 'base64'), name);
+    const stream = canvas.createJPEGStream()
+    stream.on('end', () => canvas.dispose());
+    return new Discord.MessageAttachment(stream, name);
 };
 
-const loadImage = (imgPath) => {
-    return new Promise(resolve => fabric.Image.fromURL(`file://${path.join(__dirname, imgPath)}`, image => resolve(image)));
-};
+const loadImage = (imgPath) => new Promise(resolve => fabric.Image.fromURL(`file://${path.join(__dirname, imgPath)}`, resolve));
 
 exports.buildAttachment = buildAttachment;

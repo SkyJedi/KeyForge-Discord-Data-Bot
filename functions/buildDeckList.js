@@ -38,7 +38,7 @@ fabric.nodeCanvas.registerFont(path.join(__dirname, '../fonts/BlackHanSans-Regul
 });
 
 const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
-    return new Promise(res => {
+    return new Promise(async res => {
         const canvas = new fabric.StaticCanvas('decklist');
         canvas.setDimensions({ width: 600, height: 840 });
         const Common = loadImage('../card_images/cardback/rarity/Common.png');
@@ -46,7 +46,9 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
         const Special = loadImage('../card_images/cardback/rarity/Special.png');
         const Uncommon = loadImage('../card_images/cardback/rarity/Uncommon.png');
         const cardBack = loadImage('../card_images/cardback/decklist.png');
-        const set = loadImage(`../card_images/cardback/${sets.find(x => x.set_number === expansion).flag.toLowerCase()}.png`);
+        const set = loadImage(`../card_images/cardback/${sets.find(x => x.set_number === expansion)
+                                                             .flag
+                                                             .toLowerCase()}.png`);
         const crest = loadImage('../card_images/cardback/crest.png');
 
         const houseData = {
@@ -60,144 +62,149 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
             start: { x: 58, y: 165 }
         };
         const qrCode = new Promise(qrRes => {
-            QRCode.toDataURL(`https://www.keyforgegame.com/deck-details/${deck.id}`, { margin: 0 })
-                .then(url => fabric.Image.fromURL(url, img => qrRes(img)));
+            QRCode.toCanvas(fabric.util.createCanvasElement(),
+                `https://www.keyforgegame.com/${deck.uuid}`,
+                { margin: 0 }, (err, qr) => qrRes(new fabric.Image(qr)))
         });
-        const title = getCircularText(deck.name, 1600, 60);
-        Promise.all([cardBack, Common, Uncommon, Rare, Special, qrCode, set, title, crest])
-            .then(([cardBack, Common, Uncommon, Rare, Special, qrCode, set, title, crest]) => {
-                const Rarities = { Common, Uncommon, Rare, Special };
-                qrCode.set({ left: 329, top: 611 }).scaleToWidth(155);
-                set.set({ left: 232, top: 92 }).scaleToWidth(20);
-                crest.set({ left: 500, top: 735 }).scaleToWidth(50);
-                canvas.add(cardBack)
-                    .add(qrCode)
-                    .add(set)
-                    .add(title)
-                    .add(crest);
 
-                const houseProm = houses.sort().map((house, index) => {
-                    return new Promise(houseRes => {
-                        loadImage(`../card_images/cardback/decklist_houses/${house}.png`).then(img => {
-                            img.set({ left: houseData[index].x, top: houseData[index].y })
-                                .scaleToWidth(30)
-                                .scaleToHeight(30)
-                                .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 3 });
-                            const houseText = new fabric.Text(houses_languages[lang][house], {
-                                fontWeight: lang === 'ko' ? 100 : 800,
-                                fontFamily: 'Keyforge',
-                                textAlign: 'left',
-                                fillStyle: 'black',
-                                fontSize: 25
-                            }).set({ left: houseData[index].x + 35, top: houseData[index].y + 5 });
-                            canvas.add(houseText).add(img);
-                            houseRes();
-                        });
-                    });
-                });
+        const title = getCircularText(deck.name, 1700, 60);
+        Promise.all([cardBack, Common, Uncommon, Rare, Special, set, title, crest, qrCode])
+               .then(([cardBack, Common, Uncommon, Rare, Special, set, title, crest, qrCode]) => {
+                   const Rarities = { Common, Uncommon, Rare, Special };
+                   qrCode.set({ left: 331, top: 614 }).scaleToWidth(150);
+                   set.set({ left: 232, top: 92 }).scaleToWidth(20);
+                   crest.set({ left: 500, top: 735 }).scaleToWidth(50);
+                   title.set({ left: 0 });
+                   canvas.add(cardBack)
+                         .add(qrCode)
+                         .add(set)
+                         .add(title)
+                         .add(crest);
 
-                const cardProm = cards.map((card, index) => {
-                    return new Promise(async cardRes => {
-                        let x = cardData.start.x,
-                            y = cardData.start.y + (index * 28);
-                        const name = get(card_titles, `[${card.expansion}][${card.card_number}][${lang}]`, card.card_title);
-                        if(index > 11) {
-                            y = y + 45;
-                        }
+                   const houseProm = houses.sort().map((house, index) => {
+                       return new Promise(houseRes => {
+                           loadImage(`../card_images/cardback/decklist_houses/${house}.png`).then(img => {
+                               img.set({ left: houseData[index].x, top: houseData[index].y })
+                                  .scaleToWidth(30)
+                                  .scaleToHeight(30)
+                                  .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 3 });
+                               const houseText = new fabric.Text(houses_languages[lang][house], {
+                                   fontWeight: lang === 'ko' ? 100 : 800,
+                                   fontFamily: 'Keyforge',
+                                   textAlign: 'left',
+                                   fillStyle: 'black',
+                                   fontSize: 25
+                               }).set({ left: houseData[index].x + 35, top: houseData[index].y + 5 });
+                               canvas.add(houseText).add(img);
+                               houseRes();
+                           });
+                       });
+                   });
 
-                        if(index > 20) {
-                            x = x + 249;
-                            y = cardData.start.y + ((index - 22.1) * 28);
-                        }
+                   const cardProm = cards.map((card, index) => {
+                       return new Promise(async cardRes => {
+                           let x = cardData.start.x,
+                               y = cardData.start.y + (index * 28);
+                           const name = get(card_titles, `[${card.expansion}][${card.card_number}][${lang}]`, card.card_title);
+                           if (index > 11) {
+                               y = y + 45;
+                           }
 
-                        if(index > 23) {
-                            y = y + 44;
-                        }
+                           if (index > 20) {
+                               x = x + 249;
+                               y = cardData.start.y + ((index - 22.1) * 28);
+                           }
 
-                        const fontProps = {
-                            fontWeight: 800,
-                            fontFamily: 'Keyforge',
-                            textAlign: 'left',
-                            fill: 'black',
-                            fontSize: 20
-                        };
-                        const rarity = new fabric.Image(Rarities[card.rarity === 'FIXED' || card.rarity === 'Variant' ? 'Special' : card.rarity].getElement())
-                            .set({ left: x, top: y })
-                            .scaleToWidth(cardData.size)
-                            .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 3 });
-                        const number = new fabric.Text(card.card_number, fontProps).set({ left: x + 22, top: y });
+                           if (index > 23) {
+                               y = y + 44;
+                           }
 
-                        if(card.is_enhanced) {
-                            fontProps.fill = '#0081ad';
-                        }
+                           const fontProps = {
+                               fontWeight: 800,
+                               fontFamily: 'Keyforge',
+                               textAlign: 'left',
+                               fill: 'black',
+                               fontSize: 20
+                           };
+                           const rarity = new fabric.Image(Rarities[card.rarity === 'FIXED' || card.rarity ===
+                                                                    'Variant' ? 'Special' : card.rarity].getElement())
+                               .set({ left: x, top: y })
+                               .scaleToWidth(cardData.size)
+                               .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 3 });
+                           const number = new fabric.Text(card.card_number, fontProps).set({ left: x + 22, top: y });
 
-                        const title = new fabric.Text(name, {
-                            ...fontProps,
-                            fontWeight: 300
-                        }).set({ left: x + 60, top: y });
+                           if (card.is_enhanced) {
+                               fontProps.fill = '#0081ad';
+                           }
 
-                        canvas.add(number).add(rarity).add(title);
+                           const title = new fabric.Text(name, {
+                               ...fontProps,
+                               fontWeight: 300
+                           }).set({ left: x + 60, top: y });
 
-                        let iconX = x + title.width + number.width + 35;
+                           canvas.add(number).add(rarity).add(title);
 
-                        if(card.is_maverick) {
-                            const maverick = await loadImage('../card_images/cardback/Maverick.png');
-                            const maverickImage = new fabric.Image(maverick.getElement())
-                                .set({ left: iconX, top: y })
-                                .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 5 })
-                                .scaleToHeight(cardData.size);
-                            canvas.add(maverickImage);
-                            iconX = iconX + 20;
-                        }
+                           let iconX = x + title.width + number.width + 35;
 
-                        if(card.is_legacy) {
-                            const legacy = await loadImage('../card_images/cardback/Legacy.png');
-                            const legacyImage = new fabric.Image(legacy.getElement())
-                                .set({ left: iconX, top: y })
-                                .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 5 })
-                                .scaleToHeight(cardData.size);
-                            canvas.add(legacyImage);
-                        }
+                           if (card.is_maverick) {
+                               const maverick = await loadImage('../card_images/cardback/Maverick.png');
+                               const maverickImage = new fabric.Image(maverick.getElement())
+                                   .set({ left: iconX, top: y })
+                                   .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 5 })
+                                   .scaleToHeight(cardData.size);
+                               canvas.add(maverickImage);
+                               iconX = iconX + 20;
+                           }
 
-                        if(card.is_anomaly) {
-                            const anomaly = await loadImage('../card_images/cardback/Anomaly.png');
-                            const anomalyImage = new fabric.Image(anomaly.getElement())
-                                .set({ left: iconX, top: y })
-                                .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 5 })
-                                .scaleToHeight(cardData.size);
-                            canvas.add(anomalyImage);
-                        }
+                           if (card.is_legacy) {
+                               const legacy = await loadImage('../card_images/cardback/Legacy.png');
+                               const legacyImage = new fabric.Image(legacy.getElement())
+                                   .set({ left: iconX, top: y })
+                                   .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 5 })
+                                   .scaleToHeight(cardData.size);
+                               canvas.add(legacyImage);
+                           }
 
-                        if(card.enhancements) {
-                            for(const enhancement of card.enhancements) {
-                                const enhancementImg = await loadImage(`../card_images/cardback/enhancements/${enhancement}.png`);
-                                const enhancementElement = new fabric.Image(enhancementImg.getElement())
-                                    .set({ left: iconX, top: y })
-                                    .setShadow({ color: 'gray', offsetX: 2, offsetY: 2, blur: 2 })
-                                    .scaleToHeight(cardData.size);
-                                canvas.add(enhancementElement);
-                                iconX = iconX + 25;
-                            }
-                        }
+                           if (card.is_anomaly) {
+                               const anomaly = await loadImage('../card_images/cardback/Anomaly.png');
+                               const anomalyImage = new fabric.Image(anomaly.getElement())
+                                   .set({ left: iconX, top: y })
+                                   .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 5 })
+                                   .scaleToHeight(cardData.size);
+                               canvas.add(anomalyImage);
+                           }
 
-                        cardRes();
-                    });
-                });
+                           if (card.enhancements) {
+                               for(const enhancement of card.enhancements) {
+                                   const enhancementImg = await loadImage(`../card_images/cardback/enhancements/${enhancement}.png`);
+                                   const enhancementElement = new fabric.Image(enhancementImg.getElement())
+                                       .set({ left: iconX, top: y })
+                                       .setShadow({ color: 'gray', offsetX: 2, offsetY: 2, blur: 2 })
+                                       .scaleToHeight(cardData.size);
+                                   canvas.add(enhancementElement);
+                                   iconX = iconX + 25;
+                               }
+                           }
 
-                Promise.all([...houseProm, ...cardProm]).then(() => res(canvas));
-            });
+                           cardRes();
+                       });
+                   });
+
+                   Promise.all([...houseProm, ...cardProm]).then(() => {
+                       canvas.renderAll();
+                       res(canvas);
+                   });
+               });
     });
 };
 
 const getCurvedFontSize = (length) => {
-    const size = (30 / length) * 30;
-    if(size > 30) return 40;
-    return size;
+    if (length < 30) return 42;
+    return 35 / (length / 35);
 };
 
-const loadImage = (imgPath) => {
-    return new Promise(resolve => fabric.Image.fromURL(`file://${path.join(__dirname, imgPath)}`, image => resolve(image)));
-};
+const loadImage = (imgPath) => new Promise(resolve => fabric.Image.fromURL(`file://${path.join(__dirname, imgPath)}`, resolve));
+
 
 const getCircularText = (text = '', diameter, yOffset = 0) => {
     const canvas = fabric.util.createCanvasElement();

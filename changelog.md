@@ -1,3 +1,5 @@
+# 1.6.4
+    use JPEGStreams instead of DataUrls for all images
 # 1.6.3
     updated npm
     redid cards

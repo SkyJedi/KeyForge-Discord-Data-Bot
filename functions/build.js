@@ -39,7 +39,7 @@ const build = (msg, params, flags, bot) => {
     });
     Promise.all(process).then(() => {
         fs.writeFile(`./card_data/emoji.json`, JSON.stringify(data), () => {
-            console.log('The file has been saved!');
+            console.info('The file has been saved!');
             msg.reply('EmojiDB has been built');
         });
     });

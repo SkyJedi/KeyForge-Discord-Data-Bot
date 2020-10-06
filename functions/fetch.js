@@ -104,10 +104,12 @@ const buildCardList = (deck) => new Promise(resolve => {
                     card.is_legacy = deck.set_era_cards.Legacy.includes(card.id);
                     list.push(card);
                 } else {
-                    fetchUnknownCard(deck.cards[x], deck.id).then(unknownCard => {
-                        unknownCard.is_legacy = deck.set_era_cards.Legacy.includes(unknownCard.id);
-                        list.push(unknownCard);
-                    });
+                    if (deck.id) {
+                        fetchUnknownCard(deck.cards[x], deck.id).then(unknownCard => {
+                            unknownCard.is_legacy = deck.set_era_cards.Legacy.includes(unknownCard.id);
+                            list.push(unknownCard);
+                        });
+                    }
                 }
             }
             resolve(sortBy(list, ['house', 'card_number']));
@@ -181,10 +183,10 @@ const fetchDoK = (deckID) => {
         axios.get(`${dokAPI}${deckID}`, dokKey).then(response => {
             if (response.data) {
                 const {
-                        amberControl: A, expectedAmber: E,
-                        artifactControl: R, creatureControl: C,
-                        efficiency: F, disruption: D, effectivePower: P,
-                        sasRating, sasPercentile, aercScore
+                        amberControl: A = 0, expectedAmber: E = 0,
+                        artifactControl: R = 0, creatureControl: C = 0,
+                        efficiency: F = 0, disruption: D = 0, effectivePower: P = 0,
+                        sasRating = 0, sasPercentile = 0, aercScore = 0
                     } = response.data.deck,
                     sas = `${round(sasRating, 2)} SAS • ${round(aercScore, 2)} AERC`,
                     deckAERC = `A: ${round(A, 2)} • E: ${round(E, 2)} • R: ${round(R, 2)} • C: ${round(C, 2)} • F: ${round(F, 2)} • D: ${round(D,
@@ -280,9 +282,10 @@ const fetchReprints = (card, flags) => {
 };
 
 const fetchText = (search, flags, type = 'card_text') => {
-    const set = getFlagSet(flags),
-        lang = getFlagLang(flags),
-        cardType = getFlagCardType(flags);
+    const set = getFlagSet(flags);
+    const lang = getFlagLang(flags);
+    const cardType = getFlagCardType(flags);
+    const number = getFlagNumber(flags);
     search = search.split(' ').filter(x => x.length > 2).join(' ');
     const options = {
         shouldSort: true,
@@ -292,12 +295,16 @@ const fetchText = (search, flags, type = 'card_text') => {
         threshold: 0.2,
         keys: [type]
     };
-    const cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
+    let cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
     const fuse = new Fuse(cards, options);
-    let results = fuse.search(search);
-    results = results.filter(x => x.score < 0.6);
-    if (cardType) results = results.filter(x => x.item.card_type === cardType);
-    return sortBy(results.map(item => item.item), ['card_title']);
+    if (search.length > 0) {
+        cards = fuse.search(search);
+        cards = cards.filter(x => x.score < 0.6);
+        cards = cards.map(item => item.item);
+    }
+    if (cardType) cards = cards.filter(x => x.card_type === cardType);
+    if (number) cards = cards.filter(x => x.traits && x.traits.split('•').length === number);
+    return sortBy(cards, ['card_title']);
 };
 
 const fetchFAQ = (text) => {
@@ -392,6 +399,7 @@ const getFlagNumber = (
 const format = (text) => text.replace(/<I>/gi, '*').replace(/<B>/gi, '**');
 
 exports.buildEnhancements = buildEnhancements;
+exports.buildCardList = buildCardList;
 exports.fetchCard = fetchCard;
 exports.fetchDeck = fetchDeck;
 exports.fetchDeckWithCard = fetchDeckWithCard;
