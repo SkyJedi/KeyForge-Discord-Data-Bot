@@ -19,4 +19,4 @@ const text = (msg, params, flags) => {
 	}
 };
 
-exports.text = text;
+module.exports = text;

@@ -30,7 +30,7 @@ const timingChart = async (msg, params) => {
     main.sendMessage(msg, { embed });
 };
 
-exports.timingChart = timingChart;
+module.exports = timingChart;
 
 
 

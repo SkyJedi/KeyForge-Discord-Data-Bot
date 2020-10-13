@@ -17,4 +17,4 @@ const language = (message, params, flags, client) => {
 	}
 };
 
-exports.language = language;
+module.exports = language;

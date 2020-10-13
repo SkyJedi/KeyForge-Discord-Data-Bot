@@ -20,4 +20,4 @@ const trait = (msg, params, flags) => {
 	}
 };
 
-exports.trait = trait;
+module.exports = trait;

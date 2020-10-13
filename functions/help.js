@@ -56,4 +56,4 @@ const help = (msg, params) => {
 	main.sendMessage(msg, {embed});
 };
 
-exports.help = help;
+module.exports = help;

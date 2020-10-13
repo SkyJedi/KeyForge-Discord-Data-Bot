@@ -17,5 +17,4 @@ const findGuild = (emojiID) => {
 
 const emoji = (string) => emojiDB[string];
 
-exports.findEmoji = findEmoji;
-exports.emoji = emoji;
+module.exports = { emoji, findEmoji };

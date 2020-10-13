@@ -1,7 +1,7 @@
 const axios = require('axios');
 const Fuse = require('fuse.js');
 const levenshtein = require('js-levenshtein');
-const { db } = require('./firestore');
+const db = require('./firestore');
 const uuid = require('uuid').v4;
 const { get, filter, findIndex, sortBy, round, shuffle, uniqBy } = require('lodash');
 
@@ -398,26 +398,28 @@ const getFlagNumber = (
 
 const format = (text) => text.replace(/<I>/gi, '*').replace(/<B>/gi, '**');
 
-exports.buildEnhancements = buildEnhancements;
-exports.buildCardList = buildCardList;
-exports.fetchCard = fetchCard;
-exports.fetchDeck = fetchDeck;
-exports.fetchDeckWithCard = fetchDeckWithCard;
-exports.fetchDoK = fetchDoK;
-exports.fetchFAQ = fetchFAQ;
-exports.fetchMavCard = fetchMavCard;
-exports.fetchRandomDecks = fetchRandomDecks;
-exports.fetchReprints = fetchReprints;
-exports.fetchServerLanguage = fetchServerLanguage;
-exports.fetchText = fetchText;
-exports.fetchTiming = fetchTiming;
-exports.fetchUnknownCard = fetchUnknownCard;
-exports.format = format;
-exports.getCardLink = getCardLink;
-exports.getCardLinkDoK = getCardLinkDoK;
-exports.getFlagHouse = getFlagHouse;
-exports.getFlagLang = getFlagLang;
-exports.getFlagNumber = getFlagNumber;
-exports.getFlagSet = getFlagSet;
-exports.getSet = getSet;
-exports.setServerLanguage = setServerLanguage;
+module.exports = {
+    buildEnhancements,
+    buildCardList,
+    fetchCard,
+    fetchDeck,
+    fetchDeckWithCard,
+    fetchDoK,
+    fetchFAQ,
+    fetchMavCard,
+    fetchRandomDecks,
+    fetchReprints,
+    fetchServerLanguage,
+    fetchText,
+    fetchTiming,
+    fetchUnknownCard,
+    format,
+    getCardLink,
+    getCardLinkDoK,
+    getFlagHouse,
+    getFlagLang,
+    getFlagNumber,
+    getFlagSet,
+    getSet,
+    setServerLanguage
+};

@@ -41,4 +41,4 @@ const randomCard = async (msg, params, flags) => {
     });
 };
 
-exports.randomCard = randomCard;
+module.exports = randomCard;

@@ -14,4 +14,4 @@ const errata = (msg) => {
 	main.sendMessage(msg, {embed});
 };
 
-exports.errata = errata;
+module.exports = errata;

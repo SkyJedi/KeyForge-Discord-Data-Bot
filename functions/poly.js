@@ -67,4 +67,4 @@ const poly = (msg, params) => {
 	if (text.endsWith('.')) main.sendMessage(msg, text);
 };
 
-exports.poly = poly;
+module.exports= poly;

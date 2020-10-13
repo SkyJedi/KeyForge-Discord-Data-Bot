@@ -17,4 +17,4 @@ const faq = (msg, params) => {
 
 const format = (text) => text.replace(/([a-z\d_-]+):/gi, '**$1:**');
 
-exports.faq = faq;
+module.exports = faq;

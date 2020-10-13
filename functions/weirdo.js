@@ -11,4 +11,4 @@ const weirdo = async (msg, params, flags) => {
     buildDeck(msg, deck, flags);
 };
 
-exports.weirdo = weirdo;
+module.exports = weirdo;

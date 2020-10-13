@@ -9,4 +9,4 @@ const version = (msg) => {
 	main.sendMessage(msg, {embed});
 };
 
-exports.version = version;
+module.exports = version;

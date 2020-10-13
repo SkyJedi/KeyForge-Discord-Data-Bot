@@ -21,4 +21,4 @@ const rule = (msg, params) => {
     }
 };
 
-exports.rule = rule;
+module.exports = rule;

@@ -9,4 +9,4 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-exports.db = db;
+module.exports = db;

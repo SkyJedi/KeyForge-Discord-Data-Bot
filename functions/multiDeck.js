@@ -27,4 +27,4 @@ const multiDeck = async (msg, params, flags) => {
     main.sendMessage(msg, `**${decks.map(deck => deck.name).join('** vs **')}**`, attachment);
 };
 
-exports.multiDeck = multiDeck;
+module.exports = multiDeck;

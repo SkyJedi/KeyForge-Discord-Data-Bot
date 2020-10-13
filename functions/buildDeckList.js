@@ -245,4 +245,4 @@ const getCircularText = (text = '', diameter, yOffset = 0) => {
     return new fabric.Image(canvas, { left: 0, top: 0 });
 };
 
-exports.buildDeckList = buildDeckList;
+module.exports = buildDeckList;

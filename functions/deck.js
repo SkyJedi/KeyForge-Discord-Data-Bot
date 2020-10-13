@@ -29,8 +29,8 @@ const buildDeck = (msg, deck, flags) => {
         const set = get(sets.filter(set => deck.expansion === set.set_number), '[0].flag', 'ERROR');
         const name = `${deck.id}.jpg`;
         const enhancements = deck.enhancements ? 'Enhancements: ' + Object.keys(deck.enhancements)
-                                                       .map(x => `${deck.enhancements[x]}${emoji(x)}`)
-                                                       .join(' • ') + '\n' : '';
+                                                                          .map(x => `${deck.enhancements[x]}${emoji(x)}`)
+                                                                          .join(' • ') + '\n' : '';
         let description = deck._links.houses.map(house => emoji(house.toLowerCase())).join(' • ');
         description += deck.wins === 0 && deck.losses ===
                        0 ? '\n' : ` • ${deck.power_level} ${emoji('power')} • ${deck.chains} ${emoji(
@@ -48,7 +48,7 @@ const buildDeck = (msg, deck, flags) => {
         description += enhancements;
         description += `${dokStats.sas}  •  ${dokStats.sasStar}\n${dokStats.deckAERC}\n`;
         description += `[Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) • [Decks of KeyForge](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord)`;
-        const stream = attachment.createJPEGStream()
+        const stream = attachment.createJPEGStream();
         stream.on('end', () => attachment.dispose());
         const file = new Discord.MessageAttachment(stream, name);
 
@@ -65,7 +65,9 @@ const buildDeck = (msg, deck, flags) => {
 const getCardStats = (cards) => {
     return {
         amber: cards.reduce((acc, card) => acc + card.amber, 0),
-        card_type: cards.reduce((acc, card) => ({ ...acc, [card.card_type]: acc[card.card_type] + 1 }),
+        card_type: cards.reduce((acc, card) => ({
+                ...acc, [card.card_type.replace(/\d+/g, '')]: acc[card.card_type.replace(/\d+/g, '')] + 1
+            }),
             { Action: 0, Artifact: 0, Creature: 0, Upgrade: 0 }
         ),
         rarity: cards.reduce((acc, card) =>
@@ -80,5 +82,4 @@ const getCardStats = (cards) => {
 
 const rarityFix = rarity => rarity === 'FIXED' || rarity === 'Variant' ? 'Special' : rarity;
 
-exports.deck = deck;
-exports.buildDeck = buildDeck;
+module.exports = { deck, buildDeck };

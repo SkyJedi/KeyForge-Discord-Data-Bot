@@ -9,4 +9,4 @@ const patreon = (msg) => {
 	main.sendMessage(msg, {embed});
 };
 
-exports.patreon = patreon;
+module.exports = patreon;

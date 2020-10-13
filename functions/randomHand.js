@@ -21,4 +21,4 @@ const randomHand = (msg, params, flags) => {
 
 };
 
-exports.randomHand = randomHand;
+module.exports = randomHand;

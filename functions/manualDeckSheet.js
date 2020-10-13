@@ -101,4 +101,4 @@ const buildDeckSheet = async (msg, deck, flags) => {
     main.sendMessage(msg, '', attachment);
 };
 
-exports.manualDeckSheet = manualDeckSheet;
+module.exports = manualDeckSheet;

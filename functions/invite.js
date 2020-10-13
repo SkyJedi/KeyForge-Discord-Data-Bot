@@ -9,4 +9,4 @@ const invite = (msg, params, flags, client) => {
 	main.sendMessage(msg, {embed});
 };
 
-exports.invite = invite;
+module.exports = invite;

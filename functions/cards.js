@@ -31,4 +31,4 @@ const cards = async (msg, params, flags) => {
     }
 };
 
-exports.cards = cards;
+module.exports = cards;

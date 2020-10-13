@@ -37,4 +37,4 @@ const sealed = (msg, params, flags) => {
     });
 };
 
-exports.sealed = sealed;
+module.exports = sealed;

@@ -21,4 +21,4 @@ const buildMemberList = () => {
 	return users;
 };
 
-exports.stats = stats;
+module.exports = stats;

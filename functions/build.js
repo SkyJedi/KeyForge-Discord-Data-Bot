@@ -45,4 +45,4 @@ const build = (msg, params, flags, bot) => {
     });
 };
 
-exports.build = build;
+module.exports = build;

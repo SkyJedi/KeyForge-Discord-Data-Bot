@@ -98,4 +98,4 @@ const buildDeckSheet = async (msg, deck, flags) => {
     main.sendMessage(msg, '', attachment);
 };
 
-exports.deckSheet = deckSheet;
+module.exports = deckSheet;

@@ -64,11 +64,11 @@ const buildAttachment = async (data, name, flags) => {
         cardX += card.width + 5;
         canvas.renderAll();
     }
-    const stream = canvas.createJPEGStream()
+    const stream = canvas.createJPEGStream();
     stream.on('end', () => canvas.dispose());
     return new Discord.MessageAttachment(stream, name);
 };
 
 const loadImage = (imgPath) => new Promise(resolve => fabric.Image.fromURL(`file://${path.join(__dirname, imgPath)}`, resolve));
 
-exports.buildAttachment = buildAttachment;
+module.exports = buildAttachment;
