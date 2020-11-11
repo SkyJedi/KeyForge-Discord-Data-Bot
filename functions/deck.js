@@ -1,6 +1,6 @@
 const main = require('../index');
 const Discord = require('discord.js');
-const { buildDeckList } = require('./buildDeckList');
+const buildDeckList  = require('./buildDeckList');
 const { fetchDeck, fetchDoK, buildEnhancements, getFlagLang } = require('./fetch');
 const { emoji } = require('./emoji');
 const { sets } = require('../card_data');

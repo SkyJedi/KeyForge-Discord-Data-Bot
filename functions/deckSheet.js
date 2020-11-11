@@ -4,7 +4,7 @@ const Discord = require('discord.js');
 
 const main = require('../index');
 const { getFlagLang, fetchDeck, buildEnhancements } = require('./fetch');
-const { buildDeckList } = require('./buildDeckList');
+const buildDeckList  = require('./buildDeckList');
 const { sets } = require('../card_data');
 const loadImage = (imgPath) => {
     return new Promise(resolve => fabric.Image.fromURL(`file://${path.join(__dirname, imgPath)}`, image => resolve(image)));

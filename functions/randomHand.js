@@ -1,6 +1,6 @@
 const main = require('../index');
 const { fetchDeck, getFlagNumber } = require('./fetch');
-const { buildAttachment } = require('./buildAttachment');
+const buildAttachment  = require('./buildAttachment');
 const { shuffle, sortBy } = require('lodash');
 
 const randomHand = (msg, params, flags) => {

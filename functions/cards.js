@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const main = require('../index');
 const { fetchCard, fetchReprints, getSet, getCardLink, getCardLinkDoK } = require('./fetch');
-const { buildAttachment } = require('./buildAttachment');
+const buildAttachment  = require('./buildAttachment');
 
 const cards = async (msg, params, flags) => {
     params = params.slice(0, 7);

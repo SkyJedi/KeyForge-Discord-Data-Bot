@@ -1,7 +1,7 @@
 exports.cards = require('./cards');
 exports.build = require('./build');
 exports.faq = require('./faq');
-exports.deck = require('./deck');
+exports.deck = require('./deck').deck;
 exports.deckSheet = require('./deckSheet');
 exports.timingChart = require('./timingChart');
 exports.patreon = require('./patreon');

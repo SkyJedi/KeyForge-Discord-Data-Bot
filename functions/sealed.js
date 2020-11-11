@@ -1,7 +1,7 @@
 const main = require('../index');
 const Discord = require('discord.js');
 const { getFlagNumber, getFlagSet, getFlagHouse, fetchRandomDecks } = require('./fetch');
-const { multiDeck } = require('./multiDeck');
+const  multiDeck  = require('./multiDeck');
 const { sets } = require('../card_data');
 const { emoji } = require('./emoji');
 const { shuffle } = require('lodash');

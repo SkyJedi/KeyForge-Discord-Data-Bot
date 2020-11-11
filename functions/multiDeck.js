@@ -1,6 +1,6 @@
 const main = require('../index');
 const Discord = require('discord.js');
-const { buildDeckList } = require('./buildDeckList');
+const buildDeckList = require('./buildDeckList');
 const { fetchDeck, getFlagLang } = require('./fetch');
 const { fabric } = require('fabric');
 
