@@ -5,6 +5,8 @@ const card_titles = require('../card_data/card_titles');
 const houses_languages = require('../card_data/houses_languages');
 const { sets } = require('../card_data/index');
 const { get } = require('lodash');
+const shadowProps = { color: 'gray', offsetX: 10, offsetY: 10, blur: 3 };
+
 
 fabric.nodeCanvas.registerFont(path.join(__dirname, '../fonts/Oswald-Regular.ttf'), {
     family: 'Keyforge',
@@ -84,10 +86,10 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
                    const houseProm = houses.sort().map((house, index) => {
                        return new Promise(houseRes => {
                            loadImage(`../card_images/cardback/decklist_houses/${house}.png`).then(img => {
-                               img.set({ left: houseData[index].x, top: houseData[index].y })
+                               img.set({ left: houseData[index].x, top: houseData[index].y, shadow: new fabric.Shadow(shadowProps)})
                                   .scaleToWidth(30)
-                                  .scaleToHeight(30)
-                                  .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 3 });
+                                  .scaleToHeight(30);                              
+
                                const houseText = new fabric.Text(houses_languages[lang][house], {
                                    fontWeight: lang === 'ko' ? 100 : 800,
                                    fontFamily: 'Keyforge',
@@ -128,9 +130,8 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
                            };
                            const rarity = new fabric.Image(Rarities[card.rarity === 'FIXED' || card.rarity ===
                                                                     'Variant' ? 'Special' : card.rarity].getElement())
-                               .set({ left: x, top: y })
+                               .set({ left: x, top: y,  shadow: new fabric.Shadow(shadowProps) })
                                .scaleToWidth(cardData.size)
-                               .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 3 });
                            const number = new fabric.Text(card.card_number, fontProps).set({ left: x + 22, top: y });
 
                            if (card.is_enhanced) {
@@ -149,8 +150,7 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
                            if (card.is_maverick) {
                                const maverick = await loadImage('../card_images/cardback/Maverick.png');
                                const maverickImage = new fabric.Image(maverick.getElement())
-                                   .set({ left: iconX, top: y })
-                                   .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 5 })
+                                   .set({ left: iconX, top: y, shadow: new fabric.Shadow(shadowProps) })
                                    .scaleToHeight(cardData.size);
                                canvas.add(maverickImage);
                                iconX = iconX + 20;
@@ -159,8 +159,7 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
                            if (card.is_legacy) {
                                const legacy = await loadImage('../card_images/cardback/Legacy.png');
                                const legacyImage = new fabric.Image(legacy.getElement())
-                                   .set({ left: iconX, top: y })
-                                   .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 5 })
+                                   .set({ left: iconX, top: y, shadow: new fabric.Shadow(shadowProps) })
                                    .scaleToHeight(cardData.size);
                                canvas.add(legacyImage);
                            }
@@ -168,8 +167,7 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
                            if (card.is_anomaly) {
                                const anomaly = await loadImage('../card_images/cardback/Anomaly.png');
                                const anomalyImage = new fabric.Image(anomaly.getElement())
-                                   .set({ left: iconX, top: y })
-                                   .setShadow({ color: 'gray', offsetX: 10, offsetY: 10, blur: 5 })
+                                   .set({ left: iconX, top: y, shadow: new fabric.Shadow(shadowProps) })
                                    .scaleToHeight(cardData.size);
                                canvas.add(anomalyImage);
                            }
@@ -178,8 +176,7 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, lang = 'en') => {
                                for(const enhancement of card.enhancements) {
                                    const enhancementImg = await loadImage(`../card_images/cardback/enhancements/${enhancement}.png`);
                                    const enhancementElement = new fabric.Image(enhancementImg.getElement())
-                                       .set({ left: iconX, top: y })
-                                       .setShadow({ color: 'gray', offsetX: 2, offsetY: 2, blur: 2 })
+                                       .set({ left: iconX, top: y, shadow: new fabric.Shadow(shadowProps) })
                                        .scaleToHeight(cardData.size);
                                    canvas.add(enhancementElement);
                                    iconX = iconX + 25;
