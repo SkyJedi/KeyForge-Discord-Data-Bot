@@ -3,18 +3,19 @@ const findEmoji = require('./emoji').findEmoji;
 const adminID = require('../config').adminID;
 
 const emojiList = [
+    'action',
     'aember',
     'anomaly',
-    'armor',
+    'artifact',
     'brobnar',
     'capture',
     'chains',
     'common',
+    'creature',
     'damage',
     'dis',
     'draw',
-    'enrage',
-    'keyforge',
+    'eviltwin',
     'legacy',
     'logos',
     'mars',
@@ -27,8 +28,9 @@ const emojiList = [
     'special',
     'star alliance',
     'uncommon',
+    'unfathomable',
     'untamed',
-    'ward'
+    'upgrade'
 ];
 
 const build = (msg, params, flags, bot) => {

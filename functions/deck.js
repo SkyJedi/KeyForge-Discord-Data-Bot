@@ -33,10 +33,10 @@ const buildDeck = (msg, deck, flags) => {
                                                                           .join(' • ') + '\n' : '';
         let description = deck._links.houses.map(house => emoji(house.toLowerCase())).join(' • ');
         description += deck.wins === 0 && deck.losses ===
-                       0 ? '\n' : ` • ${deck.power_level} ${emoji('power')} • ${deck.chains} ${emoji(
+                       0 ? '\n' : ` • ${deck.power_level}${emoji('power')} •${deck.chains}${emoji(
             'chains')} • ${deck.wins}W/${deck.losses}L\n`;
         description += Object.keys(cardStats.card_type)
-                             .map(type => `${cardStats.card_type[type]} ${type}s`)
+                             .map(type => cardStats.card_type[type] ? `${cardStats.card_type[type]}${emoji(type.toLowerCase())}` : false).filter(Boolean)
                              .join(' • ') + '\n';
         description += `${cardStats.amber}${emoji('aember')} • `;
         description += ['Special', 'Rare', 'Uncommon', 'Common'].map(
@@ -46,8 +46,8 @@ const buildDeck = (msg, deck, flags) => {
         description += ([mavericks, legacy, anomaly].some(type => type) ? ' • ' : '') +
             [mavericks, legacy, anomaly].filter(type => type).join(' • ') + '\n';
         description += enhancements;
-        description += `${dokStats.sas}  •  ${dokStats.sasStar}\n${dokStats.deckAERC}\n`;
-        description += `[Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) • [Decks of KeyForge](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord)`;
+        description += `${dokStats.sas} • ${dokStats.sasStar}\n`;
+        description += `[Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) • [AA](https://archonarcana.com/Deck:${deck.id}?powered_by=archonMatrixDiscord) • [DoK](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord)`;
         const stream = attachment.createJPEGStream();
         stream.on('end', () => attachment.dispose());
         const file = new Discord.MessageAttachment(stream, name);
@@ -68,7 +68,7 @@ const getCardStats = (cards) => {
         card_type: cards.reduce((acc, card) => ({
                 ...acc, [card.card_type.replace(/\d+/g, '')]: acc[card.card_type.replace(/\d+/g, '')] + 1
             }),
-            { Action: 0, Artifact: 0, Creature: 0, Upgrade: 0 }
+            { Action: 0, Artifact: 0, Creature: 0, Upgrade: 0, Evil_Twin: 0 }
         ),
         rarity: cards.reduce((acc, card) =>
             ({

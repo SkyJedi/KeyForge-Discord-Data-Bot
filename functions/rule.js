@@ -15,7 +15,7 @@ const rule = (msg, params) => {
         embed.setColor('1DE5C7')
             .setTitle(`RULE - ${upperCase(key)}`)
             .setDescription(format(rulesList[key]))
-            .setFooter(`Data pulled from Official rules v${rules.version} ${rules.date}`)
+            .setFooter(`Data pulled from Official rules ${rules.version} ${rules.date}`)
             .setURL(rules.url);
         main.sendMessage(msg, { embed });
     }
