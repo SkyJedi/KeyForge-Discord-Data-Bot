@@ -12,7 +12,7 @@ const loadImage = (imgPath) => {
 };
 const [width, height] = [600, 840];
 
-const manualDeckSheet = async (msg, params, flags) => {
+const manualDeckSheet = async ({msg, params, flags}) => {
     if (0 >= params.length) return;
     params = params.join(' ').split(',');
     const name = startCase(params.pop());

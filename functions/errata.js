@@ -3,7 +3,7 @@ const erratas = require('../card_data/erratas');
 const { rules } = require('../card_data/');
 const Discord = require('discord.js');
 
-const errata = (msg) => {
+const errata = ({msg}) => {
     const embed = new Discord.MessageEmbed()
         .setColor('4c4cff')
         .setTitle('Card Errata')

@@ -6,7 +6,7 @@ const buildAttachment = require('./buildAttachment');
 const AllCards = require('../card_data');
 const { shuffle, uniqBy } = require('lodash');
 
-const randomCard = async (msg, params, flags) => {
+const randomCard = async ({msg, flags}) => {
     const number = Math.min(5, getFlagNumber(flags, 1));
     const language = getFlagLang(flags);
     const set = getFlagSet(flags);

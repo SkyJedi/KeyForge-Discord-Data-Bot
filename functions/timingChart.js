@@ -4,7 +4,7 @@ const { toUpper } = require('lodash');
 const { format, fetchTiming } = require('./fetch');
 const { rules } = require('../card_data');
 
-const timingChart = async (msg, params) => {
+const timingChart = async ({msg, params}) => {
     const data = fetchTiming(params.join(' '));
     const embed = new Discord.MessageEmbed()
         .setColor('800000')

@@ -6,7 +6,7 @@ const {sets} = require('../card_data');
 const {emoji} = require('./emoji');
 const {sample} = require('lodash');
 
-const sealed = (msg, params, flags) => {
+const sealed = ({msg, flags}) => {
     const number = Math.min(10, getFlagNumber(flags, 2));
     const houses = getFlagHouse(flags);
     const set = getFlagSet(flags);

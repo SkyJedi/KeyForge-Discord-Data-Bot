@@ -3,7 +3,7 @@ const main = require('../index');
 const { fetchText, getSet } = require('./fetch');
 const { uniqBy } = require('lodash');
 
-const text = (msg, params, flags) => {
+const text = ({msg, params, flags}) => {
 	params = params.slice(0, 5);
 	//fetch cards data
 	const cards = fetchText(params.join(' '), flags, 'card_text');

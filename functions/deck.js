@@ -6,9 +6,14 @@ const { emoji } = require('./emoji');
 const { sets } = require('../card_data');
 const { get } = require('lodash');
 
-const deck = async (msg, params, flags) => {
+const deck = async ({msg, params, flags}) => {
     if (0 >= params.length) return;
-    let deck = await fetchDeck(params);
+    let deck;
+    try {
+        deck = await fetchDeck(params);
+    } catch(err){
+        return;
+    }
     deck = deck[0];
     deck.enhancements = await buildEnhancements(deck);
     buildDeck(msg, deck, flags);

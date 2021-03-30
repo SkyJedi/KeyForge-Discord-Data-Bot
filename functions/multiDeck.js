@@ -7,11 +7,16 @@ const { fabric } = require('fabric');
 const { snakeCase } = require('lodash');
 const width = 600, height = 840;
 
-const multiDeck = async (msg, params, flags) => {
+const multiDeck = async ({msg, params, flags}) => {
     const lang = getFlagLang(flags);
     if (0 >= params.length) return;
     const canvas = new fabric.StaticCanvas('multiDeck');
-    const decks = (await fetchDeck(params)).filter(Boolean);
+    let decks;
+    try {
+        decks = await fetchDeck(params);
+    } catch(err){
+        return;
+    }
     canvas.setDimensions({ width: ((width * decks.length) + (decks.length > 1 && 5 * decks.length)), height });
     for (const [index, deck] of decks.entries()) {
         const image = await buildDeckList(deck, lang)

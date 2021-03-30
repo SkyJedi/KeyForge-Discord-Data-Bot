@@ -33,11 +33,11 @@ const emojiList = [
     'upgrade'
 ];
 
-const build = (msg, params, flags, bot) => {
+const build = ({msg, client}) => {
     if (msg.author.id !== adminID) return;
     const data = {};
     const process = emojiList.map(async type => {
-        data[type] = await findEmoji(type, bot);
+        data[type] = await findEmoji(type, client);
     });
     Promise.all(process).then(() => {
         fs.writeFile(`./card_data/emoji.json`, JSON.stringify(data), () => {

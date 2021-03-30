@@ -2,7 +2,7 @@ const main = require('../index');
 const {random} = require('lodash');
 const dice = sides => random(1, sides);
 
-const poly = (msg, params) => {
+const poly = ({msg, params}) => {
 	let text = `${msg.member.nickname ? msg.member.nickname : msg.author.username} rolled:`;
 	params.forEach(unit => {
 		let modifier = 0;

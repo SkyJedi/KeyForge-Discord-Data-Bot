@@ -1,7 +1,7 @@
 const main = require('../index');
 const Discord = require('discord.js');
 
-const patreon = (msg) => {
+const patreon = ({msg}) => {
 	const embed = new Discord.MessageEmbed()
 		.setColor('7BFE86')
 		.setTitle(`**SkyJedi's Patreon**`)

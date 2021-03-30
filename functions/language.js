@@ -1,7 +1,7 @@
 const main = require('../index');
 const { getFlagLang, setServerLanguage } = require('./fetch');
 
-const language = (message, params, flags, client) => {
+const language = ({message, flags, client}) => {
 	const botRole = message.guild.roles.find(val => val.name === client.user.username);
 	const userRoles = message.member.roles;
 	if(botRole) {

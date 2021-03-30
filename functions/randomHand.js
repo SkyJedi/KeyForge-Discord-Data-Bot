@@ -3,7 +3,7 @@ const { fetchDeck, getFlagNumber } = require('./fetch');
 const buildAttachment  = require('./buildAttachment');
 const { shuffle, sortBy } = require('lodash');
 
-const randomHand = (msg, params, flags) => {
+const randomHand = ({msg, params, flags}) => {
     fetchDeck([params.join(' ')])
         .then(decks => {
             const number = getFlagNumber(flags, 6);

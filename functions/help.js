@@ -2,26 +2,11 @@ const main = require('../index');
 const Discord = require('discord.js');
 const prefix = require('../config').prefix;
 
-const help = (msg, params) => {
+const help = ({msg, params}) => {
 	const embed = new Discord.MessageEmbed()
 		.setTitle('Help')
 		.setColor('2D7C2F');
 	switch (params[0]) {
-		case 'aerc':
-			embed
-				.addField('A: Æmber Control', 'Æmber control represents the amount of Æmber the deck can deny your opponent for forging keys. Lost and stolen Æmber is counted at a 1:1 ratio, while captured Æmber and increased key cost is counted at a 2:1 ratio, as those can be reclaimed or avoided.')
-				.addField('E: Expected Æmber', `How much Æmber you can expect a card to generate. It does not account for creatures reaping unless they have a special ability like Dew Faerie\'s "Reap: Gain 1<A>".\nSome cards that are difficult to play have their base Æmber reduced, and some cards that immediately allow the use of creatures have Æmber added.`)
-				.addField('R: Artifact Control', 'Artifact control is increased by cards that destroy enemy artifacts, or deny your opponent the use of them.\nDestroying an artifact is worth 1.5 points. Using an enemy artifact (destroying single use artifacts) is 1 point. And delaying artifacts is 0.5 points.')
-				.addField('C: Creature Control', 'Creature control is increased by cards that damage, destroy, or disable enemy creatures. Special abilities that encourage using a creature to fight contribute extra depending on the ability.\n1 point is approximately equal to dealing 4 damage or stunning 2 creatures.')
-				.addField('F: Efficiency', 'Efficiency is increased by effects that allow you to play extra cards. It is reduced by cards that prevent you from playing or drawing cards, like cards that give chains or Bad Penny.\n1 point is approximately equal to drawing two cards or archiving a random card.')
-				.addField('D: Disruption', 'Disruption is increased by effects that reduce the number of cards your opponent can play. 1 point is approximately equal to preventing your opponent from drawing 2 cards.')
-				.addField('P: Effective Power', 'Effective power represents the real usable power of creatures in a deck. Creatures like Grommid, which often cannot be played or used, have their total power reduced. Meanwhile, other cards contribute extra power, like Blood of Titans or Zyzzix the Many.\nEffective power is also increased by Armor at a 1:1 ratio, and other abilities that affect creature survivability, like elusive, skirmish, hazardous, assault, and healing.\nWhen included in total AERC score, Effective Power is divided by 10.')
-				.addField('Aember Protection', 'Aember Protection includes any cards with effects that prevent stealing. This includes obvious cards, like Po\'s Pixies, as well as Key Cheats (can\'t steal what you don\'t have!) and Control the Weak (can\'t steal with cards you can\'t play!)')
-				.addField('House Cheating', 'House cheating represents how well a deck can use cards outside of their normal house. For example, Ulyq Megamouth allows you to use a friendly non-mars creature, and increases H. Cards that let you play cards out of house, like Phase Shift, effect efficiency.')
-				.addField('Other', 'Other is a catch all for qualities of cards that don\'t fit into the other AERC traits. It includes unusual effects such as viewing an opponent\'s hand.')
-				.addField('AERC Score (AERC)', 'To calculate the AERC score divide Effective Power by 10, add all other AERC scores, and then add 0.4 x number of creatures. The AERC score represents how good a deck is at the core mechanics of the game.')
-				.addField('More Info', '[Decks of KeyForge](https://decksofkeyforge.com/about?powered_by=archonMatrixDiscord)');
-			break;
 		case 'sas':
 			embed
 				.addField('Card Ratings', 'Every card in the game is given a rating between 0 and 4, where 0 is very bad, and 4 is very good. These create the deck\'s Card Rating.')
@@ -30,7 +15,7 @@ const help = (msg, params) => {
 				.addField('More Info', '[Decks of KeyForge](https://decksofkeyforge.com/about?powered_by=archonMatrixDiscord)');
 			break;
 		default:
-			embed.addField(`${prefix}card cardName/card# (-en/-es/-it/-de/-fr/-pl/-pt/-th/-zh)`,
+			embed.addField(`${prefix}card cardName/card# (-en/-es/-it/-de/-fr/-ko/-pl/-pt/-ru/-th/-zh)`,
 				'Searches and displays Card. Add -lang tag to specify language.').
 				addField(`${prefix}deck deckName`, 'Searches and displays Deck.').
 				addField(`${prefix}errata`, 'Shows all the cards that have been errata\'ed').

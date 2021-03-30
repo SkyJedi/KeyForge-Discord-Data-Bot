@@ -11,9 +11,14 @@ const loadImage = (imgPath) => {
 };
 const [width, height] = [600, 840];
 
-const deckSheet = async (msg, params, flags) => {
+const deckSheet = async ({msg, params, flags}) => {
     if (0 >= params.length) return;
-    let deck = await fetchDeck(params);
+    let deck;
+    try {
+        deck = await fetchDeck(params);
+    } catch(err){
+        return;
+    }
     deck = deck[0];
     deck.enhancements = await buildEnhancements(deck);
     await buildDeckSheet(msg, deck, flags);

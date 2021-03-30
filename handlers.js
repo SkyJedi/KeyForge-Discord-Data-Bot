@@ -1,6 +1,6 @@
 const knownCommands = require('./functions/index');
 const {fetchServerLanguage, getFlagLang} = require('./functions/fetch');
-const { prefix: commandPrefix} = require('./config');
+const {prefix: commandPrefix} = require('./config');
 const {version} = require('./package');
 
 const {dropWhile, get} = require('lodash');
@@ -102,7 +102,7 @@ const onMessage = async (msg, client) => {
     // If the command is known, let's execute it:
     if (commandName in knownCommands) {
         console.info(`${msg.author.username}, ${commandName}, ${params}, ${flags}, ${new Date()}`);
-        knownCommands[commandName](msg, params, flags, client);
+        knownCommands[commandName]({msg, params, flags, client});
     }
 
 };

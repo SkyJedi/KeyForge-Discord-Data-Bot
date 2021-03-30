@@ -4,7 +4,7 @@ const { emoji } = require('./emoji');
 const { fetchCard, fetchErrata, fetchReprints, getSet, getCardLink, getCardLinkDoK } = require('./fetch');
 const buildAttachment  = require('./buildAttachment');
 
-const cards = async (msg, params, flags) => {
+const cards = async ({msg, params, flags}) => {
     params = params.slice(0, 7);
     const embed = new Discord.MessageEmbed();
     //fetch cards data
@@ -16,7 +16,6 @@ const cards = async (msg, params, flags) => {
     const text = cards.map(card => {
         const reprints = fetchReprints(card, flags);
         const errata = fetchErrata(card);
-        console.log(errata)
         const title = `**${card.card_title}** • ${emoji(card.card_type.toLowerCase())} • ${emoji((card.rarity === 'FIXED' || card.rarity ===
         'Variant' ? 'Special' : card.rarity).toLowerCase())}`;
         const value = `${reprints.map(x => `${getSet(x.expansion)} (${x.card_number})`)

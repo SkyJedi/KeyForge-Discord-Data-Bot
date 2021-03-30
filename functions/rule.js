@@ -4,7 +4,7 @@ const { findIndex, upperCase } = require('lodash');
 const { format } = require('./fetch');
 const { rules,rulesList } = require('../card_data');
 
-const rule = (msg, params) => {
+const rule = ({msg, params}) => {
     let i = findIndex(Object.keys(rulesList), term => term === params.join(' '));
     if(0 > i) i = findIndex(Object.keys(rulesList), term => term.startsWith(params.join(' ')));
     if(0 > i) i = findIndex(Object.keys(rulesList), term => term.includes(params.join(' ')));
