@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const main = require('../index');
 const { emoji } = require('./emoji');
-const { fetchCard, fetchReprints, getSet, getCardLink, getCardLinkDoK } = require('./fetch');
+const { fetchCard, fetchErrata, fetchReprints, getSet, getCardLink, getCardLinkDoK } = require('./fetch');
 const buildAttachment  = require('./buildAttachment');
 
 const cards = async (msg, params, flags) => {
@@ -15,10 +15,13 @@ const cards = async (msg, params, flags) => {
     const attachment = await buildAttachment(cards, name, flags);
     const text = cards.map(card => {
         const reprints = fetchReprints(card, flags);
-        const title = `**${card.card_title}** • ${emoji(card.card_type.toLowerCase())} • ${emoji(card.rarity.toLowerCase())}`;
+        const errata = fetchErrata(card);
+        console.log(errata)
+        const title = `**${card.card_title}** • ${emoji(card.card_type.toLowerCase())} • ${emoji((card.rarity === 'FIXED' || card.rarity ===
+        'Variant' ? 'Special' : card.rarity).toLowerCase())}`;
         const value = `${reprints.map(x => `${getSet(x.expansion)} (${x.card_number})`)
                                  .join(' • ')}`;
-        return title + '\n\t' + value + ` • [AA](${getCardLink(card)}) • [DoK](${getCardLinkDoK(card)})`;
+        return title + '\n\t' + value + ` • [AA](${getCardLink(card)}) • [DoK](${getCardLinkDoK(card)})${errata ? '\n\t **Errata:** ' + errata.card_text : ''}`;
     }).join('\n');
     embed.setDescription(text)
          .setColor('3498DB')

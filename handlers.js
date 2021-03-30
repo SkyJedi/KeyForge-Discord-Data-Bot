@@ -1,8 +1,9 @@
 const knownCommands = require('./functions/index');
-const { fetchServerLanguage, getFlagLang } = require('./functions/fetch');
-const commandPrefix = require('./config').prefix;
-const version = require('./package').version;
-const { dropWhile, get } = require('lodash');
+const {fetchServerLanguage, getFlagLang} = require('./functions/fetch');
+const { prefix: commandPrefix} = require('./config');
+const {version} = require('./package');
+
+const {dropWhile, get} = require('lodash');
 
 // Called every time a message comes in:
 const onMessage = async (msg, client) => {
@@ -28,7 +29,7 @@ const onMessage = async (msg, client) => {
                     arr.push(get(param, '1', param[0]));
                     message = message.replace(get(param, '0'), '');
                 }
-            } while(message.match(types[a]));
+            } while (message.match(types[a]));
             if (arr.length > 0) {
                 commandName = a;
                 if (params < 1) flags = [...flags, 'delete'];
@@ -46,7 +47,7 @@ const onMessage = async (msg, client) => {
 
     if (!getFlagLang(flags)) flags = [...flags, await fetchServerLanguage(msg, client)];
 
-    switch(commandName) {
+    switch (commandName) {
         case 'c':
         case 'card':
             commandName = 'cards';

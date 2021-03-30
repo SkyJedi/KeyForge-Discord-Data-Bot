@@ -268,8 +268,7 @@ const fetchReprints = (card, flags) => {
 };
 
 const fetchErrata = (card) => {
-    const errata = find(erratas, ['card_title', card.card_title]);
-    return { ...errata, ...card, errata: true };
+    return find(erratas, ['card_title', card.card_title]);
 };
 
 const fetchText = (search, flags, type = 'card_text') => {
@@ -396,6 +395,7 @@ module.exports = {
     fetchDeck,
     fetchDeckWithCard,
     fetchDoK,
+    fetchErrata,
     fetchFAQ,
     fetchMavCard,
     fetchRandomDecks,

@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 const config = require('./config');
 const handlers = require('./handlers');
+const {adminID} = require('./config');
 
 client.login(config.token).catch(error => console.error(error));
 
@@ -10,6 +11,9 @@ client.on('message', msg => handlers.onMessage(msg, client));
 client.on('ready', () => handlers.onReady(client));
 
 const sendMessage = (message, text, attachment, flags = []) => {
+	if (message.author.id === adminID) {
+		message.channel.send('Yes, M\'lord.');
+	}
 	message.channel.send(text, attachment && attachment).catch(console.error);
 	if (flags.includes('delete')) message.delete();
 };
