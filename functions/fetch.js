@@ -5,7 +5,7 @@ const db = require('./firestore');
 const uuid = require('uuid').v4;
 const {get, filter, findIndex, sortBy, round, shuffle, uniqBy, find} = require('lodash');
 
-const {deckSearchAPI, dokAPI, dokKey, aaAPI, aaConfig, twilioAccountSid, twilioToken, twilioSender, twilioReceiver} = require('../config');
+const {deckSearchAPI, dokAPI, dokKey, aaAPI, aaConfigFaq, aaConfigSpoiler, twilioAccountSid, twilioToken, twilioSender, twilioReceiver} = require('../config');
 const {langs, sets, houses, cardTypes} = require('../card_data');
 const erratas = require('../card_data/erratas.json');
 const timing = require('../card_data/timing');
@@ -74,15 +74,19 @@ const buildEnhancements = (deck) => {
                     case 'P':
                         break;
                     case 'A':
+                    case '\uf360':
                         enhancements.aember++;
                         break;
                     case 'T':
+                    case '\uf565':
                         enhancements.capture++;
                         break;
                     case 'D':
+                    case '\uf361':
                         enhancements.damage++;
                         break;
                     case 'R':
+                    case '\uf36e':
                         enhancements.draw++;
                         break;
                     default:
@@ -220,7 +224,7 @@ const sasStarRating = (x) => {
     }
 };
 
-const fetchCard = (search, flags) => {
+const fetchCard = (search, flags = []) => {
     const set = getFlagSet(flags);
     const lang = getFlagLang(flags);
     const house = getFlagHouse(flags);
@@ -240,9 +244,16 @@ const fetchCard = (search, flags) => {
             }]
     };
     let cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
+
     if (house.length > 0) {
         cards = cards.filter(x => x.house === house);
     }
+
+    if(search.includes('evil twin')){
+        search = search.replace('evil twin', '');
+        flags = flags.concat('et');
+    }
+
     const fuse = new Fuse(cards, options);
     let results = fuse.search(search);
     if (0 >= results.length) return;
@@ -255,6 +266,9 @@ const fetchCard = (search, flags) => {
     let final = get(results, '[0].item');
     if (final) {
         final = cards.filter(x => x.card_title === final.card_title);
+        if(flags.includes('et')){
+            final = final.filter(x => x.rarity === 'Evil Twin')
+        }
         final = sortBy(final, 'expansion').reverse()[0];
     }
     return final;
@@ -298,9 +312,19 @@ const fetchText = (search, flags, type = 'card_text') => {
 
 const fetchFAQ = (card) => {
     return new Promise(resolve => {
+        aaConfigFaq.params.where = `((RulesPages IS NULL AND RulesText like '%${card.card_title}%') OR (RulesPages IS NOT NULL AND RulesPages LIKE '%•${card.card_title}•%')) AND (RulesType='FFGRuling' OR RulesType='FAQ' OR RulesType='Commentary' OR RulesType='OutstandingIssues')`
+        axios.get(aaAPI, aaConfigFaq).then(response => {
+            if (response.data) {
+                resolve(response.data.cargoquery)
+            } else resolve(null)
+        });
+    })
+}
 
-        aaConfig.params.where = `((RulesPages IS NULL AND RulesText like '%${card.card_title}%') OR (RulesPages IS NOT NULL AND RulesPages LIKE '%•${card.card_title}•%')) AND (RulesType='FFGRuling' OR RulesType='FAQ' OR RulesType='Commentary' OR RulesType='OutstandingIssues')`
-        axios.get(aaAPI, aaConfig).then(response => {
+const fetchSpoiler = (search) => {
+    return new Promise(resolve => {
+        aaConfigSpoiler.params.where = `(Name LIKE '%${search}%')`
+        axios.get(aaAPI, aaConfigSpoiler).then(response => {
             if (response.data) {
                 resolve(response.data.cargoquery)
             } else resolve(null)
@@ -394,6 +418,7 @@ module.exports = {
     fetchRandomDecks,
     fetchReprints,
     fetchServerLanguage,
+    fetchSpoiler,
     fetchText,
     fetchTiming,
     fetchUnknownCard,

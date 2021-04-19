@@ -1,3 +1,9 @@
+# 1.7.1
+    fix tide card in RH
+    moved images to proper CDN
+# 1.7.0
+    added DT
+    lots of stuff i forgot to log
 # 1.6.4
     use JPEGStreams instead of DataUrls for all images
 # 1.6.3

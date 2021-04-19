@@ -1,5 +1,5 @@
 const { fabric } = require('fabric');
-const path = require('path');
+const {imageCDN} = require('../config')
 const Discord = require('discord.js');
 const { sortBy, uniq, startCase } = require('lodash');
 
@@ -8,7 +8,7 @@ const { getFlagLang, fetchCard, buildCardList } = require('./fetch');
 const { deckIdRegex } = require('../card_data');
 const { buildDeckList } = require('./buildDeckList');
 const loadImage = (imgPath) => {
-    return new Promise(resolve => fabric.Image.fromURL(`file://${path.join(__dirname, imgPath)}`, image => resolve(image)));
+    return new Promise(resolve => fabric.Image.fromURL(imageCDN + imgPath, image => resolve(image)));
 };
 const [width, height] = [600, 840];
 
@@ -38,7 +38,7 @@ const buildDeckSheet = async (msg, deck, flags) => {
         height: 4200
     });
     for(const card of deck.cards) {
-        let imgPath = `../card_images/${language}/${card.expansion}/${card.card_number}`;
+        let imgPath = `${language}/${card.expansion}/${card.card_number}`;
         if (card.expansion === 479) {
             //Dark Amber Vault and its coming
             if (card.card_number === '001' || card.card_number === '117') {
@@ -59,8 +59,8 @@ const buildDeckSheet = async (msg, deck, flags) => {
         card.set({ left: cardX, top: cardY });
         canvas.add(card);
         if (data.is_maverick) {
-            const maverick = await loadImage('../card_images/cardback/card_mavericks/Maverick.png');
-            const mavHouse = await loadImage(`../card_images/cardback/card_mavericks/${data.house}.png`);
+            const maverick = await loadImage('cardback/card_mavericks/Maverick.png');
+            const mavHouse = await loadImage(`cardback/card_mavericks/${data.house}.png`);
             mavHouse.set({ left: cardX, top: cardY });
             maverick.set({ left: cardX, top: cardY });
             canvas.add(mavHouse);
@@ -68,19 +68,19 @@ const buildDeckSheet = async (msg, deck, flags) => {
         }
 
         if (data.is_legacy) {
-            const legacy = await loadImage('../card_images/cardback/Legacy.png');
+            const legacy = await loadImage('cardback/Legacy.png');
             legacy.scaleToWidth(100);
             legacy.set({ left: cardX + 500, top: 700 + cardY });
             canvas.add(legacy);
         }
 
         if (data.is_anomaly) {
-            const anomHouse = await loadImage(`../card_images/cardback/card_mavericks/${data.house}.png`);
+            const anomHouse = await loadImage(`cardback/card_mavericks/${data.house}.png`);
             anomHouse.set({ left: cardX, top: cardY });
             canvas.add(anomHouse);
         }
         if (data.is_enhanced) {
-            const enhanced = await loadImage(`../card_images/cardback/enhancements/base-1.png`);
+            const enhanced = await loadImage(`cardback/enhancements/base-1.png`);
 
             enhanced.scaleToHeight(90).set({ left: cardX + 32, top: cardY + 120 + (data.amber * 70) });
             canvas.add(enhanced);

@@ -1,9 +1,10 @@
 const {fabric} = require('fabric');
 const QRCode = require('qrcode');
 const path = require('path');
+const {imageCDN} = require('../config')
 const card_titles = require('../card_data/card_titles');
 const houses_languages = require('../card_data/houses_languages');
-const {sets} = require('../card_data/index');
+const {sets} = require('../card_data/');
 const {get} = require('lodash');
 const shadowProps = {color: 'gray', offsetX: 10, offsetY: 10, blur: 3};
 const fontProps = {
@@ -45,24 +46,24 @@ fabric.nodeCanvas.registerFont(path.join(__dirname, '../fonts/BlackHanSans-Regul
     style: 'normal'
 });
 
-const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
+const buildDeckList = ({houses, cards, expansion, ...deck}, language = 'en') => {
     return new Promise(async res => {
         const canvas = new fabric.StaticCanvas('decklist');
         canvas.setDimensions({width: 600, height: 840});
-        const Common = loadImage('../card_images/cardback/rarity/Common.png');
-        const Rare = loadImage('../card_images/cardback/rarity/Rare.png');
-        const Special = loadImage('../card_images/cardback/rarity/Special.png');
-        const Uncommon = loadImage('../card_images/cardback/rarity/Uncommon.png');
-        const Action = loadImage('../card_images/cardback/action.png');
-        const Artifact = loadImage('../card_images/cardback/artifact.png');
-        const Upgrade = loadImage('../card_images/cardback/upgrade.png');
-        const Creature = loadImage('../card_images/cardback/creature.png');
-        const Evil_Twin = loadImage('../card_images/cardback/evil-twin.png');
-        const cardBack = loadImage('../card_images/cardback/decklist.png');
-        const set = loadImage(`../card_images/cardback/${sets.find(x => x.set_number === expansion)
+        const Common = loadImage('cardback/rarity/Common.png');
+        const Rare = loadImage('cardback/rarity/Rare.png');
+        const Special = loadImage('cardback/rarity/Special.png');
+        const Uncommon = loadImage('cardback/rarity/Uncommon.png');
+        const Action = loadImage('cardback/action.png');
+        const Artifact = loadImage('cardback/artifact.png');
+        const Upgrade = loadImage('cardback/upgrade.png');
+        const Creature = loadImage('cardback/creature.png');
+        const Evil_Twin = loadImage('cardback/evil-twin.png');
+        const cardBack = loadImage('cardback/decklist.png');
+        const set = loadImage(`cardback/${sets.find(x => x.set_number === expansion)
             .flag
             .toLowerCase()}.png`);
-        const crest = loadImage('../card_images/cardback/crest.png');
+        const crest = loadImage('cardback/crest.png');
 
         const houseData = {
             size: 35,
@@ -74,11 +75,11 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
             size: 20,
             start: {x: 58, y: 173}
         };
-        const lineStyle = { fill: 'black', stroke: 'black', strokeWidth: 2 };
+        const lineStyle = {fill: 'black', stroke: 'black', strokeWidth: 2};
         const qrCode = new Promise(qrRes => {
             QRCode.toCanvas(fabric.util.createCanvasElement(),
                 `https://www.keyforgegame.com/deck-details/${deck.id}`,
-                { margin: 3 }, (err, qr) => qrRes(new fabric.Image(qr)));
+                {margin: 3}, (err, qr) => qrRes(new fabric.Image(qr)));
         });
 
         const title = getCircularText(deck.name, 1700, 75);
@@ -88,8 +89,8 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
                 const line2 = new fabric.Line([55, 543, 295, 543], lineStyle);
                 const line3 = new fabric.Line([310, 260, 550, 260], lineStyle);
                 const text = new fabric.Text('DECK LIST', {...fontProps, fontWeight: 200});
-                const Rarities = {Common, Uncommon, Rare, Special};
-                const CardTypes = {Action, Artifact, Creature, Evil_Twin, Upgrade}
+                const Rarities = {Common, Uncommon, Rare, Special, 'Evil Twin': Evil_Twin};
+                const CardTypes = {Action, Artifact, Creature, Evil_Twin, Upgrade};
                 cardBack.scaleToWidth(600);
                 text.set({left: 255, top: 100});
                 qrCode.set({left: 331, top: 614}).scaleToWidth(150);
@@ -100,7 +101,7 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
 
                 const houseProm = houses.sort().map((house, index) => {
                     return new Promise(houseRes => {
-                        loadImage(`../card_images/cardback/decklist_houses/${house}.png`).then(img => {
+                        loadImage(`cardback/decklist_houses/${house}.png`).then(img => {
                             img.set({
                                 left: houseData[index].x,
                                 top: houseData[index].y,
@@ -109,8 +110,8 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
                                 .scaleToWidth(30)
                                 .scaleToHeight(30);
 
-                            const houseText = new fabric.Text(houses_languages[lang][house], {
-                                fontWeight: lang === 'ko' ? 100 : 800,
+                            const houseText = new fabric.Text(houses_languages[language][house], {
+                                fontWeight: language === 'ko' ? 100 : 800,
                                 fontFamily: 'Keyforge',
                                 textAlign: 'left',
                                 fillStyle: 'black',
@@ -122,11 +123,11 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
                     });
                 });
 
-                const cardProm = cards.map((card, index) => {
+                const cardProm = cards.filter(x => !x.is_non_deck).map((card, index) => {
                     return new Promise(async cardRes => {
                         let x = cardData.start.x,
                             y = cardData.start.y + (index * 28);
-                        const name = get(card_titles, `[${card.expansion}][${card.card_number}][${lang}]`, card.card_title);
+                        const name = get(card_titles, `[${card.expansion}][${card.card_number}][${language}]`, card.card_title);
                         if (index > 11) {
                             y = y + 45;
                         }
@@ -139,7 +140,6 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
                         if (index > 23) {
                             y = y + 44;
                         }
-
                         const rarity = new fabric.Image(Rarities[card.rarity === 'FIXED' || card.rarity ===
                         'Variant' ? 'Special' : card.rarity].getElement())
                             .set({left: x, top: y, shadow: new fabric.Shadow(shadowProps)})
@@ -160,8 +160,7 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
                                 left: x + rarity.getScaledWidth() + number.getScaledWidth() + 2,
                                 top: y,
                                 shadow: new fabric.Shadow({...shadowProps, offsetX: 1, offsetY: 1, blur: 1})
-                            })
-                        ;
+                            });
 
                         const title = new fabric.Text(name, {
                             ...fontProps,
@@ -180,6 +179,7 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
                         canvas.add(number, rarity, title, typeIcon);
 
                         let iconX =
+                            x +
                             rarity.getScaledWidth() +
                             number.getScaledWidth() +
                             typeIcon.getScaledWidth() +
@@ -187,7 +187,7 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
                             2;
 
                         if (card.is_maverick) {
-                            const maverick = await loadImage('../card_images/cardback/Maverick.png');
+                            const maverick = await loadImage('cardback/Maverick.png');
                             const maverickImage = new fabric.Image(maverick.getElement())
                                 .set({left: iconX, top: y, shadow: new fabric.Shadow(shadowProps)})
                                 .scaleToHeight(cardData.size);
@@ -196,7 +196,7 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
                         }
 
                         if (card.is_legacy) {
-                            const legacy = await loadImage('../card_images/cardback/Legacy.png');
+                            const legacy = await loadImage('cardback/Legacy.png');
                             const legacyImage = new fabric.Image(legacy.getElement())
                                 .set({left: iconX, top: y, shadow: new fabric.Shadow(shadowProps)})
                                 .scaleToHeight(cardData.size);
@@ -204,7 +204,7 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
                         }
 
                         if (card.is_anomaly) {
-                            const anomaly = await loadImage('../card_images/cardback/Anomaly.png');
+                            const anomaly = await loadImage('cardback/Anomaly.png');
                             const anomalyImage = new fabric.Image(anomaly.getElement())
                                 .set({left: iconX, top: y, shadow: new fabric.Shadow(shadowProps)})
                                 .scaleToHeight(cardData.size);
@@ -213,7 +213,7 @@ const buildDeckList = ({houses, cards, expansion, ...deck}, lang = 'en') => {
 
                         if (card.enhancements) {
                             for (const enhancement of card.enhancements) {
-                                const enhancementImg = await loadImage(`../card_images/cardback/enhancements/${enhancement}.png`);
+                                const enhancementImg = await loadImage(`cardback/enhancements/${enhancement}.png`);
                                 const enhancementElement = new fabric.Image(enhancementImg.getElement())
                                     .set({left: iconX, top: y, shadow: new fabric.Shadow(shadowProps)})
                                     .scaleToHeight(cardData.size);
@@ -239,7 +239,7 @@ const getCurvedFontSize = (length) => {
     return 35 / (length / 35);
 };
 
-const loadImage = (imgPath) => new Promise(resolve => fabric.Image.fromURL(`file://${path.join(__dirname, imgPath)}`, resolve));
+const loadImage = (imgPath) => new Promise(resolve => fabric.Image.fromURL(imageCDN + imgPath, resolve));
 
 const getCircularText = (text = '', diameter, yOffset = 0) => {
     const canvas = fabric.util.createCanvasElement();

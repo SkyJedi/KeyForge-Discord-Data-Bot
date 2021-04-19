@@ -15,7 +15,7 @@ const emojiList = [
     'damage',
     'dis',
     'draw',
-    'eviltwin',
+    'evil twin',
     'legacy',
     'logos',
     'mars',

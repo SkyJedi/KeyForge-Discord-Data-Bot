@@ -1,5 +1,6 @@
 const main = require('../index');
 const Discord = require('discord.js');
+const {imageCDN} = require('../config');
 const {fetchFAQ, fetchCard, getCardLink} = require('./fetch');
 
 const faq = async ({msg, params}) => {
@@ -19,11 +20,9 @@ const faq = async ({msg, params}) => {
             text += `**${format(question)}**\n\n`;
             text += answer ? format(answer) + '\n\n': '';
         }
-
         const embed = new Discord.MessageEmbed().setColor('ffa500')
             .setTitle(`FAQ results for "${card.card_title}"`)
-            .attachFiles([`./card_images/en/${card.expansion}/${card.card_number}.png`])
-            .setThumbnail(`attachment://${card.card_number}.png`)
+            .setThumbnail(`${imageCDN}en/${card.expansion}/${card.card_number}.png`)
             .setFooter(`Data pulled from Archon Arcana`)
             .setURL(getCardLink(card))
             .setDescription(text);
