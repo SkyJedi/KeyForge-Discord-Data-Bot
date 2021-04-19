@@ -290,14 +290,22 @@ const fetchErrata = (card) => {
     return find(erratas, ['card_title', card.card_title]);
 };
 
-const fetchText = (search, flags) => {
+const fetchText = (search, flags, type = 'card_text') => {
     const set = getFlagSet(flags);
     const lang = getFlagLang(flags);
     const cardType = getFlagCardType(flags);
     const number = getFlagNumber(flags);
     search = search.trim();
     let cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
-    cards = cards.filter(card => card.card_text.toLowerCase().includes(search))
+    switch (type) {
+        case 'traits':
+            cards = cards.filter(card => card[type] && card[type].split(' • ')
+                .some(x => x.toLowerCase().includes(search)));
+            break;
+        default:
+            cards = cards.filter(card => card[type].toLowerCase().includes(search));
+            break;
+    }
     if (cardType) cards = cards.filter(x => x.card_type === cardType);
     if (number) cards = cards.filter(x => x.traits && x.traits.split('•').length === number);
     return sortBy(cards, ['card_title']);
@@ -391,7 +399,8 @@ const getCardLinkDoK = (card) => {
 const getFlagCardType = (flags = []) => get(filter(cardTypes, cardType => flags.includes(cardType.toLowerCase())), '[0]');
 const getFlagSet = (flags = []) => get(filter(sets, set => flags.includes(set.flag.toLowerCase())), '[0].set_number');
 const getSet = (number = []) => get(sets.filter(set => number === set.set_number), '[0].flag', 'ERROR');
-const getFlagHouse = (flags = []) => get(flags.filter(x => Object.keys(houses).includes(x)).map(x => houses[x]).sort(), '[0]', []);
+const getFlagHouse = (flags = []) => get(flags.filter(x => Object.keys(houses).includes(x)).map(x => houses[x])
+    .sort(), '[0]', []);
 const getFlagLang = (flags = []) => get(filter(flags, flag => langs.includes(flag)), '[0]', 'en');
 const getFlagNumber = (
     flags = [], defaultNumber = 0) => +(get(filter(flags, flag => Number.isInteger(+flag)), '[0]', defaultNumber));
