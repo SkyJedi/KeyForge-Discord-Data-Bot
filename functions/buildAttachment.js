@@ -37,15 +37,13 @@ const buildAttachment = async (data, name, flags) => {
         const background = await loadImage('cardback/blank_frame.png');
         background.set({ left: cardX, top: 0 });
         card.set({ left: cardX, top: 0 });
-        canvas.add(background);
-        canvas.add(card);
+        canvas.add(background, card);
         if (data[index].is_maverick) {
             const maverick = await loadImage('cardback/card_mavericks/Maverick.png');
             const mavHouse = await loadImage(`cardback/card_mavericks/${data[index].house}.png`);
             mavHouse.set({ left: cardX });
             maverick.set({ left: cardX });
-            canvas.add(mavHouse);
-            canvas.add(maverick);
+            canvas.add(mavHouse, maverick);
         }
 
         if (data[index].is_legacy) {

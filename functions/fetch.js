@@ -3,18 +3,18 @@ const { fabric } = require('fabric');
 const Fuse = require('fuse.js');
 const levenshtein = require('js-levenshtein');
 const db = require('./firestore');
-const uuid = require('uuid').v4;
-const {get, filter, findIndex, sortBy, round, shuffle, uniqBy, find} = require('lodash');
+const { v4: uuid } = require('uuid');
+const { get, filter, findIndex, sortBy, round, shuffle, uniqBy, find } = require('lodash');
 
-const {deckSearchAPI, dokAPI, dokKey, aaAPI, aaConfigFaq, aaConfigSpoiler, twilioAccountSid, twilioToken, twilioSender, twilioReceiver} = require('../config');
-const {langs, sets, houses, cardTypes} = require('../card_data');
+const { deckSearchAPI, dokAPI, dokKey, aaAPI, aaConfigFaq, aaConfigSpoiler, twilioAccountSid, twilioToken, twilioSender, twilioReceiver } = require('../config');
+const { langs, sets, houses, cardTypes } = require('../card_data');
 const erratas = require('../card_data/erratas.json');
 const timing = require('../card_data/timing');
 const twilio = require('twilio')(twilioAccountSid, twilioToken);
 const deckIdRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
 const { imageCDN } = require('../config');
 
-const text = (msg) => twilio.messages.create({from: twilioSender, to: twilioReceiver, body: msg});
+const text = (msg) => twilio.messages.create({ from: twilioSender, to: twilioReceiver, body: msg });
 
 const loadImage = (imgPath) => {
     return new Promise(resolve => fabric.Image.fromURL(imageCDN + imgPath, image => resolve(image)));
@@ -71,7 +71,7 @@ const fetchDeckNameMV = (name) => new Promise((resolve, reject) => {
 
 const buildEnhancements = (deck) => {
     if (deck.cards.every(x => !x.is_enhanced)) return false;
-    const enhancements = {aember: 0, capture: 0, damage: 0, draw: 0};
+    const enhancements = { aember: 0, capture: 0, damage: 0, draw: 0 };
     deck.cards.forEach(card => {
         if (card.card_text.startsWith('Enhance ')) {
             let text = card.card_text.split(' ')[1].replace('.', '').split('');
@@ -163,7 +163,7 @@ const fetchDeckWithCard = (cardId) => new Promise((resolve, reject) => {
         } else reject();
     }).catch(() => reject());
 });
-const fetchRandomDecks = ({expansion, houses = []}) => new Promise((resolve, reject) => {
+const fetchRandomDecks = ({ expansion, houses = [] }) => new Promise((resolve, reject) => {
     const key = uuid();
     let decksRef = db.collection('decks').limit(1);
     if (expansion) decksRef = decksRef.where('expansion', '==', expansion);
@@ -192,12 +192,12 @@ const fetchDoK = (deckID) => {
     return new Promise(resolve => {
         axios.get(`${dokAPI}${deckID}`, dokKey).then(response => {
             if (response.data) {
-                const {sasRating = 0, sasPercentile = 0} = response.data.deck,
+                const { sasRating = 0, sasPercentile = 0 } = response.data.deck,
                     sas = `${round(sasRating, 2)} SAS`,
                     sasStar = sasStarRating(sasPercentile);
-                resolve({sas, sasStar});
-            } else resolve({sas: 'Unable to Retrieve SAS', sasStar: 'Unable to Retrieve sasStars'});
-        }).catch(() => resolve({sas: 'Unable to Retrieve SAS', sasStar: 'Unable to Retrieve sasStars'}));
+                resolve({ sas, sasStar });
+            } else resolve({ sas: 'Unable to Retrieve SAS', sasStar: 'Unable to Retrieve sasStars' });
+        }).catch(() => resolve({ sas: 'Unable to Retrieve SAS', sasStar: 'Unable to Retrieve sasStars' }));
     });
 };
 
@@ -255,8 +255,8 @@ const fetchCard = (search, flags = []) => {
         cards = cards.filter(x => x.house === house);
     }
 
-    if(search.includes('evil twin')){
-        search = search.replace('evil twin', '');
+    if (search.includes('evil twin')) {
+        search = search.replace('evil twin', '').trim();
         flags = flags.concat('et');
     }
 
@@ -272,8 +272,8 @@ const fetchCard = (search, flags = []) => {
     let final = get(results, '[0].item');
     if (final) {
         final = cards.filter(x => x.card_title === final.card_title);
-        if(flags.includes('et')){
-            final = final.filter(x => x.rarity === 'Evil Twin')
+        if (flags.includes('et')) {
+            final = final.filter(x => x.rarity === 'Evil Twin');
         }
         final = sortBy(final, 'expansion').reverse()[0];
     }
@@ -290,27 +290,14 @@ const fetchErrata = (card) => {
     return find(erratas, ['card_title', card.card_title]);
 };
 
-const fetchText = (search, flags, type = 'card_text') => {
+const fetchText = (search, flags) => {
     const set = getFlagSet(flags);
     const lang = getFlagLang(flags);
     const cardType = getFlagCardType(flags);
     const number = getFlagNumber(flags);
-    search = search.split(' ').filter(x => x.length > 2).join(' ');
-    const options = {
-        shouldSort: true,
-        tokenize: true,
-        matchAllTokens: true,
-        includeScore: true,
-        threshold: 0.2,
-        keys: [type]
-    };
+    search = search.trim();
     let cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
-    const fuse = new Fuse(cards, options);
-    if (search.length > 0) {
-        cards = fuse.search(search);
-        cards = cards.filter(x => x.score < 0.6);
-        cards = cards.map(item => item.item);
-    }
+    cards = cards.filter(card => card.card_text.toLowerCase().includes(search))
     if (cardType) cards = cards.filter(x => x.card_type === cardType);
     if (number) cards = cards.filter(x => x.traits && x.traits.split('•').length === number);
     return sortBy(cards, ['card_title']);
@@ -318,25 +305,25 @@ const fetchText = (search, flags, type = 'card_text') => {
 
 const fetchFAQ = (card) => {
     return new Promise(resolve => {
-        aaConfigFaq.params.where = `((RulesPages IS NULL AND RulesText like '%${card.card_title}%') OR (RulesPages IS NOT NULL AND RulesPages LIKE '%•${card.card_title}•%')) AND (RulesType='FFGRuling' OR RulesType='FAQ' OR RulesType='Commentary' OR RulesType='OutstandingIssues')`
+        aaConfigFaq.params.where = `((RulesPages IS NULL AND RulesText like '%${card.card_title}%') OR (RulesPages IS NOT NULL AND RulesPages LIKE '%•${card.card_title}•%')) AND (RulesType='FFGRuling' OR RulesType='FAQ' OR RulesType='Commentary' OR RulesType='OutstandingIssues')`;
         axios.get(aaAPI, aaConfigFaq).then(response => {
             if (response.data) {
-                resolve(response.data.cargoquery)
-            } else resolve(null)
+                resolve(response.data.cargoquery);
+            } else resolve(null);
         });
-    })
-}
+    });
+};
 
 const fetchSpoiler = (search) => {
     return new Promise(resolve => {
-        aaConfigSpoiler.params.where = `(Name LIKE '%${search}%')`
+        aaConfigSpoiler.params.where = `(Name LIKE '%${search}%')`;
         axios.get(aaAPI, aaConfigSpoiler).then(response => {
             if (response.data) {
-                resolve(response.data.cargoquery)
-            } else resolve(null)
+                resolve(response.data.cargoquery);
+            } else resolve(null);
         });
-    })
-}
+    });
+};
 
 const fetchTiming = (text) => {
     const options = {
@@ -346,8 +333,8 @@ const fetchTiming = (text) => {
         includeScore: true,
         threshold: 0.3,
         keys: [
-            {name: 'phase', weight: 0.9},
-            {name: 'steps', weight: 0.4}
+            { name: 'phase', weight: 0.9 },
+            { name: 'steps', weight: 0.4 }
         ]
     };
     const fuse = new Fuse(timing, options);
@@ -384,7 +371,7 @@ const setServerLanguage = (message, client, flags) => new Promise((resolve, reje
         .doc(`${client.user.username}_Discord`)
         .collection(message.channel.id)
         .doc('language')
-        .set({language})
+        .set({ language })
         .then(() => resolve())
         .catch(err => reject(err));
 });
@@ -393,7 +380,7 @@ const getCardLink = (card) => {
     const AllCards = require(`../card_data/en/${card.expansion}`);
     card = AllCards.find(x => x.card_number === card.card_number);
     return encodeURI(`https://archonarcana.com/${card.card_title.replace(/\s+/g, '_')
-        .replace(/[\[\]']+/g, '')}?powered_by=archonMatrixDiscord`);
+        .replace(/[\[\]']+/g, '')}${card.rarity === 'Evil Twin' ? '_(Evil_Twin)' : ''}?powered_by=archonMatrixDiscord`);
 };
 const getCardLinkDoK = (card) => {
     const AllCards = require(`../card_data/en/${card.expansion}`);
