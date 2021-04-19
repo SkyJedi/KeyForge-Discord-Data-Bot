@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { fabric } = require('fabric');
 const Fuse = require('fuse.js');
 const levenshtein = require('js-levenshtein');
 const db = require('./firestore');
@@ -11,8 +12,13 @@ const erratas = require('../card_data/erratas.json');
 const timing = require('../card_data/timing');
 const twilio = require('twilio')(twilioAccountSid, twilioToken);
 const deckIdRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
+const { imageCDN } = require('../config');
 
 const text = (msg) => twilio.messages.create({from: twilioSender, to: twilioReceiver, body: msg});
+
+const loadImage = (imgPath) => {
+    return new Promise(resolve => fabric.Image.fromURL(imageCDN + imgPath, image => resolve(image)));
+};
 
 const fetchDeck = (params) => new Promise((resolve, reject) => {
     const data = params.map(param => deckIdRegex.test(param) ? fetchDeckId(param.match(deckIdRegex)[0]) : fetchDeckNameMV(param));
@@ -430,5 +436,6 @@ module.exports = {
     getFlagNumber,
     getFlagSet,
     getSet,
+    loadImage,
     setServerLanguage
 };

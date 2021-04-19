@@ -1,7 +1,6 @@
 const Discord = require('discord.js');
 const { fabric } = require('fabric');
-const { imageCDN } = require('../config')
-const { getFlagLang } = require('./fetch');
+const { getFlagLang, loadImage } = require('./fetch');
 const { sets } = require('../card_data');
 
 const buildAttachment = async (data, name, flags) => {
@@ -68,7 +67,5 @@ const buildAttachment = async (data, name, flags) => {
     stream.on('end', () => canvas.dispose());
     return new Discord.MessageAttachment(stream, name);
 };
-
-const loadImage = (imgPath) => new Promise(resolve => fabric.Image.fromURL(imageCDN + imgPath, resolve));
 
 module.exports = buildAttachment;

@@ -1,25 +1,25 @@
 const { fabric } = require('fabric');
-const {imageCDN} = require('../config');
 const Discord = require('discord.js');
 
 const main = require('../index');
-const { getFlagLang, fetchDeck, buildEnhancements } = require('./fetch');
-const buildDeckList  = require('./buildDeckList');
+const { sortBy } = require('lodash');
+const { getFlagLang, fetchDeck, buildEnhancements, loadImage } = require('./fetch');
+const buildDeckList = require('./buildDeckList');
 const { sets } = require('../card_data');
-const loadImage = (imgPath) => {
-    return new Promise(resolve => fabric.Image.fromURL(imageCDN + imgPath, image => resolve(image)));
-};
+
 const [width, height] = [600, 840];
 
-const deckSheet = async ({msg, params, flags}) => {
+const deckSheet = async ({ msg, params, flags }) => {
     if (0 >= params.length) return;
     let deck;
     try {
         deck = await fetchDeck(params);
-    } catch(err){
+    } catch (err) {
         return;
     }
     deck = deck[0];
+    deck.cards = deck.cards.map(x => ({ ...x, is_non_deck: !!x.is_non_deck }));
+    deck.cards = sortBy(deck.cards, ['is_non_deck', 'house']);
     deck.enhancements = await buildEnhancements(deck);
     await buildDeckSheet(msg, deck, flags);
 };
@@ -33,7 +33,7 @@ const buildDeckSheet = async (msg, deck, flags) => {
         width: 4800,
         height: 4200
     });
-    for(const card of deck.cards) {
+    for (const card of deck.cards) {
         const set = sets.find(x => x.set_number === card.expansion);
         if (!set.languages.includes(language)) {
             language = 'en';
@@ -54,7 +54,7 @@ const buildDeckSheet = async (msg, deck, flags) => {
         cards.push(image);
     }
 
-    for(const [index, card] of cards.entries()) {
+    for (const [index, card] of cards.entries()) {
         const data = deck.cards[index];
         card.set({ left: cardX, top: cardY });
         canvas.add(card);
@@ -97,7 +97,7 @@ const buildDeckSheet = async (msg, deck, flags) => {
     deckListImage.set({ left: cardX, top: cardY });
     canvas.add(deckListImage);
     canvas.renderAll();
-    const stream = canvas.createJPEGStream()
+    const stream = canvas.createJPEGStream();
     stream.on('end', () => canvas.dispose());
     const attachment = new Discord.MessageAttachment(stream, deck.id + '.jpg');
     main.sendMessage(msg, '', attachment);

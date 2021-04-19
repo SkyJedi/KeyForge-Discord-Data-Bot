@@ -1,15 +1,12 @@
 const { fabric } = require('fabric');
-const {imageCDN} = require('../config')
 const Discord = require('discord.js');
 const { sortBy, uniq, startCase } = require('lodash');
 
 const main = require('../index');
-const { getFlagLang, fetchCard, buildCardList } = require('./fetch');
+const { getFlagLang, fetchCard, buildCardList, loadImage } = require('./fetch');
 const { deckIdRegex } = require('../card_data');
 const { buildDeckList } = require('./buildDeckList');
-const loadImage = (imgPath) => {
-    return new Promise(resolve => fabric.Image.fromURL(imageCDN + imgPath, image => resolve(image)));
-};
+
 const [width, height] = [600, 840];
 
 const manualDeckSheet = async ({msg, params, flags}) => {
