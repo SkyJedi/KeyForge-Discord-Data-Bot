@@ -6,7 +6,7 @@ const buildAttachment = require('./buildAttachment');
 const AllCards = require('../card_data');
 const { shuffle, uniqBy } = require('lodash');
 
-const randomCard = async ({msg, flags}) => {
+const randomCard = async ({message, flags}) => {
     const number = Math.min(5, getFlagNumber(flags, 1));
     const language = getFlagLang(flags);
     const set = getFlagSet(flags);
@@ -35,9 +35,9 @@ const randomCard = async ({msg, flags}) => {
         embed.setColor('3498DB')
              .attachFiles(attachment)
              .setImage(`attachment://${name}`)
-             .setFooter(`Links by Archon Arcana • Posted by: ${msg.member
-                                                               ? (msg.member.nickname ? msg.member.nickname : msg.author.username) : 'you'}`);
-        main.sendMessage(msg, { embed });
+             .setFooter(`Links by Archon Arcana • Posted by: ${message.member
+                                                               ? (message.member.nickname ? message.member.nickname : message.author.username) : 'you'}`);
+        main.sendMessage(message, { embed });
     });
 };
 

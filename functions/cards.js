@@ -4,7 +4,7 @@ const { emoji } = require('./emoji');
 const { fetchCard, fetchErrata, fetchReprints, getSet, getCardLink, getCardLinkDoK } = require('./fetch');
 const buildAttachment  = require('./buildAttachment');
 
-const cards = async ({msg, params, flags}) => {
+const cards = async ({message, params, flags}) => {
     params = params.slice(0, 7);
     const embed = new Discord.MessageEmbed();
     //fetch cards data
@@ -26,11 +26,11 @@ const cards = async ({msg, params, flags}) => {
          .setColor('3498DB')
          .attachFiles(attachment)
          .setImage(`attachment://${name}`)
-         .setFooter(`Posted by: ${msg.member ? (msg.member.nickname ? msg.member.nickname : msg.author.username) : 'you'}`);
+         .setFooter(`Posted by: ${message.member ? (message.member.nickname ? message.member.nickname : message.author.username) : 'you'}`);
     if (['i', 'image'].some(x=> flags.includes(x))){
-        main.sendMessage(msg, '', attachment);
+        main.sendMessage(message, '', attachment);
     } else {
-        main.sendMessage(msg, { embed });
+        main.sendMessage(message, { embed });
     }
 };
 

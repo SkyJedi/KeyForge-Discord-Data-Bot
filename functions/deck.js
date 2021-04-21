@@ -6,7 +6,7 @@ const { emoji } = require('./emoji');
 const { sets } = require('../card_data');
 const { get } = require('lodash');
 
-const deck = async ({msg, params, flags}) => {
+const deck = async ({message, params, flags}) => {
     if (0 >= params.length) return;
     let deck;
     try {
@@ -16,10 +16,10 @@ const deck = async ({msg, params, flags}) => {
     }
     deck = deck[0];
     deck.enhancements = await buildEnhancements(deck);
-    buildDeck(msg, deck, flags);
+    buildDeck(message, deck, flags);
 };
 
-const buildDeck = (msg, deck, flags) => {
+const buildDeck = (message, deck, flags) => {
     const lang = getFlagLang(flags);
     const embed = new Discord.MessageEmbed();
     const dokStats = fetchDoK(deck.id);
@@ -62,8 +62,8 @@ const buildDeck = (msg, deck, flags) => {
              .setDescription(description)
              .attachFiles(file)
              .setImage(`attachment://${name}`)
-             .setFooter(`Posted by: ${msg.member ? (msg.member.nickname ? msg.member.nickname : msg.author.username) : 'you'}`);
-        main.sendMessage(msg, { embed }, null, flags);
+             .setFooter(`Posted by: ${message.member ? (message.member.nickname ? message.member.nickname : message.author.username) : 'you'}`);
+        main.sendMessage(message, { embed }, null, flags);
     }).catch(console.error);
 };
 

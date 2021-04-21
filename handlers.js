@@ -1,15 +1,30 @@
 const knownCommands = require('./functions/index');
-const {fetchServerLanguage, getFlagLang} = require('./functions/fetch');
-const {prefix: commandPrefix} = require('./config');
-const {version} = require('./package');
+const { fetchServerLanguage, getFlagLang } = require('./functions/fetch');
+const { prefix: commandPrefix } = require('./config');
+const { version } = require('./package');
+const main = require('./index');
 
-const {dropWhile, get} = require('lodash');
+const { dropWhile, get } = require('lodash');
 
 // Called every time a message comes in:
-const onMessage = async (msg, client) => {
-    if (msg.author.bot) return; // Ignore messages from the bot
-    if (msg.content.includes('`')) return; // Ignore messages that contain `
-    let params = msg.content.toLowerCase().split(' '),
+const onMessage = async ({ message, client }) => {
+    if (message.author.bot) return; // Ignore messages from the bot
+    if (message.content.includes('`')) return; // Ignore messages that contain `
+
+    //check to see if bot can send messages on channel and external emoji can be used;
+    if (message.channel.type !== 'dm') {
+        if (!message.channel.permissionsFor(client.user).has('SEND_MESSAGES')) return;
+        if (!message.channel.permissionsFor(client.user).has('USE_EXTERNAL_EMOJIS')) {
+            main.sendMessage(message, `Please enable \'Use External Emoji\' permission for ${client.user.username}`);
+            return;
+        }
+        if (!message.channel.permissionsFor(client.user).has('EMBED_LINKS')) {
+            main.sendMessage(message, `Please enable \'Embed Links\' permission for ${client.user.username}`);
+            return;
+        }
+    }
+
+    let params = message.content.toLowerCase().split(' '),
         commandName = params.map(a => a.startsWith(commandPrefix) && a).filter(Boolean).join().slice(1),
         flags = params.filter(a => a.startsWith('-')).map(flag => flag.slice(1)),
         types = {
@@ -22,14 +37,14 @@ const onMessage = async (msg, client) => {
         params = dropWhile(params, a => !a.includes(commandPrefix)).slice(1).filter(a => !a.startsWith('-'));
     } else {
         Object.keys(types).forEach(a => {
-            let message = msg.content.toLowerCase(), arr = [];
+            let string = message.content.toLowerCase(), arr = [];
             do {
-                let param = message.match(types[a]);
+                let param = string.match(types[a]);
                 if (param) {
                     arr.push(get(param, '1', param[0]));
-                    message = message.replace(get(param, '0'), '');
+                    string = string.replace(get(param, '0'), '');
                 }
-            } while (message.match(types[a]));
+            } while (string.match(types[a]));
             if (arr.length > 0) {
                 commandName = a;
                 if (params < 1) flags = [...flags, 'delete'];
@@ -45,7 +60,7 @@ const onMessage = async (msg, client) => {
     if (!commandName) return;
     params = params.filter(Boolean);
 
-    if (!getFlagLang(flags)) flags = [...flags, await fetchServerLanguage(msg, client)];
+    if (!getFlagLang(flags)) flags = [...flags, await fetchServerLanguage(message, client)];
 
     switch (commandName) {
         case 'c':
@@ -101,8 +116,8 @@ const onMessage = async (msg, client) => {
 
     // If the command is known, let's execute it:
     if (commandName in knownCommands) {
-        console.info(`${msg.author.username}, ${commandName}, ${params}, ${flags}, ${new Date()}`);
-        knownCommands[commandName]({msg, params, flags, client});
+        console.info(`${message.author.username}, ${commandName}, ${params}, ${flags}, ${new Date()}`);
+        knownCommands[commandName]({ message, params, flags, client });
     }
 
 };

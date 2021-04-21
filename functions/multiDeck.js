@@ -7,7 +7,7 @@ const { fabric } = require('fabric');
 const { snakeCase } = require('lodash');
 const width = 600, height = 840;
 
-const multiDeck = async ({msg, params, flags}) => {
+const multiDeck = async ({message, params, flags}) => {
     const lang = getFlagLang(flags);
     if (0 >= params.length) return;
     const canvas = new fabric.StaticCanvas('multiDeck');
@@ -29,7 +29,7 @@ const multiDeck = async ({msg, params, flags}) => {
     const stream = canvas.createJPEGStream()
     stream.on('end', () => canvas.dispose());
     const attachment = new Discord.MessageAttachment(stream, name);
-    main.sendMessage(msg, `**${decks.map(deck => deck.name).join('** vs **')}**`, attachment);
+    main.sendMessage(message, `**${decks.map(deck => deck.name).join('** vs **')}**`, attachment);
 };
 
 module.exports = multiDeck;

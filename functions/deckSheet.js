@@ -9,7 +9,7 @@ const { sets } = require('../card_data');
 
 const [width, height] = [600, 840];
 
-const deckSheet = async ({ msg, params, flags }) => {
+const deckSheet = async ({ message, params, flags }) => {
     if (0 >= params.length) return;
     let deck;
     try {
@@ -21,10 +21,10 @@ const deckSheet = async ({ msg, params, flags }) => {
     deck.cards = deck.cards.map(x => ({ ...x, is_non_deck: !!x.is_non_deck }));
     deck.cards = sortBy(deck.cards, ['is_non_deck', 'house']);
     deck.enhancements = await buildEnhancements(deck);
-    await buildDeckSheet(msg, deck, flags);
+    await buildDeckSheet(message, deck, flags);
 };
 
-const buildDeckSheet = async (msg, deck, flags) => {
+const buildDeckSheet = async (message, deck, flags) => {
     let language = getFlagLang(flags);
     deck = { language, ...deck };
     let cardX = 0, cardY = 0;
@@ -100,7 +100,7 @@ const buildDeckSheet = async (msg, deck, flags) => {
     const stream = canvas.createJPEGStream();
     stream.on('end', () => canvas.dispose());
     const attachment = new Discord.MessageAttachment(stream, deck.id + '.jpg');
-    main.sendMessage(msg, '', attachment);
+    main.sendMessage(message, '', attachment);
 };
 
 module.exports = deckSheet;

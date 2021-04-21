@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const {imageCDN} = require('../config');
 const {fetchFAQ, fetchCard, getCardLink} = require('./fetch');
 
-const faq = async ({msg, params}) => {
+const faq = async ({message, params}) => {
     const card = fetchCard(params.join(' '));
     if (!card) return;
     const data = await fetchFAQ(card);
@@ -26,7 +26,7 @@ const faq = async ({msg, params}) => {
             .setFooter(`Data pulled from Archon Arcana`)
             .setURL(getCardLink(card))
             .setDescription(text);
-        main.sendMessage(msg, {embed});
+        main.sendMessage(message, {embed});
     }
 };
 

@@ -9,7 +9,7 @@ const { buildDeckList } = require('./buildDeckList');
 
 const [width, height] = [600, 840];
 
-const manualDeckSheet = async ({msg, params, flags}) => {
+const manualDeckSheet = async ({message, params, flags}) => {
     if (0 >= params.length) return;
     params = params.join(' ').split(',');
     const name = startCase(params.pop());
@@ -23,10 +23,10 @@ const manualDeckSheet = async ({msg, params, flags}) => {
     }
     cards = sortBy(cards, ['house', 'card_number']);
     const houses = uniq(cards.map(x => x.house));
-    await buildDeckSheet(msg, { name, cards, expansion: 341, houses }, flags);
+    await buildDeckSheet(message, { name, cards, expansion: 341, houses }, flags);
 };
 
-const buildDeckSheet = async (msg, deck, flags) => {
+const buildDeckSheet = async (message, deck, flags) => {
     let language = getFlagLang(flags);
     let cardX = 0, cardY = 0;
     let cardImages = [];
@@ -95,7 +95,7 @@ const buildDeckSheet = async (msg, deck, flags) => {
     canvas.add(deckListImage);
     canvas.renderAll();
     const attachment = new Discord.MessageAttachment(canvas.createJPEGStream(), deck.id + '.jpg');
-    main.sendMessage(msg, '', attachment);
+    main.sendMessage(message, '', attachment);
 };
 
 module.exports = manualDeckSheet;

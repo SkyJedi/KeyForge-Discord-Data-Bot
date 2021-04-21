@@ -2,7 +2,7 @@ const main = require('../index');
 const Discord = require('discord.js');
 const prefix = require('../config').prefix;
 
-const help = ({msg, params}) => {
+const help = ({message, params}) => {
 	const embed = new Discord.MessageEmbed()
 		.setTitle('Help')
 		.setColor('2D7C2F');
@@ -38,7 +38,7 @@ const help = ({msg, params}) => {
 				.addField('Other Info', ' [KeyForge Discord Server](https://discordapp.com/invite/PcTGhr9) \n[KeyForge](https://www.fantasyflightgames.com/en/products/keyforge/?powered_by=archonMatrixDiscord) by Fantasy Flight Game');
 			break;
 	}
-	main.sendMessage(msg, {embed});
+	main.sendMessage(message, {embed});
 };
 
 module.exports = help;

@@ -14,7 +14,7 @@ const twilio = require('twilio')(twilioAccountSid, twilioToken);
 const deckIdRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
 const { imageCDN } = require('../config');
 
-const text = (msg) => twilio.messages.create({ from: twilioSender, to: twilioReceiver, body: msg });
+const sendText = (string) => twilio.messages.create({ from: twilioSender, to: twilioReceiver, body: string });
 
 const loadImage = (imgPath) => {
     return new Promise(resolve => fabric.Image.fromURL(imageCDN + imgPath, image => resolve(image)));
@@ -133,7 +133,7 @@ const fetchUnknownCard = (cardId, deckId) => new Promise(resolve => {
         resolve(card);
         db.collection('AllCards').doc(card.id).set(card).then(() => {
             console.log(`${card.id} has been added to firestore`);
-            text(`${card.card_title} in House ${card.house} had been found! https://www.keyforgegame.com/deck-details/${deckId}/`);
+            sendText(`${card.card_title} in House ${card.house} had been found! https://www.keyforgegame.com/deck-details/${deckId}/`);
         });
     });
 });
@@ -283,7 +283,7 @@ const fetchCard = (search, flags = []) => {
 const fetchReprints = (card, flags) => {
     const lang = getFlagLang(flags);
     const cards = require(`../card_data/`)[lang];
-    return uniqBy(cards.filter(x => x.card_title === card.card_title), 'card_number');
+    return uniqBy(cards.filter(x => x.card_title === card.card_title && x.rarity === card.rarity), 'card_number');
 };
 
 const fetchErrata = (card) => {
@@ -297,6 +297,12 @@ const fetchText = (search, flags, type = 'card_text') => {
     const number = getFlagNumber(flags);
     search = search.trim();
     let cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
+    let searchCards = [];
+    for(const card of cards) {
+        if(!searchCards.some(x => x.card_title === card.card_title && x.rarity === card.rarity)) {
+            searchCards.push(card);
+        }
+    }
     switch (type) {
         case 'traits':
             cards = cards.filter(card => card[type] && card[type].split(' • ')

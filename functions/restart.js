@@ -1,8 +1,8 @@
 const adminID = require('../config').adminID;
 
-const restart = async ({msg, client}) => {
-    if (msg.author.id !== adminID) return;
-    await msg.channel.send('Restarting, M\'lord.');
+const restart = async ({message, client}) => {
+    if (message.author.id !== adminID) return;
+    await message.channel.send('Restarting, M\'lord.');
     client.shard.respawnAll();
 };
 

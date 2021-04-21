@@ -6,7 +6,7 @@ const {sets} = require('../card_data');
 const {emoji} = require('./emoji');
 const {sample} = require('lodash');
 
-const sealed = ({msg, flags}) => {
+const sealed = ({message, flags}) => {
     const number = Math.min(10, getFlagNumber(flags, 2));
     const houses = getFlagHouse(flags);
     const set = getFlagSet(flags);
@@ -33,8 +33,8 @@ const sealed = ({msg, flags}) => {
                     .join(
                         ' • ')} • [Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) • [DoK](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord)`);
         });
-        main.sendMessage(msg, {embed});
-        if (['decks', 'deck', 'decklists', 'dl', 'decklist'].some(x => flags.includes(x))) multiDeck(msg, decks.map(x => x.id), flags);
+        main.sendMessage(message, {embed});
+        if (['decks', 'deck', 'decklists', 'dl', 'decklist'].some(x => flags.includes(x))) multiDeck(message, decks.map(x => x.id), flags);
     });
 };
 

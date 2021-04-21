@@ -3,7 +3,7 @@ const { fetchDeck, getFlagNumber } = require('./fetch');
 const buildAttachment  = require('./buildAttachment');
 const { sortBy, sampleSize } = require('lodash');
 
-const randomHand = ({msg, params, flags}) => {
+const randomHand = ({message, params, flags}) => {
     fetchDeck([params.join(' ')])
         .then(decks => {
             const number = getFlagNumber(flags, 6);
@@ -17,7 +17,7 @@ const randomHand = ({msg, params, flags}) => {
                 //build Title
                 const name = cards.map(card => `${card.card_number}`).join('_') + '.jpg';
                 const text = '**Random hand from ' + deck.name + '**';
-                buildAttachment(cards, name, [...flags, 'random hand']).then(attachment => main.sendMessage(msg, text, attachment));
+                buildAttachment(cards, name, [...flags, 'random hand']).then(attachment => main.sendMessage(message, text, attachment));
             }
         }).catch(console.error);
 

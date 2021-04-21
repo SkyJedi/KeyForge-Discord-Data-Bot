@@ -4,7 +4,7 @@ const { toUpper } = require('lodash');
 const { format, fetchTiming } = require('./fetch');
 const { rules } = require('../card_data');
 
-const timingChart = async ({msg, params}) => {
+const timingChart = async ({message, params}) => {
     const data = fetchTiming(params.join(' '));
     const embed = new Discord.MessageEmbed()
         .setColor('800000')
@@ -27,7 +27,7 @@ const timingChart = async ({msg, params}) => {
             .addField('5) DRAW CARDS', '1. Draw cards until you have six or more in your hand (adjusting for chains or card effects).')
             .addField('End of Turn', '*» “END OF TURN” EFFECTS TRIGGER.*');
     }
-    main.sendMessage(msg, { embed });
+    main.sendMessage(message, { embed });
 };
 
 module.exports = timingChart;

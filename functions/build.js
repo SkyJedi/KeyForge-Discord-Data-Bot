@@ -33,8 +33,8 @@ const emojiList = [
     'upgrade'
 ];
 
-const build = ({msg, client}) => {
-    if (msg.author.id !== adminID) return;
+const build = ({message, client}) => {
+    if (message.author.id !== adminID) return;
     const data = {};
     const process = emojiList.map(async type => {
         data[type] = await findEmoji(type, client);
@@ -42,7 +42,7 @@ const build = ({msg, client}) => {
     Promise.all(process).then(() => {
         fs.writeFile(`./card_data/emoji.json`, JSON.stringify(data), () => {
             console.info('The file has been saved!');
-            msg.reply('EmojiDB has been built');
+            message.reply('EmojiDB has been built');
         });
     });
 };

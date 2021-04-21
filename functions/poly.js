@@ -2,8 +2,8 @@ const main = require('../index');
 const {random} = require('lodash');
 const dice = sides => random(1, sides);
 
-const poly = ({msg, params}) => {
-	let text = `${msg.member.nickname ? msg.member.nickname : msg.author.username} rolled:`;
+const poly = ({message, params}) => {
+	let text = `${message.member.nickname ? message.member.nickname : message.author.username} rolled:`;
 	params.forEach(unit => {
 		let modifier = 0;
 		text += `  \`${unit}\` (`;
@@ -43,7 +43,7 @@ const poly = ({msg, params}) => {
 		let rolls = [];
 
 		if (1000 < dieAmount) {
-			main.sendMessage(msg, `Roll exceeds max roll per die limit of 1000. Please try again.`);
+			main.sendMessage(message, `Roll exceeds max roll per die limit of 1000. Please try again.`);
 			return;
 		}
 
@@ -64,7 +64,7 @@ const poly = ({msg, params}) => {
 			text += ` = ${total}.`;
 		} else text = `Too many dice to display.  Total roll is ${total}.`;
 	});
-	if (text.endsWith('.')) main.sendMessage(msg, text);
+	if (text.endsWith('.')) main.sendMessage(message, text);
 };
 
 module.exports= poly;
