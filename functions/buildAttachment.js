@@ -7,7 +7,7 @@ const buildAttachment = async (data, name, flags) => {
     if (0 >= data.length) return;
     let lang = getFlagLang(flags);
     let cards = [];
-    for(const card of data) {
+    for (const card of data) {
         const set = sets.find(x => x.set_number === card.expansion);
         if (!set.languages.includes(lang)) {
             lang = 'en';
@@ -33,7 +33,7 @@ const buildAttachment = async (data, name, flags) => {
     const height = cards.reduce((a, b) => b.height > a ? b.height : a, 840);
     canvas.setDimensions({ width: (width + ((cards.length - 1) * 5)), height });
     let cardX = 0;
-    for(const [index, card] of cards.entries()) {
+    for (const [index, card] of cards.entries()) {
         const background = await loadImage('cardback/blank_frame.png');
         background.set({ left: cardX, top: 0 });
         card.set({ left: cardX, top: 0 });

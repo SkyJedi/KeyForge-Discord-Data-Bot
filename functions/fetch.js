@@ -25,43 +25,37 @@ const fetchDeck = (params) => new Promise((resolve, reject) => {
     Promise.all(data).then(data => resolve(data)).catch(() => reject());
 });
 const fetchDeckId = (id) => new Promise((resolve, reject) => {
-    db.collection('decks').doc(id).get().then(doc => {
+    db.collection('decks').doc(id).get().then(async doc => {
         if (doc.exists) {
-            const deck = doc.data();
+            let deck = doc.data();
             deck.houses = get(deck, '_links.houses');
-            buildCardList(deck).then(cards => {
-                deck.cards = cards;
-                resolve(deck);
-            });
+            const { cards, enhancements } = await buildCardList(deck);
+            resolve({ ...deck, cards, enhancements });
         } else {
-            console.log(`${id} is not in DB, fetching from the man`);
+            console.info(`${id} is not in DB, fetching from the man`);
             fetchDeckIdMV(id).then(deck => resolve(deck)).catch(() => reject());
         }
     }).catch(() => reject());
 });
 const fetchDeckIdMV = (id) => new Promise((resolve, reject) => {
-    axios.get(encodeURI(deckSearchAPI + id)).then(response => {
-        const deck = get(response, 'data.data', false);
+    axios.get(encodeURI(deckSearchAPI + id)).then(async response => {
+        let deck = get(response, 'data.data', false);
         if (deck) {
             db.collection('decks').doc(deck.id).set(deck).catch(console.error);
             deck.houses = get(deck, '_links.houses');
-            buildCardList(deck).then(cards => {
-                deck.cards = cards;
-                resolve(deck);
-            });
+            const { cards, enhancements } = await buildCardList(deck);
+            resolve({ ...deck, cards, enhancements });
         } else reject();
     }).catch(() => reject());
 });
 const fetchDeckNameMV = (name) => new Promise((resolve, reject) => {
-    axios.get(encodeURI(deckSearchAPI + '?search=' + name.split(' ').join('+'))).then(response => {
+    axios.get(encodeURI(deckSearchAPI + '?search=' + name.split(' ').join('+'))).then(async response => {
         const index = findIndex(response.data.data, x => x.name.toLowerCase() === name);
-        const deck = get(response, `data.data[${Math.max(index, 0)}]`, false);
+        let deck = get(response, `data.data[${Math.max(index, 0)}]`, false);
         if (deck) {
             deck.houses = get(deck, '_links.houses');
-            buildCardList(deck).then(cards => {
-                deck.cards = cards;
-                resolve(deck);
-            });
+            const { cards, enhancements } = await buildCardList(deck);
+            resolve({ ...deck, cards, enhancements });
         } else reject();
         let batch = db.batch();
         response.data.data.forEach(x => batch.set(db.collection('decks').doc(x.id), x));
@@ -69,13 +63,13 @@ const fetchDeckNameMV = (name) => new Promise((resolve, reject) => {
     }).catch(() => reject());
 });
 
-const buildEnhancements = (deck) => {
-    if (deck.cards.every(x => !x.is_enhanced)) return false;
+const buildEnhancements = (cards) => {
     const enhancements = { aember: 0, capture: 0, damage: 0, draw: 0 };
-    deck.cards.forEach(card => {
+    if (cards.every(x => !x.is_enhanced)) return { cards, enhancements };
+    for (const card of cards) {
         if (card.card_text.startsWith('Enhance ')) {
             let text = card.card_text.split(' ')[1].replace('.', '').split('');
-            text.forEach(x => {
+            for (const x of text) {
                 switch (x) {
                     case 'P':
                         break;
@@ -98,41 +92,51 @@ const buildEnhancements = (deck) => {
                     default:
                         break;
                 }
-            });
+            }
         }
-    });
-    return enhancements;
+    }
+
+    let totalTotal = Object.keys(enhancements).reduce((a, b) => a + enhancements[b], 0);
+    let types = Object.keys(enhancements).filter(type => enhancements[type] > 0);
+
+    if (totalTotal === cards.filter(x => x.is_enhanced).length && types.length === 1) {
+        for (const [index, card] of cards.entries()) {
+            if (card.is_enhanced) cards[index] = { ...card, enhancements: types };
+        }
+    }
+    return { cards: sortBy(cards, ['house', 'card_number']), enhancements };
 };
 const buildCardList = (deck) => new Promise(resolve => {
     const cardRefs = deck.cards.map(card => db.collection('AllCards').doc(card));
     return db.runTransaction(transaction => {
         return transaction.getAll(...cardRefs).then(docs => {
-            let list = [];
+            let fullCards = [];
             for (let x = 0; x < docs.length; x++) {
                 if (docs[x].exists) {
                     let card = docs[x].data();
                     card.is_legacy = deck.set_era_cards.Legacy.includes(card.id);
-                    list.push(card);
+                    fullCards.push(card);
                 } else {
                     if (deck.id) {
                         fetchUnknownCard(deck.cards[x], deck.id).then(unknownCard => {
                             unknownCard.is_legacy = deck.set_era_cards.Legacy.includes(unknownCard.id);
-                            list.push(unknownCard);
+                            fullCards.push(unknownCard);
                         });
                     }
                 }
             }
-            resolve(sortBy(list, ['house', 'card_number']));
+            const { cards, enhancements } = buildEnhancements(fullCards);
+            resolve({ cards, enhancements });
         });
     });
 });
 const fetchUnknownCard = (cardId, deckId) => new Promise(resolve => {
-    console.log(`${cardId} not found, fetching from the man`);
+    console.info(`${cardId} not found, fetching from the man`);
     axios.get(`http://www.keyforgegame.com/api/decks/${deckId}/?links=cards`).then(fetchedCards => {
         const card = fetchedCards.data._linked.cards.find(o => o.id === cardId);
         resolve(card);
         db.collection('AllCards').doc(card.id).set(card).then(() => {
-            console.log(`${card.id} has been added to firestore`);
+            console.info(`${card.id} has been added to firestore`);
             sendText(`${card.card_title} in House ${card.house} had been found! https://www.keyforgegame.com/deck-details/${deckId}/`);
         });
     });
@@ -298,8 +302,8 @@ const fetchText = (search, flags, type = 'card_text') => {
     search = search.trim();
     let cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
     let searchCards = [];
-    for(const card of cards) {
-        if(!searchCards.some(x => x.card_title === card.card_title && x.rarity === card.rarity)) {
+    for (const card of cards) {
+        if (!searchCards.some(x => x.card_title === card.card_title && x.rarity === card.rarity)) {
             searchCards.push(card);
         }
     }
@@ -414,7 +418,6 @@ const getFlagNumber = (
 const format = (text) => text.replace(/<I>/gi, '*').replace(/<B>/gi, '**');
 
 module.exports = {
-    buildEnhancements,
     buildCardList,
     fetchCard,
     fetchDeck,

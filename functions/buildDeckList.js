@@ -202,6 +202,7 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, language = 'en') =
                                 .set({ left: iconX, top: y, shadow: new fabric.Shadow(shadowProps) })
                                 .scaleToHeight(cardData.size);
                             canvas.add(legacyImage);
+                            iconX = iconX + legacyImage.getScaledWidth();
                         }
 
                         if (card.is_anomaly) {

@@ -1,12 +1,12 @@
 const main = require('../index');
 const Discord = require('discord.js');
-const {getFlagNumber, getFlagSet, getFlagHouse, fetchRandomDecks} = require('./fetch');
+const { getFlagNumber, getFlagSet, getFlagHouse, fetchRandomDecks } = require('./fetch');
 const multiDeck = require('./multiDeck');
-const {sets} = require('../card_data');
-const {emoji} = require('./emoji');
-const {sample} = require('lodash');
+const { sets } = require('../card_data');
+const { emoji } = require('./emoji');
+const { sample } = require('lodash');
 
-const sealed = ({message, flags}) => {
+const sealed = ({ message, flags }) => {
     const number = Math.min(10, getFlagNumber(flags, 2));
     const houses = getFlagHouse(flags);
     const set = getFlagSet(flags);
@@ -15,7 +15,7 @@ const sealed = ({message, flags}) => {
         if (flags.includes('rainbow')) {
             let setsWithHouses = sets.filter(x => x.set_number !== 453);
             if (houses) {
-                setsWithHouses.filter(x => x.houses.some(y => houses.includes(y)))
+                setsWithHouses.filter(x => x.houses.some(y => houses.includes(y)));
             }
             arr.push(setsWithHouses.length > 0 && sample(setsWithHouses).set_number);
         } else {
@@ -24,7 +24,7 @@ const sealed = ({message, flags}) => {
     }
 
     const embed = new Discord.MessageEmbed().setColor('ffff00').setTitle(`Sealed Deck${arr.length > 1 ? 's' : ''}`);
-    const decks = arr.map(expansion => fetchRandomDecks({expansion, houses})).filter(Boolean);
+    const decks = arr.map(expansion => fetchRandomDecks({ expansion, houses })).filter(Boolean);
     Promise.all(decks).then(decks => {
         decks.filter(Boolean).forEach(deck => {
             embed.addField(
@@ -33,7 +33,7 @@ const sealed = ({message, flags}) => {
                     .join(
                         ' • ')} • [Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) • [DoK](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord)`);
         });
-        main.sendMessage(message, {embed});
+        main.sendMessage(message, { embed });
         if (['decks', 'deck', 'decklists', 'dl', 'decklist'].some(x => flags.includes(x))) multiDeck(message, decks.map(x => x.id), flags);
     });
 };

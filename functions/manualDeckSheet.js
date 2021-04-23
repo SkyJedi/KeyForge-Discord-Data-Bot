@@ -9,12 +9,12 @@ const { buildDeckList } = require('./buildDeckList');
 
 const [width, height] = [600, 840];
 
-const manualDeckSheet = async ({message, params, flags}) => {
+const manualDeckSheet = async ({ message, params, flags }) => {
     if (0 >= params.length) return;
     params = params.join(' ').split(',');
     const name = startCase(params.pop());
     let cards = [];
-    for(const card of params) {
+    for (const card of params) {
         if (card.replace(/\s["']/g, '').match(deckIdRegex)) {
             cards = cards.map(x => x.replace(/\s/g, ''));
             cards = await buildCardList({ cards: params, set_era_cards: { Legacy: [] } });
@@ -34,7 +34,7 @@ const buildDeckSheet = async (message, deck, flags) => {
         width: 4800,
         height: 4200
     });
-    for(const card of deck.cards) {
+    for (const card of deck.cards) {
         let imgPath = `${language}/${card.expansion}/${card.card_number}`;
         if (card.expansion === 479) {
             //Dark Amber Vault and its coming
@@ -51,7 +51,7 @@ const buildDeckSheet = async (message, deck, flags) => {
         cardImages.push(image);
     }
 
-    for(const [index, card] of cardImages.entries()) {
+    for (const [index, card] of cardImages.entries()) {
         const data = deck.cards[index];
         card.set({ left: cardX, top: cardY });
         canvas.add(card);

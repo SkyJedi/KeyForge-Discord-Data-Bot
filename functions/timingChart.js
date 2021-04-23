@@ -4,13 +4,13 @@ const { toUpper } = require('lodash');
 const { format, fetchTiming } = require('./fetch');
 const { rules } = require('../card_data');
 
-const timingChart = async ({message, params}) => {
+const timingChart = async ({ message, params }) => {
     const data = fetchTiming(params.join(' '));
     const embed = new Discord.MessageEmbed()
         .setColor('800000')
         .setFooter(`Data pulled from Official rules v${rules.version} ${rules.date}`)
         .setURL(rules.url);
-    if(data && params.length > 0) {
+    if (data && params.length > 0) {
         embed.setTitle(toUpper(data.phase))
             .setDescription(format(data.steps));
     } else {

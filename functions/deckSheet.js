@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 
 const main = require('../index');
 const { sortBy } = require('lodash');
-const { getFlagLang, fetchDeck, buildEnhancements, loadImage } = require('./fetch');
+const { getFlagLang, fetchDeck, loadImage } = require('./fetch');
 const buildDeckList = require('./buildDeckList');
 const { sets } = require('../card_data');
 
@@ -20,7 +20,6 @@ const deckSheet = async ({ message, params, flags }) => {
     deck = deck[0];
     deck.cards = deck.cards.map(x => ({ ...x, is_non_deck: !!x.is_non_deck }));
     deck.cards = sortBy(deck.cards, ['is_non_deck', 'house']);
-    deck.enhancements = await buildEnhancements(deck);
     await buildDeckSheet(message, deck, flags);
 };
 
@@ -80,10 +79,16 @@ const buildDeckSheet = async (message, deck, flags) => {
             canvas.add(anomHouse);
         }
         if (data.is_enhanced) {
-            const enhanced = await loadImage(`cardback/enhancements/base-1.png`);
-
-            enhanced.scaleToHeight(90).set({ left: cardX + 32, top: cardY + 120 + (data.amber * 70) });
-            canvas.add(enhanced);
+            const base = await loadImage(`cardback/enhancements/base-1.png`);
+            base.scaleToHeight(90).set({ left: cardX + 32, top: cardY + 120 + (data.amber * 70) });
+            canvas.add(base);
+            if (data.enhancements) {
+                for (const [index, type] of data.enhancements.entries()) {
+                    const pip = await loadImage(`cardback/enhancements/${type}.png`);
+                    pip.scaleToHeight(60).set({ left: cardX + 40, top: cardY + 135 + ((data.amber + index) * 70) });
+                    canvas.add(pip);
+                }
+            }
         }
         if (4200 > cardX) {
             cardX += width;

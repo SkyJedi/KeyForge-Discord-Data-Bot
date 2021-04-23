@@ -11,7 +11,8 @@ const trait = ({ message, params, flags }) => {
 
     for (const card of cards) {
         const reprints = fetchReprints(card);
-        text += `${card.card_title}${card.rarity === 'Evil Twin' ? ' Evil Twin': ''} • ${reprints.map(x => getSet(x.expansion)).join('/')} • ${card.traits}\n`;
+        text += `${card.card_title}${card.rarity === 'Evil Twin' ? ' Evil Twin' : ''} • ${reprints.map(x => getSet(x.expansion))
+            .join('/')} • ${card.traits}\n`;
     }
     if (text.length > 2048) text = text.slice(0, 2030) + '\n and more.....';
     const embed = new Discord.MessageEmbed().setColor('cccccc')

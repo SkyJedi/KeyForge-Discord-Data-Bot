@@ -6,7 +6,7 @@ const buildAttachment = require('./buildAttachment');
 const AllCards = require('../card_data');
 const { shuffle, uniqBy } = require('lodash');
 
-const randomCard = async ({message, flags}) => {
+const randomCard = async ({ message, flags }) => {
     const number = Math.min(5, getFlagNumber(flags, 1));
     const language = getFlagLang(flags);
     const set = getFlagSet(flags);
@@ -26,17 +26,17 @@ const randomCard = async ({message, flags}) => {
             const reprints = fetchReprints(card, flags);
             const title = `**${card.card_title}**`;
             const value = `[${reprints.map(x => `${getSet(x.expansion)} (${x.card_number})`)
-                                      .join(' • ')}](${getCardLink(card)})`;
+                .join(' • ')}](${getCardLink(card)})`;
             return title + ' • ' + value;
         }).join('\n');
 
         embed.setDescription(text);
 
         embed.setColor('3498DB')
-             .attachFiles(attachment)
-             .setImage(`attachment://${name}`)
-             .setFooter(`Links by Archon Arcana • Posted by: ${message.member
-                                                               ? (message.member.nickname ? message.member.nickname : message.author.username) : 'you'}`);
+            .attachFiles(attachment)
+            .setImage(`attachment://${name}`)
+            .setFooter(`Links by Archon Arcana • Posted by: ${message.member
+                ? (message.member.nickname ? message.member.nickname : message.author.username) : 'you'}`);
         main.sendMessage(message, { embed });
     });
 };

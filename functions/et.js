@@ -1,10 +1,10 @@
 const main = require('../index');
-const {sortBy} = require('lodash')
-const {fetchDeck} = require('./fetch');
-const Deck = require('./deck').deck
+const { sortBy } = require('lodash');
+const { fetchDeck } = require('./fetch');
+const Deck = require('./deck').deck;
 const db = require('./firestore');
 
-const et = async ({message, params}) => {
+const et = async ({ message, params }) => {
     const [deck] = await fetchDeck(params);
     if (deck.expansion < 496) return;
     deck.cards = sortBy(deck.cards, ['card_number']).reverse();
@@ -32,7 +32,7 @@ const et = async ({message, params}) => {
                 }
             }
             main.sendMessage(message, text);
-            Deck({message, params: winner});
+            Deck({ message, params: winner });
         }
     });
 };

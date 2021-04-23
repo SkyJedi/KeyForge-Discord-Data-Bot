@@ -33,7 +33,7 @@ const emojiList = [
     'upgrade'
 ];
 
-const build = ({message, client}) => {
+const build = ({ message, client }) => {
     if (message.author.id !== adminID) return;
     const data = {};
     const process = emojiList.map(async type => {
