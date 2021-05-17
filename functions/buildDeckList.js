@@ -141,6 +141,7 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, language = 'en') =
                         if (index > 23) {
                             y = y + 44;
                         }
+
                         const rarity = new fabric.Image(Rarities[card.rarity === 'FIXED' || card.rarity ===
                         'Variant' ? 'Special' : card.rarity].getElement())
                             .set({ left: x, top: y, shadow: new fabric.Shadow(shadowProps) })
@@ -185,7 +186,7 @@ const buildDeckList = ({ houses, cards, expansion, ...deck }, language = 'en') =
                             number.getScaledWidth() +
                             typeIcon.getScaledWidth() +
                             title.getScaledWidth() +
-                            2;
+                            4;
 
                         if (card.is_maverick) {
                             const maverick = await loadImage('cardback/Maverick.png');

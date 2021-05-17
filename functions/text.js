@@ -17,7 +17,7 @@ const text = ({ message, params, flags }) => {
     if (text.length > 2048) text = text.slice(0, 2030) + '\n and more.....';
     const embed = new Discord.MessageEmbed().setColor('a6a6a6')
         .setTitle(`Cards with text: ${params.join(', ').toUpperCase()}`).setDescription(text);
-    main.sendMessage(message, { embed });
+    main.sendMessage({ message, embed });
 };
 
 module.exports = text;

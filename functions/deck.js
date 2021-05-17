@@ -51,7 +51,7 @@ const buildDeck = (message, deck, flags) => {
         description += ([mavericks, legacy, anomaly].some(type => type) ? ' • ' : '') +
             [mavericks, legacy, anomaly].filter(type => type).join(' • ') + '\n';
         description += enhancements;
-        description += `${dokStats.sas} • ${dokStats.sasStar}\n`;
+        description += dokStats ? `${dokStats.sas} • ${dokStats.sasStar}\n` : '';
         description += `[Official](https://www.keyforgegame.com/deck-details/${deck.id}?powered_by=archonMatrixDiscord) • [AA](https://archonarcana.com/Deck:${deck.id}?powered_by=archonMatrixDiscord) • [DoK](https://decksofkeyforge.com/decks/${deck.id}?powered_by=archonMatrixDiscord)`;
         const stream = attachment.createJPEGStream();
         stream.on('end', () => attachment.dispose());
@@ -63,7 +63,7 @@ const buildDeck = (message, deck, flags) => {
             .attachFiles(file)
             .setImage(`attachment://${name}`)
             .setFooter(`Posted by: ${message.member ? (message.member.nickname ? message.member.nickname : message.author.username) : 'you'}`);
-        main.sendMessage(message, { embed }, null, flags);
+        main.sendMessage({ message, embed });
     }).catch(console.error);
 };
 

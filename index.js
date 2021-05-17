@@ -8,14 +8,15 @@ client.login(config.token).catch(error => console.error(error));
 
 // Register our event handlers (defined below):
 client.on('message', message => handlers.onMessage({ message, client }));
-client.on('ready', () => handlers.onReady(client));
+client.on('messageReactionAdd', (messageReaction, user) => handlers.onMessageReaction({ messageReaction, user }));
+client.on('messageReactionRemove', (messageReaction, user) => handlers.onMessageReaction({ messageReaction, user }));
 
-const sendMessage = (message, text, attachment, flags = []) => {
+const sendMessage = ({ message, embed, text = '', attachment }) => {
     if (message.author.id === adminID) {
-        message.channel.send('Yes, M\'lord.');
+        text = 'Yes, M\'lord.\n' + text;
     }
-    message.channel.send(text, attachment && attachment).catch(console.error);
-    if (flags.includes('delete')) message.delete();
+
+    message.channel.send({ embed, content: text, files: attachment ? [attachment] : []}).catch(console.error);
 };
 
 exports.sendMessage = sendMessage;

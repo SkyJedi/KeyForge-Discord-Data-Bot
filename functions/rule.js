@@ -17,7 +17,7 @@ const rule = ({ message, params }) => {
             .setDescription(format(rulesList[key]))
             .setFooter(`Data pulled from Official rules ${rules.version} ${rules.date}`)
             .setURL(rules.url);
-        main.sendMessage(message, { embed });
+        main.sendMessage({ message, embed });
     }
 };
 

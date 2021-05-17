@@ -17,7 +17,7 @@ const trait = ({ message, params, flags }) => {
     if (text.length > 2048) text = text.slice(0, 2030) + '\n and more.....';
     const embed = new Discord.MessageEmbed().setColor('cccccc')
         .setTitle(`Cards with trait: ${params.join(', ').toUpperCase()}`).setDescription(text);
-    main.sendMessage(message, { embed });
+    main.sendMessage({ message, embed });
 };
 
 module.exports = trait;

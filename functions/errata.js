@@ -10,7 +10,7 @@ const errata = ({ message }) => {
         .setFooter(`Data pulled from Official rules v${rules.version} ${rules.date}`)
         .setURL(rules.url);
     erratas.forEach(card => embed.addField(card.card_title, card.card_text));
-    main.sendMessage(message, { embed });
+    main.sendMessage({ message, embed });
 };
 
 module.exports = errata;

@@ -4,7 +4,7 @@ require('firebase/firestore');
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://archon-matrix.firebaseio.com"
+    databaseURL: 'https://archon-matrix.firebaseio.com'
 });
 
 const db = admin.firestore();

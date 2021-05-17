@@ -95,7 +95,7 @@ const buildDeckSheet = async (message, deck, flags) => {
     canvas.add(deckListImage);
     canvas.renderAll();
     const attachment = new Discord.MessageAttachment(canvas.createJPEGStream(), deck.id + '.jpg');
-    main.sendMessage(message, '', attachment);
+    main.sendMessage({ message, attachment, text: '' });
 };
 
 module.exports = manualDeckSheet;

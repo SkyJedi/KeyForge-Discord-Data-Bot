@@ -38,7 +38,7 @@ const help = ({ message, params }) => {
                 .addField('Other Info', ' [KeyForge Discord Server](https://discordapp.com/invite/PcTGhr9) \n[KeyForge](https://www.fantasyflightgames.com/en/products/keyforge/?powered_by=archonMatrixDiscord) by Fantasy Flight Game');
             break;
     }
-    main.sendMessage(message, { embed });
+    main.sendMessage({ message, embed });
 };
 
 module.exports = help;

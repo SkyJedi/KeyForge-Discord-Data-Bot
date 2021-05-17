@@ -29,7 +29,11 @@ const multiDeck = async ({ message, params, flags }) => {
     const stream = canvas.createJPEGStream();
     stream.on('end', () => canvas.dispose());
     const attachment = new Discord.MessageAttachment(stream, name);
-    main.sendMessage(message, `**${decks.map(deck => deck.name).join('** vs **')}**`, attachment);
+    main.sendMessage({
+        message,
+        text: `**${decks.map(deck => deck.name).join('** vs **')}**`,
+        attachment
+    });
 };
 
 module.exports = multiDeck;

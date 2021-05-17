@@ -8,7 +8,7 @@ const poly = ({ message, params }) => {
         let modifier = 0;
         text += `  \`${unit}\` (`;
 
-        if (unit.includes("+")) {
+        if (unit.includes('+')) {
             for (let k = 0; k < unit.length; k++) {
                 if (unit[k] === '+') {
                     modifier = +unit.slice(k + 1);
@@ -18,7 +18,7 @@ const poly = ({ message, params }) => {
             }
         }
 
-        if (unit.includes("-")) {
+        if (unit.includes('-')) {
             for (let l = 0; l < unit.length; l++) {
                 if (unit[l] === '-') {
                     modifier = -(+unit.slice(l + 1));
@@ -43,7 +43,11 @@ const poly = ({ message, params }) => {
         let rolls = [];
 
         if (1000 < dieAmount) {
-            main.sendMessage(message, `Roll exceeds max roll per die limit of 1000. Please try again.`);
+            main.sendMessage({
+                message,
+                text: `Roll exceeds max roll per die limit of 1000. Please try again.`
+            })
+            ;
             return;
         }
 
@@ -64,7 +68,7 @@ const poly = ({ message, params }) => {
             text += ` = ${total}.`;
         } else text = `Too many dice to display.  Total roll is ${total}.`;
     });
-    if (text.endsWith('.')) main.sendMessage(message, text);
+    if (text.endsWith('.')) main.sendMessage({ message, text });
 };
 
 module.exports = poly;

@@ -26,7 +26,7 @@ const faq = async ({ message, params }) => {
             .setFooter(`Data pulled from Archon Arcana`)
             .setURL(getCardLink(card))
             .setDescription(text);
-        main.sendMessage(message, { embed });
+        main.sendMessage({ message, embed });
     }
 };
 

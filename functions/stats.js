@@ -13,7 +13,7 @@ const stats = async ({ message, client }) => {
         .setTitle(`${client.user.username} Stats`)
         .setColor('FFFF00')
         .setDescription(stats);
-    main.sendMessage(message, { embed });
+    main.sendMessage({ message, embed });
 };
 
 const buildMemberList = () => {

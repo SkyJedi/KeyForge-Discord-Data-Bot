@@ -7,7 +7,7 @@ const weirdo = async ({ message, params, flags }) => {
     flags = flags.filter(x => x !== house.toLowerCase());
     const card = fetchCard(params.join(' '));
     const mavCard = await fetchMavCard(card.card_title, house);
-    const deck = await fetchDeckWithCard(mavCard.id);
+    const deck = await fetchDeckWithCard(mavCard.id, flags);
     buildDeck(message, deck, flags);
 };
 

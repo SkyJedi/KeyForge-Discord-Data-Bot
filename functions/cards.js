@@ -28,9 +28,9 @@ const cards = async ({ message, params, flags }) => {
         .setImage(`attachment://${name}`)
         .setFooter(`Posted by: ${message.member ? (message.member.nickname ? message.member.nickname : message.author.username) : 'you'}`);
     if (['i', 'image'].some(x => flags.includes(x))) {
-        main.sendMessage(message, '', attachment);
+        main.sendMessage({ message, attachment });
     } else {
-        main.sendMessage(message, { embed });
+        main.sendMessage({ message, embed });
     }
 };
 

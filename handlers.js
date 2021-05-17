@@ -1,7 +1,6 @@
 const knownCommands = require('./functions/index');
 const { fetchServerLanguage, getFlagLang } = require('./functions/fetch');
-const { prefix: commandPrefix } = require('./config');
-const { version } = require('./package');
+const { prefix: commandPrefix, Patreon } = require('./config');
 const main = require('./index');
 
 const { dropWhile, get } = require('lodash');
@@ -15,11 +14,17 @@ const onMessage = async ({ message, client }) => {
     if (message.channel.type !== 'dm') {
         if (!message.channel.permissionsFor(client.user).has('SEND_MESSAGES')) return;
         if (!message.channel.permissionsFor(client.user).has('USE_EXTERNAL_EMOJIS')) {
-            main.sendMessage(message, `Please enable \'Use External Emoji\' permission for ${client.user.username}`);
+            main.sendMessage({
+                message,
+                text: `Please enable \'Use External Emoji\' permission for ${client.user.username}`
+            });
             return;
         }
         if (!message.channel.permissionsFor(client.user).has('EMBED_LINKS')) {
-            main.sendMessage(message, `Please enable \'Embed Links\' permission for ${client.user.username}`);
+            main.sendMessage({
+                message,
+                text: `Please enable \'Embed Links\' permission for ${client.user.username}`
+            });
             return;
         }
     }
@@ -122,11 +127,12 @@ const onMessage = async ({ message, client }) => {
 
 };
 
-// Called every time the bot connects to Twitch chat:
-const onReady = client => {
-    console.info(`Logged in as ${client.user.username}!`);
-    console.info(`Version: ${version}`);
+const onMessageReaction = ({ messageReaction, user }) => {
+    if (messageReaction.message.id !== Patreon.message) return;
+    console.info(user.username, messageReaction.emoji.name);
 };
 
-exports.onMessage = onMessage;
-exports.onReady = onReady;
+module.exports = {
+    onMessage,
+    onMessageReaction
+};

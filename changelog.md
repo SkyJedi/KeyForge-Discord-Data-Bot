@@ -1,3 +1,6 @@
+# 1.7.2
+    fixed a ton of things
+    streamlined sending messages
 # 1.7.1
     fix tide card in RH
     moved images to proper CDN

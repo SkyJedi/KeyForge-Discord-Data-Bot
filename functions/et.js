@@ -31,7 +31,7 @@ const et = async ({ message, params }) => {
                     break;
                 }
             }
-            main.sendMessage(message, text);
+            main.sendMessage({ message, text });
             Deck({ message, params: winner });
         }
     });

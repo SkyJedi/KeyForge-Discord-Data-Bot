@@ -30,7 +30,8 @@ const emojiList = [
     'uncommon',
     'unfathomable',
     'untamed',
-    'upgrade'
+    'upgrade',
+    'keyraken'
 ];
 
 const build = ({ message, client }) => {

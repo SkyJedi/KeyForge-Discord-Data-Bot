@@ -18,7 +18,7 @@ const randomHand = ({ message, params, flags }) => {
                 const name = cards.map(card => `${card.card_number}`).join('_') + '.jpg';
                 const text = '**Random hand from ' + deck.name + '**';
                 buildAttachment(cards, name, [...flags, 'random hand'])
-                    .then(attachment => main.sendMessage(message, text, attachment));
+                    .then(attachment => main.sendMessage({ message, text, attachment }));
             }
         }).catch(console.error);
 

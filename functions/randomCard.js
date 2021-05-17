@@ -37,7 +37,7 @@ const randomCard = async ({ message, flags }) => {
             .setImage(`attachment://${name}`)
             .setFooter(`Links by Archon Arcana • Posted by: ${message.member
                 ? (message.member.nickname ? message.member.nickname : message.author.username) : 'you'}`);
-        main.sendMessage(message, { embed });
+        main.sendMessage({ message, embed });
     });
 };
 
