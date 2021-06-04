@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const main = require('../index');
 const { fetchText, getSet, fetchReprints } = require('./fetch');
 
-const trait = ({ message, params, flags }) => {
+const trait = async ({ message, params, flags }) => {
     params = params.slice(0, 5);
     //fetch cards data
     const cards = fetchText(params.join(' '), flags, 'traits');
@@ -17,7 +17,7 @@ const trait = ({ message, params, flags }) => {
     if (text.length > 2048) text = text.slice(0, 2030) + '\n and more.....';
     const embed = new Discord.MessageEmbed().setColor('cccccc')
         .setTitle(`Cards with trait: ${params.join(', ').toUpperCase()}`).setDescription(text);
-    main.sendMessage({ message, embed });
+    await main.sendMessage({ message, embed });
 };
 
 module.exports = trait;

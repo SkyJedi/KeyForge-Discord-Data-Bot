@@ -21,24 +21,23 @@ const randomCard = async ({ message, flags }) => {
     if (0 >= cards.length) return;
 
     const name = cards.map(card => `${card.card_number}`).join('_') + '.jpg';
-    buildAttachment(cards, name, flags).then(attachment => {
-        const text = cards.map(card => {
-            const reprints = fetchReprints(card, flags);
-            const title = `**${card.card_title}**`;
-            const value = `[${reprints.map(x => `${getSet(x.expansion)} (${x.card_number})`)
-                .join(' • ')}](${getCardLink(card)})`;
-            return title + ' • ' + value;
-        }).join('\n');
+    const attachment = await buildAttachment(cards, name, flags);
+    const text = cards.map(card => {
+        const reprints = fetchReprints(card, flags);
+        const title = `**${card.card_title}**`;
+        const value = `[${reprints.map(x => `${getSet(x.expansion)} (${x.card_number})`)
+            .join(' • ')}](${getCardLink(card)})`;
+        return title + ' • ' + value;
+    }).join('\n');
 
-        embed.setDescription(text);
+    embed.setDescription(text);
 
-        embed.setColor('3498DB')
-            .attachFiles(attachment)
-            .setImage(`attachment://${name}`)
-            .setFooter(`Links by Archon Arcana • Posted by: ${message.member
-                ? (message.member.nickname ? message.member.nickname : message.author.username) : 'you'}`);
-        main.sendMessage({ message, embed });
-    });
+    embed.setColor('3498DB')
+        .attachFiles(attachment)
+        .setImage(`attachment://${name}`)
+        .setFooter(`Links by Archon Arcana • Posted by: ${message.member
+            ? (message.member.nickname ? message.member.nickname : message.author.username) : 'you'}`);
+    await main.sendMessage({ message, embed });
 };
 
 module.exports = randomCard;

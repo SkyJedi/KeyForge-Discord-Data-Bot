@@ -90,7 +90,7 @@ const buildDeckSheet = async (message, deck, flags) => {
         }
     }
     const decklist = await buildDeckList(deck);
-    const deckListImage = new fabric.Image(decklist.getElement());
+    const deckListImage = new fabric.Image(decklist.toCanvasElement());
     deckListImage.set({ left: cardX, top: cardY });
     canvas.add(deckListImage);
     canvas.renderAll();

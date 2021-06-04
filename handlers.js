@@ -1,5 +1,4 @@
 const knownCommands = require('./functions/index');
-const { fetchServerLanguage, getFlagLang } = require('./functions/fetch');
 const { prefix: commandPrefix, Patreon } = require('./config');
 const main = require('./index');
 
@@ -64,8 +63,6 @@ const onMessage = async ({ message, client }) => {
 
     if (!commandName) return;
     params = params.filter(Boolean);
-
-    if (!getFlagLang(flags)) flags = [...flags, await fetchServerLanguage(message, client)];
 
     switch (commandName) {
         case 'c':

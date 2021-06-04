@@ -13,7 +13,8 @@ manager.on('shardCreate', (shard) => {
         console.error('Shard ' + shard.id + ' closed unexpectedly! PID: ' + process.pid + '; Exit code: ' + process.exitCode + '.');
 
         if (process.exitCode === null) {
-            console.warn('WARNING: Shard ' + shard.id + ' exited with NULL error code. This may be a result of a lack of available system memory. Ensure that there is enough memory allocated to continue.');
+            console.warn(
+                'WARNING: Shard ' + shard.id + ' exited with NULL error code. This may be a result of a lack of available system memory. Ensure that there is enough memory allocated to continue.');
         }
     });
 
@@ -27,15 +28,13 @@ manager.on('shardCreate', (shard) => {
         console.info(`${name}. Shard ${shard.id}/${manager.totalShards - 1}. Version ${version}`);
 
         if (shard.id === manager.totalShards - 1) {
-            manager.broadcastEval(`(${loadMessage}).call(this, '${Patreon.channel}', '${Patreon.message}')`)
-                .catch(console.error);
+            const message = await manager.broadcastEval(`(${loadMessage}).call(this, '${Patreon.channel}', '${Patreon.message}')`)
         }
     });
 });
 
-const loadMessage = async (PatreonChannel, PatreonMessage) => {
-    const channel = await this.channels.fetch(PatreonChannel);
-    if (channel) {
-        await channel.messages.fetch(PatreonMessage);
-    }
+const loadMessage = async (channelId, messageId) => {
+    const channel = this.channels.cache.get(channelId);
+    if (!channel) return null;
+    return channel.messages.fetch(messageId);
 };

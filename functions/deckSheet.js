@@ -25,19 +25,21 @@ const deckSheet = async ({ message, params, flags }) => {
 
 const buildDeckSheet = async (message, deck, flags) => {
     let language = getFlagLang(flags);
-    deck = { language, ...deck };
+    deck = { ...deck, language };
     let cardX = 0, cardY = 0;
-    let cards = [];
     const canvas = new fabric.StaticCanvas(null, {
         width: 4800,
         height: 4200
     });
+
+
     for (const card of deck.cards) {
         const set = sets.find(x => x.set_number === card.expansion);
         if (!set.languages.includes(language)) {
             language = 'en';
         }
         let imgPath = `${language}/${card.expansion}/${card.card_number}`;
+
         if (card.expansion === 479) {
             //Dark Amber Vault and its coming
             if (card.card_number === '001' || card.card_number === '117') {
@@ -48,44 +50,41 @@ const buildDeckSheet = async (message, deck, flags) => {
                 imgPath += '-' + card.card_type.replace(/\D/g, '');
             }
         }
+
         imgPath += '.png';
         const image = await loadImage(imgPath);
-        cards.push(image);
-    }
 
-    for (const [index, card] of cards.entries()) {
-        const data = deck.cards[index];
-        card.set({ left: cardX, top: cardY });
-        canvas.add(card);
-        if (data.is_maverick) {
+        image.set({ left: cardX, top: cardY });
+        canvas.add(image);
+
+        if (card.is_maverick) {
             const maverick = await loadImage('cardback/card_mavericks/Maverick.png');
-            const mavHouse = await loadImage(`cardback/card_mavericks/${data.house}.png`);
+            const mavHouse = await loadImage(`cardback/card_mavericks/${card.house}.png`);
             mavHouse.set({ left: cardX, top: cardY });
             maverick.set({ left: cardX, top: cardY });
-            canvas.add(mavHouse);
-            canvas.add(maverick);
+            canvas.add(mavHouse, maverick);
         }
 
-        if (data.is_legacy) {
+        if (card.is_legacy) {
             const legacy = await loadImage('cardback/Legacy.png');
             legacy.scaleToWidth(100);
             legacy.set({ left: cardX + 500, top: 700 + cardY });
             canvas.add(legacy);
         }
 
-        if (data.is_anomaly) {
-            const anomHouse = await loadImage(`cardback/card_mavericks/${data.house}.png`);
+        if (card.is_anomaly) {
+            const anomHouse = await loadImage(`cardback/card_mavericks/${card.house}.png`);
             anomHouse.set({ left: cardX, top: cardY });
             canvas.add(anomHouse);
         }
-        if (data.is_enhanced) {
+        if (card.is_enhanced) {
             const base = await loadImage(`cardback/enhancements/base-1.png`);
-            base.scaleToHeight(90).set({ left: cardX + 32, top: cardY + 120 + (data.amber * 70) });
+            base.scaleToHeight(90).set({ left: cardX + 32, top: cardY + 120 + (card.amber * 70) });
             canvas.add(base);
-            if (data.enhancements) {
-                for (const [index, type] of data.enhancements.entries()) {
+            if (card.enhancements) {
+                for (const [index, type] of card.enhancements.entries()) {
                     const pip = await loadImage(`cardback/enhancements/${type}.png`);
-                    pip.scaleToHeight(60).set({ left: cardX + 40, top: cardY + 135 + ((data.amber + index) * 70) });
+                    pip.scaleToHeight(60).set({ left: cardX + 40, top: cardY + 135 + ((card.amber + index) * 70) });
                     canvas.add(pip);
                 }
             }
@@ -98,14 +97,18 @@ const buildDeckSheet = async (message, deck, flags) => {
         }
     }
     const decklist = await buildDeckList(deck);
-    const deckListImage = new fabric.Image(decklist.getElement());
+    const deckListImage = new fabric.Image(decklist.toCanvasElement());
+    decklist.dispose();
     deckListImage.set({ left: cardX, top: cardY });
     canvas.add(deckListImage);
+
     canvas.renderAll();
+
     const stream = canvas.createJPEGStream();
     stream.on('end', () => canvas.dispose());
     const attachment = new Discord.MessageAttachment(stream, deck.id + '.jpg');
-    main.sendMessage({ message, attachment });
+
+    await main.sendMessage({ message, attachment });
 };
 
 module.exports = deckSheet;

@@ -4,17 +4,10 @@ const Fuse = require('fuse.js');
 const levenshtein = require('js-levenshtein');
 const db = require('./firestore');
 const { v4: uuid } = require('uuid');
-const { get, filter, findIndex, sortBy, round, shuffle, uniqBy, find } = require('lodash');
+const { get, filter, findIndex, sortBy, round, uniqBy, find, sample } = require('lodash');
 
-const { deckSearchAPI, dokAPI, dokKey, aaAPI, aaConfigFaq, aaConfigSpoiler, twilioAccountSid, twilioToken, twilioSender, twilioReceiver } = require('../config');
-const { langs, sets, houses, cardTypes } = require('../card_data');
-const erratas = require('../card_data/erratas.json');
-const timing = require('../card_data/timing');
-const twilio = require('twilio')(twilioAccountSid, twilioToken);
-const deckIdRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
-const { imageCDN } = require('../config');
-
-const sendText = (string) => twilio.messages.create({ from: twilioSender, to: twilioReceiver, body: string });
+const { deckSearchAPI, dokAPI, dokKey, aaAPI, aaConfigFaq, aaConfigSpoiler, imageCDN } = require('../config');
+const { langs, sets, houses, cardTypes, deckIdRegex, erratas, timing } = require('../card_data');
 
 const loadImage = (imgPath) => {
     return new Promise((resolve, reject) => {
@@ -28,50 +21,48 @@ const fetchDeck = (params) => new Promise((resolve, reject) => {
     const data = params.map(param => deckIdRegex.test(param) ? fetchDeckId(param.match(deckIdRegex)[0]) : fetchDeckNameMV(param));
     Promise.all(data).then(data => resolve(data)).catch(() => reject());
 });
-const fetchDeckId = async (id) => new Promise((resolve, reject) => {
-    db.collection('decks').doc(id).get().then(async doc => {
-        if (doc.exists) {
-            let deck = doc.data();
-            deck.houses = get(deck, '_links.houses');
-            if (deck.cards.every(x => typeof x === 'string' || x instanceof String)) {
-                deck = await buildCardList(deck);
-                resolve(deck);
-                return;
-            }
+
+const fetchDeckId = async (id) => {
+    const doc = await db.collection('decks').doc(id).get();
+    if (doc.exists) {
+        const deck = doc.data();
+        deck.houses = get(deck, '_links.houses');
+        if (deck.cards.every(x => typeof x === 'string' || x instanceof String)) {
+            const { cards, enhancements } = await buildCardList(deck);
+            return { ...deck, cards, enhancements };
         }
-        console.info(`${id} is not in DB, fetching from the man`);
-        fetchDeckIdMV(id).then(deck => resolve(deck)).catch(() => reject());
+    }
+    console.info(`${id} is not in DB, fetching from the man`);
+    return await fetchDeckIdMV(id);
+};
 
-    }).catch(() => reject());
-});
-const fetchDeckIdMV = (id) => new Promise((resolve, reject) => {
-    axios.get(encodeURI(deckSearchAPI + id)).then(async response => {
-        let deck = get(response, 'data.data', false);
-        if (deck) {
-            db.collection('decks').doc(deck.id).set(deck).catch(console.error);
-            deck.houses = get(deck, '_links.houses');
-            deck = await buildCardList(deck);
-            resolve(deck);
-        } else reject();
-    }).catch(() => reject());
-});
-const fetchDeckNameMV = (name) => new Promise((resolve, reject) => {
-    axios.get(encodeURI(deckSearchAPI + '?search=' + name.split(' ').join('+'))).then(async response => {
+const fetchDeckIdMV = async (id) => {
+    const response = await axios.get(encodeURI('http://www.keyforgegame.com/api/decks/' + id));
+    let deck = get(response, 'data.data', false);
+    if (deck) {
+        await db.collection('decks').doc(deck.id).set(deck);
+        deck.houses = get(deck, '_links.houses');
+        deck = await buildCardList(deck);
+    }
 
-        let batch = db.batch();
-        response.data.data.forEach(x => batch.set(db.collection('decks').doc(x.id), x));
-        batch.commit().catch(console.error);
+    return deck;
+};
 
-        const index = findIndex(response.data.data, x => x.name.toLowerCase() === name);
-        let deck = Object.assign({}, get(response, `data.data[${Math.max(index, 0)}]`, false));
-        if (deck) {
-            deck.houses = get(deck, '_links.houses');
-            deck = await buildCardList(deck);
-            resolve(deck);
-        } else reject();
+const fetchDeckNameMV = async (name) => {
+    const response = await axios.get(encodeURI(deckSearchAPI + '?search=' + name.split(' ').join('+')));
 
-    }).catch(() => reject());
-});
+    let batch = db.batch();
+    response.data.data.forEach(x => batch.set(db.collection('decks').doc(x.id), x));
+    batch.commit().catch(console.error);
+
+    const index = findIndex(response.data.data, x => x.name.toLowerCase() === name);
+    let deck = Object.assign({}, get(response, `data.data[${Math.max(index, 0)}]`, false));
+    if (deck) {
+        deck.houses = get(deck, '_links.houses');
+        deck = await buildCardList(deck);
+        return (deck);
+    }
+};
 
 const buildEnhancements = (cards) => {
     let enhancements = {};
@@ -134,113 +125,78 @@ const buildEnhancements = (cards) => {
 
     return { cards, enhancements };
 };
-const buildCardList = (deck) => new Promise(resolve => {
-    const cardRefs = deck.cards.map(card => db.collection('AllCards').doc(card));
-    return db.runTransaction(transaction => {
 
-        return transaction.getAll(...cardRefs).then(docs => {
-            let fullCards = [];
-            for (let x = 0; x < docs.length; x++) {
-                if (docs[x].exists) {
-                    let card = docs[x].data();
-                    card.is_legacy = deck.set_era_cards.Legacy.includes(card.id);
-                    fullCards.push(card);
-                } else {
-                    if (deck.id) {
-                        fetchUnknownCard(deck.cards[x], deck.id).then(unknownCard => {
-                            unknownCard.is_legacy = deck.set_era_cards.Legacy.includes(unknownCard.id);
-                            fullCards.push(unknownCard);
-                        });
-                    }
-                }
-            }
-            const { cards, enhancements } = buildEnhancements(fullCards);
-            deck.cards = sortBy(cards, ['house', 'card_number']);
-            deck.enhancements = enhancements;
-            resolve(deck);
-        });
-    });
-});
-const fetchUnknownCard = (cardId, deckId) => new Promise(resolve => {
-    console.info(`${cardId} not found, fetching from the man`);
-    axios.get(`http://www.keyforgegame.com/api/decks/${deckId}/?links=cards`).then(fetchedCards => {
-        const card = fetchedCards.data._linked.cards.find(o => o.id === cardId);
-        resolve(card);
-        db.collection('AllCards').doc(card.id).set(card).then(() => {
-            console.info(`${card.id} has been added to firestore`);
-            sendText(`${card.card_title} in House ${card.house} had been found! https://www.keyforgegame.com/deck-details/${deckId}/`);
-        });
-    });
-});
-const fetchMavCard = (name, house) => new Promise((resolve, reject) => {
-    db.collection('AllCards')
+const buildCardList = async (deck) => {
+    const cardRefs = deck.cards.map(card => db.collection('AllCards').doc(card));
+    let fullCards = [];
+    const docs = await db.runTransaction(transaction => transaction.getAll(...cardRefs));
+    for (const doc of docs) {
+        if (doc.exists) {
+            let card = doc.data();
+            card.is_legacy = deck.set_era_cards.Legacy.includes(card.id);
+            card.is_non_deck = !!card.is_non_deck;
+            fullCards.push(card);
+        }
+    }
+
+    let { cards, enhancements } = buildEnhancements(fullCards);
+    cards = sortBy(cards, ['house', 'card_number']);
+    cards = sortBy(cards, 'is_non_deck');
+    return { ...deck, cards, enhancements };
+};
+
+
+const fetchMavCard = async (name, house) => {
+    const snapshot = await db.collection('AllCards')
         .limit(1)
         .where('card_title', '==', name)
         .where('house', '==', house)
-        .get()
-        .then(snapshot => {
-            if (snapshot.size > 0) snapshot.forEach(doc => resolve(doc.data()));
-            else reject();
-        })
-        .catch(() => reject());
-});
-const fetchDeckWithCard = (cardId, flags) => new Promise((resolve, reject) => {
+        .get();
+
+    if (snapshot.size > 0) return snapshot.docs[0].data();
+};
+
+const fetchDeckWithCard = async (cardId, flags) => {
     const expansion = getFlagSet(flags);
     let decksRef = db.collection('decks').limit(10)
         .where('cards', 'array-contains', cardId);
 
     if (expansion) decksRef = decksRef.where('expansion', '==', expansion);
 
-    decksRef.get()
-        .then(async snapshot => {
-            if (snapshot.size > 0) {
-                let deck = [];
-                snapshot.forEach(doc => deck.push(doc.data()));
-                deck = shuffle(deck)[0];
-                deck.houses = get(deck, '_links.houses');
-                if (deck.cards.every(x => typeof x === 'string' || x instanceof String)) {
-                    deck = await buildCardList(deck);
-                    resolve(deck);
-                }
-            } else reject();
-        }).catch(() => reject());
-});
-const fetchRandomDecks = ({ expansion, houses = [] }) => new Promise((resolve, reject) => {
+    const snapshot = await decksRef.get();
+    if (snapshot.size > 0) {
+        let deck = sample(snapshot.docs).data();
+        deck.houses = get(deck, '_links.houses');
+        return await buildCardList(deck);
+    }
+};
+
+const fetchRandomDecks = async ({ expansion, houses = [] }) => {
     const key = uuid();
     let decksRef = db.collection('decks').limit(1);
     if (expansion) decksRef = decksRef.where('expansion', '==', expansion);
     if (houses.length > 0) {
         if (houses.length === 3) decksRef = decksRef.where('_links.houses', '==', houses);
-        else decksRef = decksRef.where('_links.houses', 'array-contains-any', houses);
+        else decksRef = decksRef.where('_links.houses', 'array-contains', sample(houses));
     }
-    decksRef.where('id', '>=', key).get().then(snapshot => {
-        if (snapshot.size > 0) snapshot.forEach(doc => resolve(doc.data()));
-        else {
-            decksRef.where('id', '<', key).get().then(snapshot => {
-                if (snapshot.size > 0) snapshot.forEach(doc => resolve(doc.data()));
-                else resolve(false);
-            }).catch(err => {
-                console.error(err);
-                reject();
-            });
-        }
-    }).catch(err => {
-        console.error(err);
-        reject();
-    });
-});
+    let snapshot = await decksRef.where('id', '>=', key).get();
+    if (snapshot.size === 0) {
+        snapshot = await decksRef.where('id', '<', key).get();
+    }
+    const deck = snapshot.docs[0].data();
+    deck.houses = get(deck, '_links.houses');
+    const { cards, enhancements } = await buildCardList(deck);
+    return { ...deck, cards, enhancements };
+};
 
-const fetchDoK = (deckID) => {
-    return new Promise(resolve => {
-        axios.get(`${dokAPI}${deckID}`, dokKey).then(response => {
-            if (response.data) {
-                const { sasRating = false, sasPercentile = false } = response.data.deck;
-                if (sasRating && sasPercentile) {
-                    resolve({ sas: `${round(sasRating, 2)} SAS`, sasStar: sasStarRating(sasPercentile) });
-                } else resolve(false);
-            } else resolve(false);
-        }).catch(() => resolve(false));
-    });
+const fetchDoK = async (deckID) => {
+    const response = await axios.get(`${dokAPI}${deckID}`, dokKey);
+    if (response.data) {
+        const { sasRating = false, sasPercentile = false } = response.data.deck;
+        if (sasRating && sasPercentile) {
+            return ({ sas: `${round(sasRating, 2)} SAS`, sasStar: sasStarRating(sasPercentile) });
+        }
+    }
 };
 
 const sasStarRating = (x) => {
@@ -275,7 +231,7 @@ const sasStarRating = (x) => {
 const fetchCard = (search, flags = []) => {
     const set = getFlagSet(flags);
     const lang = getFlagLang(flags);
-    const house = getFlagHouse(flags);
+    const house = getFlagHouses(flags).shift();
     const options = {
         shouldSort: true,
         tokenize: true,
@@ -293,7 +249,7 @@ const fetchCard = (search, flags = []) => {
     };
     let cards = (set ? require(`../card_data/${lang}/${set}`) : require(`../card_data/`)[lang]);
 
-    if (house.length > 0) {
+    if (house) {
         cards = cards.filter(x => x.house === house);
     }
 
@@ -301,9 +257,8 @@ const fetchCard = (search, flags = []) => {
         search = search.replace('evil twin', '').trim();
         flags = flags.concat('et');
     }
-
     const fuse = new Fuse(cards, options);
-    let results = fuse.search(search);
+    let results = fuse.search(search)
     if (0 >= results.length) return;
     results = results.filter(result => result.score === results[0].score);
     results = results.map(result => {
@@ -360,29 +315,24 @@ const fetchText = (search, flags, type = 'card_text') => {
     return sortBy(cards, ['card_title']);
 };
 
-const fetchFAQ = (card) => {
-    return new Promise(resolve => {
-        aaConfigFaq.params.where = `((RulesPages IS NULL AND RulesText like '%${card.card_title}%') OR (RulesPages IS NOT NULL AND RulesPages LIKE '%•${card.card_title}•%')) AND (RulesType='FFGRuling' OR RulesType='FAQ' OR RulesType='Commentary' OR RulesType='OutstandingIssues')`;
-        axios.get(aaAPI, aaConfigFaq).then(response => {
-            if (response.data) {
-                resolve(response.data.cargoquery);
-            } else resolve(null);
-        });
-    });
+const fetchFAQ = async (card) => {
+    aaConfigFaq.params.where = `((RulesPages IS NULL AND RulesText like '%${card.card_title}%') OR (RulesPages IS NOT NULL AND RulesPages LIKE '%•${card.card_title}•%')) AND (RulesType='FFGRuling' OR RulesType='FAQ' OR RulesType='Commentary' OR RulesType='OutstandingIssues')`;
+    const response = await axios.get(aaAPI, aaConfigFaq);
+    if (response.data) {
+        return response.data.cargoquery;
+    }
 };
 
-const fetchSpoiler = (search) => {
-    return new Promise(resolve => {
-        aaConfigSpoiler.params.where = `(Name LIKE '%${search}%')`;
-        axios.get(aaAPI, aaConfigSpoiler).then(response => {
-            if (response.data) {
-                resolve(response.data.cargoquery);
-            } else resolve(null);
-        });
-    });
+const fetchSpoiler = async (search) => {
+    aaConfigSpoiler.params.where = `(Name LIKE '%${search}%')`;
+    const response = await axios.get(aaAPI, aaConfigSpoiler);
+    if (response.data) {
+        return response.data.cargoquery;
+    }
 };
 
 const fetchTiming = (text) => {
+    console.log(text)
     const options = {
         shouldSort: true,
         tokenize: true,
@@ -391,7 +341,7 @@ const fetchTiming = (text) => {
         threshold: 0.3,
         keys: [
             { name: 'phase', weight: 0.9 },
-            { name: 'steps', weight: 0.4 }
+            { name: 'steps', weight: 0.1 }
         ]
     };
     const fuse = new Fuse(timing, options);
@@ -408,31 +358,6 @@ const fetchTiming = (text) => {
     return results.map(item => item.item)[0];
 };
 
-const fetchServerLanguage = (message, client) => new Promise((resolve, reject) => {
-    db.collection('Bots')
-        .doc(`${client.user.username}_Discord`)
-        .collection(message.channel.id)
-        .doc('language')
-        .get()
-        .then(doc => {
-            if (doc.exists) {
-                resolve(doc.data().language);
-            } else resolve('en');
-        })
-        .catch(err => reject(err));
-});
-
-const setServerLanguage = (message, client, flags) => new Promise((resolve, reject) => {
-    const language = getFlagLang(flags);
-    db.collection('Bots')
-        .doc(`${client.user.username}_Discord`)
-        .collection(message.channel.id)
-        .doc('language')
-        .set({ language })
-        .then(() => resolve())
-        .catch(err => reject(err));
-});
-
 const getCardLink = (card) => {
     const AllCards = require(`../card_data/en/${card.expansion}`);
     card = AllCards.find(x => x.card_number === card.card_number);
@@ -448,8 +373,7 @@ const getCardLinkDoK = (card) => {
 const getFlagCardType = (flags = []) => get(filter(cardTypes, cardType => flags.includes(cardType.toLowerCase())), '[0]');
 const getFlagSet = (flags = []) => get(filter(sets, set => flags.includes(set.flag.toLowerCase())), '[0].set_number');
 const getSet = (number = []) => get(sets.filter(set => number === set.set_number), '[0].flag', 'ERROR');
-const getFlagHouse = (flags = []) => get(flags.filter(x => Object.keys(houses).includes(x)).map(x => houses[x])
-    .sort(), '[0]', []);
+const getFlagHouses = (flags = []) => flags.filter(x => Object.keys(houses).includes(x)).map(x => houses[x]).sort();
 const getFlagLang = (flags = []) => get(filter(flags, flag => langs.includes(flag)), '[0]', 'en');
 const getFlagNumber = (
     flags = [], defaultNumber = 0) => +(get(filter(flags, flag => Number.isInteger(+flag)), '[0]', defaultNumber));
@@ -467,19 +391,16 @@ module.exports = {
     fetchMavCard,
     fetchRandomDecks,
     fetchReprints,
-    fetchServerLanguage,
     fetchSpoiler,
     fetchText,
     fetchTiming,
-    fetchUnknownCard,
     format,
     getCardLink,
     getCardLinkDoK,
-    getFlagHouse,
+    getFlagHouses,
     getFlagLang,
     getFlagNumber,
     getFlagSet,
     getSet,
     loadImage,
-    setServerLanguage
 };

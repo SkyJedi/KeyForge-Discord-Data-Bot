@@ -1,6 +1,6 @@
 const fs = require('fs');
-const findEmoji = require('./emoji').findEmoji;
-const adminID = require('../config').adminID;
+const { findEmoji } = require('./emoji');
+const { adminID } = require('../config');
 
 const emojiList = [
     'action',
@@ -34,17 +34,15 @@ const emojiList = [
     'keyraken'
 ];
 
-const build = ({ message, client }) => {
+const build = async ({ message, client }) => {
     if (message.author.id !== adminID) return;
     const data = {};
-    const process = emojiList.map(async type => {
+    for (const type of emojiList) {
         data[type] = await findEmoji(type, client);
-    });
-    Promise.all(process).then(() => {
-        fs.writeFile(`./card_data/emoji.json`, JSON.stringify(data), () => {
-            console.info('The file has been saved!');
-            message.reply('EmojiDB has been built');
-        });
+    }
+    fs.writeFile(`./card_data/emoji.json`, JSON.stringify(data), () => {
+        console.info('The file has been saved!');
+        message.reply('EmojiDB has been built');
     });
 };
 

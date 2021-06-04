@@ -4,16 +4,18 @@ const { sum } = require('lodash');
 
 const stats = async ({ message, client }) => {
     let stats = `Currently there are ${client.shard.count} shards.\n`;
-    await client.shard.broadcastEval('this.guilds.cache.size')
-        .then(results => stats += `Currently on ${results.reduce((prev, val) => prev + val, 0)} servers.\n`)
-        .catch(console.error);
-    await client.shard.broadcastEval(`(${buildMemberList}).call(this)`)
-        .then(list => stats += `Currently assisting ${sum(list)} users.`).catch(console.error);
+    const results = await client.shard.broadcastEval('this.guilds.cache.size')
+    stats += `Currently on ${results.reduce((prev, val) => prev + val, 0)} servers.\n`
+
+    const list = await client.shard.broadcastEval(`(${buildMemberList}).call(this)`)
+
+    stats += `Currently assisting ${sum(list)} users.`;
+
     const embed = new Discord.MessageEmbed()
         .setTitle(`${client.user.username} Stats`)
         .setColor('FFFF00')
         .setDescription(stats);
-    main.sendMessage({ message, embed });
+    await main.sendMessage({ message, embed });
 };
 
 const buildMemberList = () => {

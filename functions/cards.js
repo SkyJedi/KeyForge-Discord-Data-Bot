@@ -22,15 +22,16 @@ const cards = async ({ message, params, flags }) => {
             .join(' • ')}`;
         return title + '\n\t' + value + ` • [AA](${getCardLink(card)}) • [DoK](${getCardLinkDoK(card)})${errata ? '\n\t **Errata:** ' + errata.card_text : ''}`;
     }).join('\n');
+    
     embed.setDescription(text)
         .setColor('3498DB')
         .attachFiles(attachment)
         .setImage(`attachment://${name}`)
         .setFooter(`Posted by: ${message.member ? (message.member.nickname ? message.member.nickname : message.author.username) : 'you'}`);
     if (['i', 'image'].some(x => flags.includes(x))) {
-        main.sendMessage({ message, attachment });
+        await main.sendMessage({ message, attachment });
     } else {
-        main.sendMessage({ message, embed });
+        await main.sendMessage({ message, embed });
     }
 };
 

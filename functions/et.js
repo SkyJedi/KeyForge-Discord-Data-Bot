@@ -13,19 +13,18 @@ const et = async ({ message, params }) => {
         .where('_links.houses', '==', deck._links.houses)
         .orderBy('id').limit(10000);
     for (const card of deck.cards) {
-        if (card.card_type !== 'Creature') {
+        if (card.card_type !== 'Creature' && !card.is_enhanced) {
             decksRef = decksRef.where('cards', 'array-contains', card.id);
             break;
         }
     }
 
     decksRef.get().then(snapshot => {
-        let data = [], text = 'No Twin', winner;
+        let data = [], text = 'No Twin', winner=[];
         if (snapshot.size > 0) {
             snapshot.forEach(doc => data.push(doc.data()));
-            const nonCreatureCards = deck.cards.filter(x => x.card_type !== 'Creature');
             for (const [_, query] of data.entries()) {
-                if (query.name !== deck.name && nonCreatureCards.every(x => query.cards.includes(x.id))) {
+                if (query.name !== deck.name && deck.cards.every(x => query.cards.some(y => y.card_title === x.card_title))) {
                     text = `Twin Found!\n`;
                     winner = [query.id];
                     break;

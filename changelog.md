@@ -1,3 +1,6 @@
+# 1.7.3
+    fixed a bunch of fabric stuff
+    removed most promise stuff
 # 1.7.2
     fixed a ton of things
     streamlined sending messages

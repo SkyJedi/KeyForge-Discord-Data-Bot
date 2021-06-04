@@ -27,7 +27,7 @@ const timingChart = async ({ message, params }) => {
             .addField('5) DRAW CARDS', '1. Draw cards until you have six or more in your hand (adjusting for chains or card effects).')
             .addField('End of Turn', '*» “END OF TURN” EFFECTS TRIGGER.*');
     }
-    main.sendMessage({ message, embed });
+    await main.sendMessage({ message, embed });
 };
 
 module.exports = timingChart;
